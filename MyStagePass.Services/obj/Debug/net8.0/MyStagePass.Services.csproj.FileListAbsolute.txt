@@ -1,0 +1,17 @@
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\bin\Debug\net8.0\MyStagePass.Services.deps.json
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\bin\Debug\net8.0\MyStagePass.Services.dll
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\bin\Debug\net8.0\MyStagePass.Services.pdb
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.AssemblyInfoInputs.cache
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.AssemblyInfo.cs
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.csproj.CoreCompileInputs.cache
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.dll
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\refint\MyStagePass.Services.dll
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.pdb
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\ref\MyStagePass.Services.dll
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\bin\Debug\net8.0\MyStagePass.Model.dll
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\bin\Debug\net8.0\MyStagePass.Model.pdb
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.csproj.AssemblyReference.cache
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStageP.81847087.Up2Date
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\bin\Debug\net8.0\MyStagePass.Services.runtimeconfig.json
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Services\obj\Debug\net8.0\MyStagePass.Services.genruntimeconfig.cache

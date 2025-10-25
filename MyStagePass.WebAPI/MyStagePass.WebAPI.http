@@ -1,0 +1,6 @@
+@MyStagePass.WebAPI_HostAddress = http://localhost:5080
+
+GET {{MyStagePass.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

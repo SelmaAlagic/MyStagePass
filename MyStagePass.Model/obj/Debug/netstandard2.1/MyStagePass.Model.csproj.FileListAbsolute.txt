@@ -1,0 +1,10 @@
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\bin\Debug\netstandard2.1\MyStagePass.Model.deps.json
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\bin\Debug\netstandard2.1\MyStagePass.Model.dll
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\bin\Debug\netstandard2.1\MyStagePass.Model.pdb
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\obj\Debug\netstandard2.1\MyStagePass.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\obj\Debug\netstandard2.1\MyStagePass.Model.AssemblyInfoInputs.cache
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\obj\Debug\netstandard2.1\MyStagePass.Model.AssemblyInfo.cs
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\obj\Debug\netstandard2.1\MyStagePass.Model.csproj.CoreCompileInputs.cache
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\obj\Debug\netstandard2.1\MyStagePass.Model.dll
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\obj\Debug\netstandard2.1\MyStagePass.Model.pdb
+C:\Users\senad\source\repos\MyStagePass\MyStagePass.Model\obj\Debug\netstandard2.1\MyStagePass.Model.csproj.AssemblyReference.cache

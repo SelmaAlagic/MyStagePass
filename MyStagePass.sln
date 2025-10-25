@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStagePass.WebAPI", "MyStagePass.WebAPI\MyStagePass.WebAPI.csproj", "{1C06C48A-367D-4333-A4AD-1D6C5CD43F6C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C} = {3474B1A8-6779-4C0D-AE26-D77A18EFF50C}
+		{EF0A2E53-3E84-4FB1-8FE2-5235968458AA} = {EF0A2E53-3E84-4FB1-8FE2-5235968458AA}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStagePass.Services", "MyStagePass.Services\MyStagePass.Services.csproj", "{EF0A2E53-3E84-4FB1-8FE2-5235968458AA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C} = {3474B1A8-6779-4C0D-AE26-D77A18EFF50C}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStagePass.Model", "MyStagePass.Model\MyStagePass.Model.csproj", "{3474B1A8-6779-4C0D-AE26-D77A18EFF50C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C06C48A-367D-4333-A4AD-1D6C5CD43F6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C06C48A-367D-4333-A4AD-1D6C5CD43F6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C06C48A-367D-4333-A4AD-1D6C5CD43F6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C06C48A-367D-4333-A4AD-1D6C5CD43F6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF0A2E53-3E84-4FB1-8FE2-5235968458AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF0A2E53-3E84-4FB1-8FE2-5235968458AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF0A2E53-3E84-4FB1-8FE2-5235968458AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF0A2E53-3E84-4FB1-8FE2-5235968458AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8992FB37-5F8D-4B1A-8258-CB52B6686585}
+	EndGlobalSection
+EndGlobal
