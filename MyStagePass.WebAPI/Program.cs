@@ -1,7 +1,7 @@
-using MyStagePass.Services;
-using MyStagePass.WebAPI.Controllers;
 using MyStagePass.Services.Database;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Services.Services;
+using MyStagePass.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +13,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<IUserService, DummyUserService>();
+//builder.Services.AddTransient<IUserService, DummyUserService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<ICustomerService, CustomerService>();
+
+builder.Services.AddAutoMapper(cfg =>
+{
+	cfg.AddProfile<MappingProfile>();
+});
 
 var app = builder.Build();
 

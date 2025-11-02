@@ -1,0 +1,771 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace MyStagePass.Services.Migrations
+{
+    /// <inheritdoc />
+    public partial class initialEntities : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "Countries",
+                columns: table => new
+                {
+                    CountryID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Countries", x => x.CountryID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Genres",
+                columns: table => new
+                {
+                    GenreID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Genres", x => x.GenreID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Statuses",
+                columns: table => new
+                {
+                    StatusID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StatusName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Statuses", x => x.StatusID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketTypes",
+                columns: table => new
+                {
+                    TicketTypeID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TicketTypeName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketTypes", x => x.TicketTypeID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Username = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Salt = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Image = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    AdminID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cities",
+                columns: table => new
+                {
+                    CityID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CountryID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cities", x => x.CityID);
+                    table.ForeignKey(
+                        name: "FK_Cities_Countries_CountryID",
+                        column: x => x.CountryID,
+                        principalTable: "Countries",
+                        principalColumn: "CountryID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Admin",
+                columns: table => new
+                {
+                    AdminID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Admin", x => x.AdminID);
+                    table.ForeignKey(
+                        name: "FK_Admin_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    CustomerID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.CustomerID);
+                    table.ForeignKey(
+                        name: "FK_Customers_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    NotificationID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    isRead = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.NotificationID);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Performers",
+                columns: table => new
+                {
+                    PerformerID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ArtistName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Performers", x => x.PerformerID);
+                    table.ForeignKey(
+                        name: "FK_Performers_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Locations",
+                columns: table => new
+                {
+                    LocationID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    LocationName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CityID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Locations", x => x.LocationID);
+                    table.ForeignKey(
+                        name: "FK_Locations_Cities_CityID",
+                        column: x => x.CityID,
+                        principalTable: "Cities",
+                        principalColumn: "CityID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Purchases",
+                columns: table => new
+                {
+                    PurchaseID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PurchaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CustomerID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Purchases", x => x.PurchaseID);
+                    table.ForeignKey(
+                        name: "FK_Purchases_Customers_CustomerID",
+                        column: x => x.CustomerID,
+                        principalTable: "Customers",
+                        principalColumn: "CustomerID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PerformerGenre",
+                columns: table => new
+                {
+                    PerformerGenreID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PerformerID = table.Column<int>(type: "int", nullable: false),
+                    GenreID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PerformerGenre", x => x.PerformerGenreID);
+                    table.ForeignKey(
+                        name: "FK_PerformerGenre_Genres_GenreID",
+                        column: x => x.GenreID,
+                        principalTable: "Genres",
+                        principalColumn: "GenreID");
+                    table.ForeignKey(
+                        name: "FK_PerformerGenre_Performers_PerformerID",
+                        column: x => x.PerformerID,
+                        principalTable: "Performers",
+                        principalColumn: "PerformerID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Events",
+                columns: table => new
+                {
+                    EventID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TicketsSold = table.Column<int>(type: "int", nullable: false),
+                    TicketsAvailable = table.Column<int>(type: "int", nullable: false),
+                    PerformerID = table.Column<int>(type: "int", nullable: false),
+                    EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LocationID = table.Column<int>(type: "int", nullable: false),
+                    StatusID = table.Column<int>(type: "int", nullable: false),
+                    TotalScore = table.Column<int>(type: "int", nullable: false),
+                    RatingCount = table.Column<int>(type: "int", nullable: false),
+                    RatingAverage = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Events", x => x.EventID);
+                    table.ForeignKey(
+                        name: "FK_Events_Locations_LocationID",
+                        column: x => x.LocationID,
+                        principalTable: "Locations",
+                        principalColumn: "LocationID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Events_Performers_PerformerID",
+                        column: x => x.PerformerID,
+                        principalTable: "Performers",
+                        principalColumn: "PerformerID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Events_Statuses_StatusID",
+                        column: x => x.StatusID,
+                        principalTable: "Statuses",
+                        principalColumn: "StatusID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerFavoriteEvent",
+                columns: table => new
+                {
+                    CustomerFavoriteEventID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerID = table.Column<int>(type: "int", nullable: false),
+                    EventID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerFavoriteEvent", x => x.CustomerFavoriteEventID);
+                    table.ForeignKey(
+                        name: "FK_CustomerFavoriteEvent_Customers_CustomerID",
+                        column: x => x.CustomerID,
+                        principalTable: "Customers",
+                        principalColumn: "CustomerID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomerFavoriteEvent_Events_EventID",
+                        column: x => x.EventID,
+                        principalTable: "Events",
+                        principalColumn: "EventID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Review",
+                columns: table => new
+                {
+                    ReviewID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerID = table.Column<int>(type: "int", nullable: false),
+                    EventID = table.Column<int>(type: "int", nullable: false),
+                    RatingValue = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Review", x => x.ReviewID);
+                    table.ForeignKey(
+                        name: "FK_Review_Customers_CustomerID",
+                        column: x => x.CustomerID,
+                        principalTable: "Customers",
+                        principalColumn: "CustomerID");
+                    table.ForeignKey(
+                        name: "FK_Review_Events_EventID",
+                        column: x => x.EventID,
+                        principalTable: "Events",
+                        principalColumn: "EventID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    TicketID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    EventID = table.Column<int>(type: "int", nullable: false),
+                    TicketTypeID = table.Column<int>(type: "int", nullable: false),
+                    PurchaseID = table.Column<int>(type: "int", nullable: false),
+                    QRCodeData = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.TicketID);
+                    table.ForeignKey(
+                        name: "FK_Tickets_Events_EventID",
+                        column: x => x.EventID,
+                        principalTable: "Events",
+                        principalColumn: "EventID");
+                    table.ForeignKey(
+                        name: "FK_Tickets_Purchases_PurchaseID",
+                        column: x => x.PurchaseID,
+                        principalTable: "Purchases",
+                        principalColumn: "PurchaseID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Tickets_TicketTypes_TicketTypeID",
+                        column: x => x.TicketTypeID,
+                        principalTable: "TicketTypes",
+                        principalColumn: "TicketTypeID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Countries",
+                columns: new[] { "CountryID", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Bosnia and Herzegovina" },
+                    { 2, "Croatia" },
+                    { 3, "North Macedonia" },
+                    { 4, "Montenegro" },
+                    { 5, "Serbia" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Genres",
+                columns: new[] { "GenreID", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Rock" },
+                    { 2, "Pop" },
+                    { 3, "Jazz" },
+                    { 4, "Classical" },
+                    { 5, "Electronic" },
+                    { 6, "Hip-Hop" },
+                    { 7, "Metal" },
+                    { 8, "Folk" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Statuses",
+                columns: new[] { "StatusID", "StatusName" },
+                values: new object[,]
+                {
+                    { 1, "Upcoming" },
+                    { 2, "Ended" },
+                    { 3, "Pending" },
+                    { 4, "Approved" },
+                    { 5, "Rejected" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TicketTypes",
+                columns: new[] { "TicketTypeID", "TicketTypeName" },
+                values: new object[,]
+                {
+                    { 1, "Regular" },
+                    { 2, "VIP" },
+                    { 3, "Premium" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "UserID", "AdminID", "Email", "FirstName", "Image", "IsActive", "LastName", "Password", "PhoneNumber", "Salt", "Username" },
+                values: new object[,]
+                {
+                    { 1, 0, "admin@example.com", "Admin", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "User", "hashed_password", "000000000", "salt", "admin" },
+                    { 2, 0, "dzejla@example.com", "Dzejla", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Ramovic", "hashed_password", "111222333", "salt", "dzejla" },
+                    { 3, 0, "ilma@example.com", "Ilma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Karahmet", "hashed_password", "222333444", "salt", "ilma" },
+                    { 4, 0, "jelena@example.com", "Jelena", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Rozga", "hashed_password", "333444555", "salt", "jelena" },
+                    { 5, 0, "toni@example.com", "Toni", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Cetinski", "hashed_password", "444555666", "salt", "toni" },
+                    { 6, 0, "zeljko@example.com", "Zeljko", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Samardzic", "hashed_password", "555666777", "salt", "zeljko" },
+                    { 7, 0, "selma@example.com", "Selma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Alagic", "hashed_password", "666777888", "salt", "selmica" },
+                    { 8, 0, "eda@example.com", "Eda", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Erdem", "hashed_password", "777888999", "salt", "eda" },
+                    { 9, 0, "tesa@example.com", "Tesa", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Zahirovic", "hashed_password", "888999000", "salt", "tess" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Admin",
+                columns: new[] { "AdminID", "UserID" },
+                values: new object[] { 1, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Cities",
+                columns: new[] { "CityID", "CountryID", "Name" },
+                values: new object[,]
+                {
+                    { 1, 1, "Sarajevo" },
+                    { 2, 1, "Banja Luka" },
+                    { 3, 1, "Tuzla" },
+                    { 4, 1, "Zenica" },
+                    { 5, 1, "Mostar" },
+                    { 6, 1, "Bihać" },
+                    { 7, 2, "Zagreb" },
+                    { 8, 2, "Split" },
+                    { 9, 3, "Skoplje" },
+                    { 10, 4, "Podgorica" },
+                    { 11, 4, "Budva" },
+                    { 12, 4, "Ulcinj" },
+                    { 13, 5, "Beograd" },
+                    { 14, 5, "Novi Sad" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Customers",
+                columns: new[] { "CustomerID", "UserID" },
+                values: new object[,]
+                {
+                    { 1, 2 },
+                    { 2, 3 },
+                    { 3, 4 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Notifications",
+                columns: new[] { "NotificationID", "CreatedAt", "Message", "UserID", "isRead" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 10, 29, 10, 0, 0, 0, DateTimeKind.Unspecified), "New performer request waiting for verification!", 1, true },
+                    { 2, new DateTime(2025, 10, 29, 10, 30, 0, 0, DateTimeKind.Unspecified), "You have some events waiting for approval!", 1, true },
+                    { 3, new DateTime(2025, 11, 28, 12, 0, 0, 0, DateTimeKind.Unspecified), "Ilma Karahmet added a new event!", 7, false },
+                    { 4, new DateTime(2025, 10, 28, 10, 0, 0, 0, DateTimeKind.Unspecified), "Toni Cetinski added a new event!", 9, true },
+                    { 5, new DateTime(2025, 12, 31, 14, 0, 0, 0, DateTimeKind.Unspecified), "Your event has been approved!", 4, false },
+                    { 6, new DateTime(2025, 1, 22, 16, 0, 0, 0, DateTimeKind.Unspecified), "Your event has been rejected!", 5, false },
+                    { 7, new DateTime(2025, 2, 9, 16, 0, 0, 0, DateTimeKind.Unspecified), "Your event has been rejected!", 3, false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Performers",
+                columns: new[] { "PerformerID", "ArtistName", "Bio", "IsApproved", "UserID" },
+                values: new object[,]
+                {
+                    { 1, "Dzejlica", "Pop singer from BiH", true, 2 },
+                    { 2, "Ilmica", "Rising pop artist", true, 3 },
+                    { 3, "Jelena R", "Famous Croatian pop singer", true, 4 },
+                    { 4, "Toni", "Popular Croatian pop singer", true, 5 },
+                    { 5, "Zeljko", "Serbian pop-folk singer", true, 6 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Locations",
+                columns: new[] { "LocationID", "Address", "Capacity", "CityID", "LocationName" },
+                values: new object[,]
+                {
+                    { 1, "Titova 1, Sarajevo", 15000, 1, "Arena Sarajevo" },
+                    { 2, "Skenderija 3, Sarajevo", 5000, 1, "Skenderija Hall" },
+                    { 3, "Zetra 10, Sarajevo", 12000, 1, "Zetra Olympic Hall" },
+                    { 4, "Trg Krajine 5, Banja Luka", 8000, 2, "Banja Luka Arena" },
+                    { 5, "Stadionska 1, Tuzla", 7000, 3, "Tuzla Stadium" },
+                    { 6, "Mostarska 15, Mostar", 4000, 4, "Mostar Music Hall" },
+                    { 7, "Dom Sportova 1, Split", 12000, 7, "Split Arena" },
+                    { 8, "Avenija Dubrovnik 15, Zagreb", 16000, 8, "Zagreb Arena" },
+                    { 9, "Trg Republike 2, Podgorica", 9000, 9, "Podgorica Sports Center" },
+                    { 10, "Ušće 5, Beograd", 18000, 10, "Belgrade Arena" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "PerformerGenre",
+                columns: new[] { "PerformerGenreID", "GenreID", "PerformerID" },
+                values: new object[,]
+                {
+                    { 1, 2, 1 },
+                    { 4, 2, 2 },
+                    { 5, 8, 2 },
+                    { 6, 2, 3 },
+                    { 7, 5, 3 },
+                    { 8, 2, 4 },
+                    { 9, 1, 4 },
+                    { 10, 8, 5 },
+                    { 13, 8, 1 },
+                    { 21, 3, 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Purchases",
+                columns: new[] { "PurchaseID", "CustomerID", "PurchaseDate" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2025, 10, 27, 12, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 2, new DateTime(2025, 10, 28, 15, 30, 0, 0, DateTimeKind.Unspecified) }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Events",
+                columns: new[] { "EventID", "Description", "EventDate", "EventName", "LocationID", "PerformerID", "RatingAverage", "RatingCount", "StatusID", "TicketsAvailable", "TicketsSold", "TotalScore" },
+                values: new object[,]
+                {
+                    { 1, null, new DateTime(2025, 11, 15, 18, 0, 0, 0, DateTimeKind.Unspecified), "Rock Concert", 1, 1, 0f, 0, 1, 200, 50, 0 },
+                    { 2, null, new DateTime(2025, 11, 15, 21, 0, 0, 0, DateTimeKind.Unspecified), "Jazz Night", 1, 2, 0f, 0, 1, 100, 30, 0 },
+                    { 3, "Outdoor pop music festival", new DateTime(2025, 12, 20, 18, 0, 0, 0, DateTimeKind.Unspecified), "Pop Festival", 3, 3, 0f, 0, 1, 1000, 300, 0 },
+                    { 4, "Symphony orchestra live performance", new DateTime(2026, 1, 10, 19, 0, 0, 0, DateTimeKind.Unspecified), "Classical Evening", 4, 4, 0f, 0, 1, 150, 50, 0 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CustomerFavoriteEvent",
+                columns: new[] { "CustomerFavoriteEventID", "CustomerID", "EventID" },
+                values: new object[,]
+                {
+                    { 1, 1, 1 },
+                    { 2, 1, 2 },
+                    { 3, 2, 1 },
+                    { 4, 2, 3 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Review",
+                columns: new[] { "ReviewID", "CreatedAt", "CustomerID", "EventID", "RatingValue" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1, 5 },
+                    { 2, new DateTime(2025, 10, 3, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 2, 4 },
+                    { 3, new DateTime(2025, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 1, 3 },
+                    { 4, new DateTime(2025, 10, 7, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 3, 5 },
+                    { 5, new DateTime(2025, 10, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, 2, 4 },
+                    { 6, new DateTime(2025, 10, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, 3, 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Tickets",
+                columns: new[] { "TicketID", "EventID", "Price", "PurchaseID", "QRCodeData", "TicketTypeID" },
+                values: new object[,]
+                {
+                    { 1, 1, 50f, 1, null, 1 },
+                    { 2, 2, 30f, 1, null, 2 },
+                    { 3, 3, 60f, 2, null, 1 },
+                    { 4, 1, 40f, 2, null, 3 }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Admin_UserID",
+                table: "Admin",
+                column: "UserID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cities_CountryID",
+                table: "Cities",
+                column: "CountryID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerFavoriteEvent_CustomerID",
+                table: "CustomerFavoriteEvent",
+                column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerFavoriteEvent_EventID_CustomerID",
+                table: "CustomerFavoriteEvent",
+                columns: new[] { "EventID", "CustomerID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_UserID",
+                table: "Customers",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_LocationID",
+                table: "Events",
+                column: "LocationID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_PerformerID",
+                table: "Events",
+                column: "PerformerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_StatusID",
+                table: "Events",
+                column: "StatusID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Locations_CityID",
+                table: "Locations",
+                column: "CityID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_UserID",
+                table: "Notifications",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PerformerGenre_GenreID",
+                table: "PerformerGenre",
+                column: "GenreID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PerformerGenre_PerformerID_GenreID",
+                table: "PerformerGenre",
+                columns: new[] { "PerformerID", "GenreID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Performers_UserID",
+                table: "Performers",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Purchases_CustomerID",
+                table: "Purchases",
+                column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Review_CustomerID",
+                table: "Review",
+                column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Review_EventID_CustomerID",
+                table: "Review",
+                columns: new[] { "EventID", "CustomerID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_EventID",
+                table: "Tickets",
+                column: "EventID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_PurchaseID",
+                table: "Tickets",
+                column: "PurchaseID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_TicketTypeID",
+                table: "Tickets",
+                column: "TicketTypeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true,
+                filter: "[Email] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true,
+                filter: "[Username] IS NOT NULL");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "Admin");
+
+            migrationBuilder.DropTable(
+                name: "CustomerFavoriteEvent");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
+                name: "PerformerGenre");
+
+            migrationBuilder.DropTable(
+                name: "Review");
+
+            migrationBuilder.DropTable(
+                name: "Tickets");
+
+            migrationBuilder.DropTable(
+                name: "Genres");
+
+            migrationBuilder.DropTable(
+                name: "Events");
+
+            migrationBuilder.DropTable(
+                name: "Purchases");
+
+            migrationBuilder.DropTable(
+                name: "TicketTypes");
+
+            migrationBuilder.DropTable(
+                name: "Locations");
+
+            migrationBuilder.DropTable(
+                name: "Performers");
+
+            migrationBuilder.DropTable(
+                name: "Statuses");
+
+            migrationBuilder.DropTable(
+                name: "Customers");
+
+            migrationBuilder.DropTable(
+                name: "Cities");
+
+            migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Countries");
+        }
+    }
+}

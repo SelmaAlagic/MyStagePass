@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyStagePass.Model;
+using MyStagePass.Services.Database;
 using MyStagePass.Model.SearchObjects;
-using MyStagePass.Services;
+using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.WebAPI.Controllers
 {
-	[Route("api/[controller]")]
+    [Route("api/[controller]")]
 	[ApiController]
 	public class UserController : ControllerBase
 	{
