@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyStagePass.Services.Database;
 
@@ -11,9 +12,11 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    partial class MyStagePassDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251104163625_fixedUserFileds")]
+    partial class fixedUserFileds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -864,7 +867,7 @@ namespace MyStagePass.Services.Migrations
                     b.HasIndex("EventID", "CustomerID")
                         .IsUnique();
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Review");
 
                     b.HasData(
                         new

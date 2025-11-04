@@ -15,8 +15,7 @@
 		public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 		public ICollection<Performer> Performers { get; set; } = new List<Performer>();
 		public ICollection<Customer> Customers { get; set; } = new List<Customer>();
-		public int AdminID {  get; set; }
-		public virtual Admin Admin { get; set; } = null!;
+		public virtual ICollection<Admin> Admins { get; set; } = new List<Admin>();
 
 	}
 }

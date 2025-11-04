@@ -9,7 +9,7 @@ namespace MyStagePass.Services.Database
 	{
 		public MyStagePassDbContext(DbContextOptions<MyStagePassDbContext> options) : base(options)	{}
 
-		public DbSet<Admin> Admin { get; set; }
+		public DbSet<Admin> Admins { get; set; }
 		public DbSet<City> Cities { get; set; }
 		public DbSet<Country> Countries { get; set; }
 		public DbSet<Customer> Customers { get; set; }
@@ -19,7 +19,7 @@ namespace MyStagePass.Services.Database
 		public DbSet<Notification> Notifications { get; set; }
 		public DbSet<Performer> Performers { get; set; }
 		public DbSet<Purchase> Purchases { get; set; }
-		//public DbSet<Review> Reviews { get; set; }
+		public DbSet<Review> Reviews { get; set; }
 		public DbSet<Status> Statuses { get; set; }
 		public DbSet<Ticket> Tickets { get; set; }
 		public DbSet<TicketType> TicketTypes { get; set; }
@@ -113,9 +113,9 @@ namespace MyStagePass.Services.Database
 
 			modelBuilder.Entity<User>(entity =>
 			{
-				entity.HasOne(u => u.Admin)
+				entity.HasMany(u => u.Admins)
 					.WithOne(a => a.User)
-					.HasForeignKey<Admin>(a => a.UserID)
+					.HasForeignKey(a => a.UserID)
 					.OnDelete(DeleteBehavior.Cascade);
 
 				entity.HasMany(u => u.Performers)
