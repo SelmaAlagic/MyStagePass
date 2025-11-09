@@ -4,7 +4,7 @@ using MyStagePass.Model.SearchObjects;
 
 namespace MyStagePass.Services.Interfaces
 {
-	public interface ICustomerService : ICRUDService<Customer, CustomerSearchObject, CustomerInsertRequest, CustomerUpdateRequest>
-	{ 
+	public interface IPerformerService : ICRUDService<Performer, PerformerSearchObject, PerformerInsetRequest, PerformerUpdateRequest>
+	{
 	}
 }

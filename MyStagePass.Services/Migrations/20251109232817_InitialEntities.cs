@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MyStagePass.Services.Migrations
 {
     /// <inheritdoc />
-    public partial class initialEntities : Migration
+    public partial class InitialEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -79,8 +79,7 @@ namespace MyStagePass.Services.Migrations
                     Salt = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Image = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    AdminID = table.Column<int>(type: "int", nullable: false)
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -108,7 +107,7 @@ namespace MyStagePass.Services.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Admin",
+                name: "Admins",
                 columns: table => new
                 {
                     AdminID = table.Column<int>(type: "int", nullable: false)
@@ -117,9 +116,9 @@ namespace MyStagePass.Services.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Admin", x => x.AdminID);
+                    table.PrimaryKey("PK_Admins", x => x.AdminID);
                     table.ForeignKey(
-                        name: "FK_Admin_Users_UserID",
+                        name: "FK_Admins_Users_UserID",
                         column: x => x.UserID,
                         principalTable: "Users",
                         principalColumn: "UserID",
@@ -323,7 +322,7 @@ namespace MyStagePass.Services.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Review",
+                name: "Reviews",
                 columns: table => new
                 {
                     ReviewID = table.Column<int>(type: "int", nullable: false)
@@ -335,14 +334,14 @@ namespace MyStagePass.Services.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Review", x => x.ReviewID);
+                    table.PrimaryKey("PK_Reviews", x => x.ReviewID);
                     table.ForeignKey(
-                        name: "FK_Review_Customers_CustomerID",
+                        name: "FK_Reviews_Customers_CustomerID",
                         column: x => x.CustomerID,
                         principalTable: "Customers",
                         principalColumn: "CustomerID");
                     table.ForeignKey(
-                        name: "FK_Review_Events_EventID",
+                        name: "FK_Reviews_Events_EventID",
                         column: x => x.EventID,
                         principalTable: "Events",
                         principalColumn: "EventID",
@@ -434,22 +433,22 @@ namespace MyStagePass.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserID", "AdminID", "Email", "FirstName", "Image", "IsActive", "LastName", "Password", "PhoneNumber", "Salt", "Username" },
+                columns: new[] { "UserID", "Email", "FirstName", "Image", "IsActive", "LastName", "Password", "PhoneNumber", "Salt", "Username" },
                 values: new object[,]
                 {
-                    { 1, 0, "admin@example.com", "Admin", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "User", "hashed_password", "000000000", "salt", "admin" },
-                    { 2, 0, "dzejla@example.com", "Dzejla", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Ramovic", "hashed_password", "111222333", "salt", "dzejla" },
-                    { 3, 0, "ilma@example.com", "Ilma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Karahmet", "hashed_password", "222333444", "salt", "ilma" },
-                    { 4, 0, "jelena@example.com", "Jelena", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Rozga", "hashed_password", "333444555", "salt", "jelena" },
-                    { 5, 0, "toni@example.com", "Toni", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Cetinski", "hashed_password", "444555666", "salt", "toni" },
-                    { 6, 0, "zeljko@example.com", "Zeljko", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Samardzic", "hashed_password", "555666777", "salt", "zeljko" },
-                    { 7, 0, "selma@example.com", "Selma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Alagic", "hashed_password", "666777888", "salt", "selmica" },
-                    { 8, 0, "eda@example.com", "Eda", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Erdem", "hashed_password", "777888999", "salt", "eda" },
-                    { 9, 0, "tesa@example.com", "Tesa", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Zahirovic", "hashed_password", "888999000", "salt", "tess" }
+                    { 1, "admin@example.com", "Admin", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "User", "hashed_password", "000000000", "salt", "admin" },
+                    { 2, "dzejla@example.com", "Dzejla", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Ramovic", "hashed_password", "111222333", "salt", "dzejla" },
+                    { 3, "ilma@example.com", "Ilma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Karahmet", "hashed_password", "222333444", "salt", "ilma" },
+                    { 4, "jelena@example.com", "Jelena", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Rozga", "hashed_password", "333444555", "salt", "jelena" },
+                    { 5, "toni@example.com", "Toni", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Cetinski", "hashed_password", "444555666", "salt", "toni" },
+                    { 6, "zeljko@example.com", "Zeljko", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Samardzic", "hashed_password", "555666777", "salt", "zeljko" },
+                    { 7, "selma@example.com", "Selma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Alagic", "hashed_password", "666777888", "salt", "selmica" },
+                    { 8, "eda@example.com", "Eda", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Erdem", "hashed_password", "777888999", "salt", "eda" },
+                    { 9, "tesa@example.com", "Tesa", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Zahirovic", "hashed_password", "888999000", "salt", "tess" }
                 });
 
             migrationBuilder.InsertData(
-                table: "Admin",
+                table: "Admins",
                 columns: new[] { "AdminID", "UserID" },
                 values: new object[] { 1, 1 });
 
@@ -479,9 +478,9 @@ namespace MyStagePass.Services.Migrations
                 columns: new[] { "CustomerID", "UserID" },
                 values: new object[,]
                 {
-                    { 1, 2 },
-                    { 2, 3 },
-                    { 3, 4 }
+                    { 1, 7 },
+                    { 2, 8 },
+                    { 3, 9 }
                 });
 
             migrationBuilder.InsertData(
@@ -576,7 +575,7 @@ namespace MyStagePass.Services.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Review",
+                table: "Reviews",
                 columns: new[] { "ReviewID", "CreatedAt", "CustomerID", "EventID", "RatingValue" },
                 values: new object[,]
                 {
@@ -600,10 +599,9 @@ namespace MyStagePass.Services.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Admin_UserID",
-                table: "Admin",
-                column: "UserID",
-                unique: true);
+                name: "IX_Admins_UserID",
+                table: "Admins",
+                column: "UserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_CountryID",
@@ -673,13 +671,13 @@ namespace MyStagePass.Services.Migrations
                 column: "CustomerID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Review_CustomerID",
-                table: "Review",
+                name: "IX_Reviews_CustomerID",
+                table: "Reviews",
                 column: "CustomerID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Review_EventID_CustomerID",
-                table: "Review",
+                name: "IX_Reviews_EventID_CustomerID",
+                table: "Reviews",
                 columns: new[] { "EventID", "CustomerID" },
                 unique: true);
 
@@ -717,7 +715,7 @@ namespace MyStagePass.Services.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Admin");
+                name: "Admins");
 
             migrationBuilder.DropTable(
                 name: "CustomerFavoriteEvent");
@@ -729,7 +727,7 @@ namespace MyStagePass.Services.Migrations
                 name: "PerformerGenre");
 
             migrationBuilder.DropTable(
-                name: "Review");
+                name: "Reviews");
 
             migrationBuilder.DropTable(
                 name: "Tickets");

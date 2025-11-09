@@ -11,7 +11,6 @@ namespace MyStagePass.Model.Models
 		public virtual User User { get; set; } = null!;
 		public ICollection<PerformerGenre> Genres { get; set; } = new List<PerformerGenre>();
 
-		//public bool IsApproved { get; set; }
-
+		public bool IsApproved { get; set; }
 	}
 }

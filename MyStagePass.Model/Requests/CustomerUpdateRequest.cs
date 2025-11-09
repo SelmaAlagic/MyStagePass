@@ -2,8 +2,9 @@
 
 namespace MyStagePass.Model.Requests
 {
-	public class AdminUpdateRequest
+	public class CustomerUpdateRequest
 	{
+		
 		[EmailAddress]
 		public string? Email { get; set; }
 
@@ -12,5 +13,8 @@ namespace MyStagePass.Model.Requests
 
 		[MinLength(6)]
 		public string? Password { get; set; }
+		[MinLength(6)]
+		public string? PasswordConfirm { get; set; }
+		public byte[]? Image { get; set; }
 	}
 }

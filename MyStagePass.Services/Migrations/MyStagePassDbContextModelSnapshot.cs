@@ -218,17 +218,17 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             CustomerID = 1,
-                            UserID = 2
+                            UserID = 7
                         },
                         new
                         {
                             CustomerID = 2,
-                            UserID = 3
+                            UserID = 8
                         },
                         new
                         {
                             CustomerID = 3,
-                            UserID = 4
+                            UserID = 9
                         });
                 });
 

@@ -86,7 +86,7 @@ namespace MyStagePass.Services.Database
 				entity.HasKey(r => r.ReviewID);
 
 				entity.HasIndex(r => new { r.EventID, r.CustomerID })
-				.IsUnique();
+					  .IsUnique();
 
 				entity.HasOne<Event>()
 					.WithMany(r => r.Reviews)
@@ -96,7 +96,7 @@ namespace MyStagePass.Services.Database
 				entity.HasOne<Customer>()
 					.WithMany(r => r.Reviews)
 					.HasForeignKey(u => u.CustomerID)
-					.OnDelete(DeleteBehavior.ClientCascade); //kad se obrise customer obrise se review
+					.OnDelete(DeleteBehavior.ClientCascade); //kad se obrise customer ne obrise se review jer je ocjena bitna za prosjek ocjene izvodjaca, ali ne odzivljava setnull, pogledati sutra to
 			});
 
 			//var user = await _context.Users   --> kod client casacde-a svakog moram includeati u ovom slucaju reviews kad se brise user, i kod brisanja eventa onda isto za favoritevents...

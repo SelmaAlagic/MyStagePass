@@ -12,8 +12,8 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    [Migration("20251104173103_fixedMyStagePassContext")]
-    partial class fixedMyStagePassContext
+    [Migration("20251109232817_InitialEntities")]
+    partial class InitialEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -221,17 +221,17 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             CustomerID = 1,
-                            UserID = 2
+                            UserID = 7
                         },
                         new
                         {
                             CustomerID = 2,
-                            UserID = 3
+                            UserID = 8
                         },
                         new
                         {
                             CustomerID = 3,
-                            UserID = 4
+                            UserID = 9
                         });
                 });
 

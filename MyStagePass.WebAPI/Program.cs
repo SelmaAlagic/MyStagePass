@@ -19,6 +19,13 @@ builder.Services.AddSwaggerGen(c =>
 
 	c.CustomSchemaIds(type =>
 	{
+		if (type.IsGenericType)
+		{
+			var genericTypeName = type.GetGenericTypeDefinition().Name.Split('`')[0];
+			var genericArgs = string.Join("", type.GetGenericArguments().Select(t => t.Name));
+			return $"{genericTypeName}Of{genericArgs}";
+		}
+
 		if (type.Namespace?.StartsWith("MyStagePass.Model") == true)
 		{
 			return type.Name;
@@ -49,11 +56,11 @@ builder.Services.AddControllers()
 		x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddTransient<IUserService, DummyUserService>();
+
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddTransient<IAdminService, AdminService>();
-
+builder.Services.AddTransient<IPerformerService, PerformerService>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -65,8 +72,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
 	var dbContext=scope.ServiceProvider.GetRequiredService<MyStagePassDbContext>();
-	//dbContext.Database.EnsureCreated(); //pravi bazu samo ako vec ne postoji, ne primjenjuje migracije
-	dbContext.Database.Migrate(); //pravi bazu ako ne postoji, azurira bazu i primjenjuje sve do tada neprimijenjene migracije ako vec postoji
+	dbContext.Database.Migrate(); 
 }
 
 // Configure the HTTP request pipeline.

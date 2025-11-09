@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
@@ -9,12 +8,12 @@ using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.Services.Services
 {
-	public class CustomerService : BaseCRUDService<Model.Models.Customer, Customer, CustomerSearchObject, CustomerInsertRequest, CustomerUpdateRequest>, ICustomerService
+	public class PerformerService : BaseCRUDService<Model.Models.Performer, Performer, PerformerSearchObject, PerformerInsetRequest, PerformerUpdateRequest>, IPerformerService
 	{
-		public CustomerService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
+		public PerformerService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
 		{
 		}
-		public override async Task BeforeInsert(Customer entity, CustomerInsertRequest insert)
+		public override async Task BeforeInsert(Performer entity, PerformerInsetRequest insert)
 		{
 			if (insert.Password != insert.PasswordConfirm)
 				throw new Exception("Password and confirmation do not match.");
@@ -31,7 +30,7 @@ namespace MyStagePass.Services.Services
 			entity.User.Password = PasswordHelper.GenerateHash(entity.User.Salt, insert.Password);
 		}
 
-		public override IQueryable<Customer> AddInclude(IQueryable<Customer> query, CustomerSearchObject? search = null)
+		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
 		{
 			if (search.isUserIncluded == true)
 			{
@@ -41,16 +40,20 @@ namespace MyStagePass.Services.Services
 			if (!string.IsNullOrWhiteSpace(search?.searchTerm))
 			{
 				string term = search.searchTerm.ToLower();
-				Console.WriteLine($"Searching customers with term: '{term}'");
 				query = query.Where(p =>
+					(p.ArtistName != null && p.ArtistName.ToLower().StartsWith(term)) ||
 					(p.User.FirstName != null && p.User.FirstName.ToLower().StartsWith(term)) ||
 					(p.User.LastName != null && p.User.LastName.ToLower().StartsWith(term)));
 			}
 
+			if (search?.IsApproved != null)
+			{
+				query = query.Where(p => p.IsApproved == search.IsApproved);
+			}
 			return base.AddInclude(query, search);
 		}
 
-		public override async Task<Model.Models.Customer> Update(int id, CustomerUpdateRequest update)
+		public override async Task<Model.Models.Performer> Update(int id, PerformerUpdateRequest update)
 		{
 			if (!string.IsNullOrEmpty(update.Password) || !string.IsNullOrEmpty(update.PasswordConfirm))
 			{
@@ -58,21 +61,21 @@ namespace MyStagePass.Services.Services
 					throw new Exception("Password and confirmation do not match.");
 			}
 
-			var set = _context.Set<Customer>();
-			var entity = await set.Include(c => c.User).FirstOrDefaultAsync(c => c.CustomerID == id);
+			var set = _context.Set<Performer>();
+			var entity = await set.Include(c => c.User).FirstOrDefaultAsync(c => c.PerformerID == id);
 			_mapper.Map(update, entity?.User);
 			_mapper.Map(update, entity);
 			await _context.SaveChangesAsync();
-			return _mapper.Map<Model.Models.Customer>(entity);
+			return _mapper.Map<Model.Models.Performer>(entity);
 		}
 
-		public async Task<Model.Models.Customer> UpdateBaseUser(int id, CustomerUpdateRequest update)
+		public async Task<Model.Models.Performer> UpdateBaseUser(int id, PerformerUpdateRequest update)
 		{
-			var set = _context.Set<Customer>();
-			var entity = await set.Include(c => c.User).FirstOrDefaultAsync(c => c.CustomerID == id);
+			var set = _context.Set<Performer>();
+			var entity = await set.Include(c => c.User).FirstOrDefaultAsync(c => c.PerformerID == id);
 			_mapper.Map(update, entity?.User);
 			await _context.SaveChangesAsync();
-			return _mapper.Map<Model.Models.Customer>(entity);
+			return _mapper.Map<Model.Models.Performer>(entity);
 		}
 	}
 }
