@@ -8,12 +8,12 @@ namespace MyStagePass.Services.Database.Seed
 		{
 			entity.HasData(
 				// kupovina 1
-				new Ticket { TicketID = 1, EventID = 1, TicketTypeID = 1, PurchaseID = 1, Price = 50 },
-				new Ticket { TicketID = 2, EventID = 2, TicketTypeID = 2, PurchaseID = 1, Price = 30 },
+				new Ticket { TicketID = 1, EventID = 1, TicketType=Event.TicketType.Vip, PurchaseID = 1, Price = 40 },
+				new Ticket { TicketID = 2, EventID = 1, TicketType=Event.TicketType.Vip, PurchaseID = 1, Price = 40 },
 
 				// kupovina 2
-				new Ticket { TicketID = 3, EventID = 3, TicketTypeID = 1, PurchaseID = 2, Price = 60 },
-				new Ticket { TicketID = 4, EventID = 1, TicketTypeID = 3, PurchaseID = 2, Price = 40 }
+				new Ticket { TicketID = 3, EventID = 3, TicketType = Event.TicketType.Regular, PurchaseID = 2, Price = 25 },
+				new Ticket { TicketID = 4, EventID = 3, TicketType = Event.TicketType.Regular, PurchaseID = 2, Price = 25 }
 			);
 		}
 	}

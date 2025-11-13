@@ -41,7 +41,6 @@ namespace MyStagePass.Services.Services
 			if (!string.IsNullOrWhiteSpace(search?.searchTerm))
 			{
 				string term = search.searchTerm.ToLower();
-				Console.WriteLine($"Searching customers with term: '{term}'");
 				query = query.Where(p =>
 					(p.User.FirstName != null && p.User.FirstName.ToLower().StartsWith(term)) ||
 					(p.User.LastName != null && p.User.LastName.ToLower().StartsWith(term)));

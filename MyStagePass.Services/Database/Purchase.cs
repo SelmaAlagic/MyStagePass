@@ -11,7 +11,7 @@ namespace MyStagePass.Services.Database
 		public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
 		[NotMapped]
-		public float Total => Tickets.Sum(i => i.Price);
+		public int Total => Tickets.Sum(i => i.Price);
 	}
 }
 //provjeriti da li je bolje da kupovina podrazumijeva samo jednu kartu ili njih vise kao sto je sada stavljeno?

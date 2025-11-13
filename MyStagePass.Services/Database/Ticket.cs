@@ -6,11 +6,10 @@ namespace MyStagePass.Services.Database
 	public class Ticket
 	{
 		public int TicketID { get; set; }
-		public float Price {  get; set; }
+		public int Price {  get; set; }
 		public int EventID {  get; set; }
+		public Event.TicketType TicketType { get; set; }
 		public virtual Event Event { get; set; } = null!;
-		public int TicketTypeID {  get; set; }
-		public virtual TicketType TicketType { get; set; }=null!;
 		public int PurchaseID { get; set; }
 		public virtual Purchase Purchase { get; set; } = null!;
 		public byte[]? QRCodeData { get; set; } //QR kao slika
@@ -44,5 +43,15 @@ namespace MyStagePass.Services.Database
 			}
 		}
 
+		public string GetTicketTypeName()
+		{
+			return TicketType switch
+			{
+				Event.TicketType.Regular => "Regular",
+				Event.TicketType.Vip => "VIP",
+				Event.TicketType.Premium => "Premium",
+				_ => "Unknown"
+			};
+		}
 	}
 }

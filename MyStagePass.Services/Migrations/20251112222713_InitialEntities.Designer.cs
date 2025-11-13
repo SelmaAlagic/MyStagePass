@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyStagePass.Services.Database;
 
@@ -11,9 +12,11 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    partial class MyStagePassDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251112222713_InitialEntities")]
+    partial class InitialEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,31 +308,22 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("PerformerID")
                         .HasColumnType("int");
 
-                    b.Property<int>("PremiumPrice")
-                        .HasColumnType("int");
-
                     b.Property<float>("RatingAverage")
                         .HasColumnType("real");
 
                     b.Property<int>("RatingCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("RegularPrice")
+                    b.Property<int>("StatusID")
                         .HasColumnType("int");
 
-                    b.Property<int>("StatusID")
+                    b.Property<int>("TicketsAvailable")
                         .HasColumnType("int");
 
                     b.Property<int>("TicketsSold")
                         .HasColumnType("int");
 
                     b.Property<int>("TotalScore")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalTickets")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VipPrice")
                         .HasColumnType("int");
 
                     b.HasKey("EventID");
@@ -346,38 +340,30 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 1,
-                            Description = "Rock Concert 2025",
                             EventDate = new DateTime(2025, 11, 15, 18, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Rock Concert",
                             LocationID = 1,
                             PerformerID = 1,
-                            PremiumPrice = 50,
                             RatingAverage = 0f,
                             RatingCount = 0,
-                            RegularPrice = 30,
                             StatusID = 1,
-                            TicketsSold = 200,
-                            TotalScore = 0,
-                            TotalTickets = 15000,
-                            VipPrice = 40
+                            TicketsAvailable = 200,
+                            TicketsSold = 50,
+                            TotalScore = 0
                         },
                         new
                         {
                             EventID = 2,
-                            Description = "Jazz Night 2525",
                             EventDate = new DateTime(2025, 11, 15, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Jazz Night",
                             LocationID = 1,
                             PerformerID = 2,
-                            PremiumPrice = 50,
                             RatingAverage = 0f,
                             RatingCount = 0,
-                            RegularPrice = 25,
                             StatusID = 1,
-                            TicketsSold = 370,
-                            TotalScore = 0,
-                            TotalTickets = 15000,
-                            VipPrice = 30
+                            TicketsAvailable = 100,
+                            TicketsSold = 30,
+                            TotalScore = 0
                         },
                         new
                         {
@@ -387,15 +373,12 @@ namespace MyStagePass.Services.Migrations
                             EventName = "Pop Festival",
                             LocationID = 3,
                             PerformerID = 3,
-                            PremiumPrice = 50,
                             RatingAverage = 0f,
                             RatingCount = 0,
-                            RegularPrice = 25,
                             StatusID = 1,
-                            TicketsSold = 700,
-                            TotalScore = 0,
-                            TotalTickets = 12000,
-                            VipPrice = 30
+                            TicketsAvailable = 1000,
+                            TicketsSold = 300,
+                            TotalScore = 0
                         },
                         new
                         {
@@ -405,15 +388,12 @@ namespace MyStagePass.Services.Migrations
                             EventName = "Classical Evening",
                             LocationID = 4,
                             PerformerID = 4,
-                            PremiumPrice = 50,
                             RatingAverage = 0f,
                             RatingCount = 0,
-                            RegularPrice = 25,
-                            StatusID = 3,
+                            StatusID = 1,
+                            TicketsAvailable = 150,
                             TicketsSold = 50,
-                            TotalScore = 0,
-                            TotalTickets = 8000,
-                            VipPrice = 30
+                            TotalScore = 0
                         });
                 });
 
@@ -959,16 +939,26 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             StatusID = 1,
-                            StatusName = "Pending"
+                            StatusName = "Upcoming"
                         },
                         new
                         {
                             StatusID = 2,
-                            StatusName = "Approved"
+                            StatusName = "Ended"
                         },
                         new
                         {
                             StatusID = 3,
+                            StatusName = "Pending"
+                        },
+                        new
+                        {
+                            StatusID = 4,
+                            StatusName = "Approved"
+                        },
+                        new
+                        {
+                            StatusID = 5,
                             StatusName = "Rejected"
                         });
                 });
@@ -984,8 +974,8 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("EventID")
                         .HasColumnType("int");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("int");
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
 
                     b.Property<int>("PurchaseID")
                         .HasColumnType("int");
@@ -993,7 +983,7 @@ namespace MyStagePass.Services.Migrations
                     b.Property<byte[]>("QRCodeData")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int>("TicketType")
+                    b.Property<int>("TicketTypeID")
                         .HasColumnType("int");
 
                     b.HasKey("TicketID");
@@ -1002,6 +992,8 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("PurchaseID");
 
+                    b.HasIndex("TicketTypeID");
+
                     b.ToTable("Tickets");
 
                     b.HasData(
@@ -1009,33 +1001,66 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 1,
                             EventID = 1,
-                            Price = 40,
+                            Price = 50f,
                             PurchaseID = 1,
-                            TicketType = 2
+                            TicketTypeID = 1
                         },
                         new
                         {
                             TicketID = 2,
-                            EventID = 1,
-                            Price = 40,
+                            EventID = 2,
+                            Price = 30f,
                             PurchaseID = 1,
-                            TicketType = 2
+                            TicketTypeID = 2
                         },
                         new
                         {
                             TicketID = 3,
                             EventID = 3,
-                            Price = 25,
+                            Price = 60f,
                             PurchaseID = 2,
-                            TicketType = 1
+                            TicketTypeID = 1
                         },
                         new
                         {
                             TicketID = 4,
-                            EventID = 3,
-                            Price = 25,
+                            EventID = 1,
+                            Price = 40f,
                             PurchaseID = 2,
-                            TicketType = 1
+                            TicketTypeID = 3
+                        });
+                });
+
+            modelBuilder.Entity("MyStagePass.Services.Database.TicketType", b =>
+                {
+                    b.Property<int>("TicketTypeID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TicketTypeID"));
+
+                    b.Property<string>("TicketTypeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TicketTypeID");
+
+                    b.ToTable("TicketTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            TicketTypeID = 1,
+                            TicketTypeName = "Regular"
+                        },
+                        new
+                        {
+                            TicketTypeID = 2,
+                            TicketTypeName = "VIP"
+                        },
+                        new
+                        {
+                            TicketTypeID = 3,
+                            TicketTypeName = "Premium"
                         });
                 });
 
@@ -1369,9 +1394,17 @@ namespace MyStagePass.Services.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MyStagePass.Services.Database.TicketType", "TicketType")
+                        .WithMany("Tickets")
+                        .HasForeignKey("TicketTypeID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Event");
 
                     b.Navigation("Purchase");
+
+                    b.Navigation("TicketType");
                 });
 
             modelBuilder.Entity("MyStagePass.Services.Database.City", b =>
@@ -1425,6 +1458,11 @@ namespace MyStagePass.Services.Migrations
             modelBuilder.Entity("MyStagePass.Services.Database.Status", b =>
                 {
                     b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("MyStagePass.Services.Database.TicketType", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("MyStagePass.Services.Database.User", b =>

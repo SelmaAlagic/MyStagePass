@@ -1,12 +1,24 @@
-﻿namespace MyStagePass.Services.Database
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MyStagePass.Services.Database
 {
 	public class Event
 	{
+		public enum TicketType
+		{
+			Regular = 1,
+			Vip = 2,
+			Premium = 3
+		}
+
 		public int EventID { get; set; }
 		public string? EventName { get; set; }
 		public string? Description { get; set; }
+		public int TotalTickets { get; set; }
 		public int TicketsSold { get; set; }
-		public int TicketsAvailable { get; set; }
+		public int RegularPrice { get; set; }  
+		public int VipPrice { get; set; }       
+		public int PremiumPrice { get; set; }
 		public int PerformerID { get; set; }
 		public virtual Performer Performer { get; set; } = null!;
 		public DateTime EventDate { get; set; }
@@ -20,5 +32,24 @@
 		public ICollection<CustomerFavoriteEvent> FavoritedByCustomers { get; set; } = new List<CustomerFavoriteEvent>();
 		public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+		[NotMapped]
+		public int TicketsAvailable => TotalTickets - TicketsSold;
+		public bool HasAvailableTickets(int requestedAmount)
+		{
+			return TicketsAvailable >= requestedAmount;
+		}
+
+		[NotMapped]
+		public string TimeStatus
+		{
+			get
+			{
+				if (EventDate < DateTime.Now)
+					return "Ended";
+				else
+					return "Upcoming";
+			}
+		}
 	}
 }

@@ -22,7 +22,6 @@ namespace MyStagePass.Services.Database
 		public DbSet<Review> Reviews { get; set; }
 		public DbSet<Status> Statuses { get; set; }
 		public DbSet<Ticket> Tickets { get; set; }
-		public DbSet<TicketType> TicketTypes { get; set; }
 		public DbSet<User> Users { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,8 +35,6 @@ namespace MyStagePass.Services.Database
 			modelBuilder.Entity<User>()
 				.HasIndex(u => u.Username)
 				.IsUnique();
-
-
 
 			modelBuilder.Entity<CustomerFavoriteEvent>(entity =>
 			{
@@ -62,6 +59,9 @@ namespace MyStagePass.Services.Database
 			{
 				entity.HasKey(t => t.TicketID);
 
+				entity.Property(t => t.TicketType)
+					.HasConversion<int>();
+
 				//Purchase -> Ticket (brisanje Purchase briše karte)
 				entity.HasOne(t => t.Purchase)
 					.WithMany(p => p.Tickets)
@@ -73,12 +73,6 @@ namespace MyStagePass.Services.Database
 					.WithMany(e => e.Tickets)
 					.HasForeignKey(t => t.EventID)
 					.OnDelete(DeleteBehavior.ClientCascade);
-
-				//TicketType -> Ticket (brisanje TicketType ne briše karte)
-				entity.HasOne(t => t.TicketType)
-					.WithMany(tt => tt.Tickets)
-					.HasForeignKey(t => t.TicketTypeID)
-					.OnDelete(DeleteBehavior.Restrict);
 			});
 
 			modelBuilder.Entity<Review>(entity =>
@@ -169,6 +163,7 @@ namespace MyStagePass.Services.Database
 					.WithMany(co => co.Purchases)
 					.HasForeignKey(n => n.CustomerID)
 					.OnDelete(DeleteBehavior.Cascade);
+
 			});
 
 			modelBuilder.Entity<Event>(entity =>
@@ -176,6 +171,7 @@ namespace MyStagePass.Services.Database
 				entity.HasOne(c => c.Status)
 					.WithMany(co => co.Events)
 					.HasForeignKey(n => n.StatusID); //po defautu je restrict ili no action, ako brisem event status je netaknut, a ako hocu obrisati status, necu moci jer ima event sa istim
+
 			});
 
 			modelBuilder.Entity<Admin>().SeedData();
@@ -193,7 +189,6 @@ namespace MyStagePass.Services.Database
 			modelBuilder.Entity<Review>().SeedData();
 			modelBuilder.Entity<Status>().SeedData();
 			modelBuilder.Entity<Ticket>().SeedData();
-			modelBuilder.Entity<TicketType>().SeedData();
 			modelBuilder.Entity<User>().SeedData();
 
 			OnModelCreatingPartial(modelBuilder);
