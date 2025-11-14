@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using MyStagePass.Model.Models;
-using MyStagePass.Model.Requests;
 
 namespace MyStagePass.Services.Services
 {
@@ -37,6 +36,9 @@ namespace MyStagePass.Services.Services
 			CreateMap<Database.Ticket, Model.Models.Ticket>();
 			CreateMap<Database.Review, Model.Models.Review>();
 			CreateMap<Database.CustomerFavoriteEvent, Model.Models.CustomerFavoriteEvent>();
+			CreateMap<Database.City, Model.Models.City>();
+			CreateMap<Database.Country, Model.Models.Country>();
+
 
 		}
 	}
