@@ -31,7 +31,6 @@ namespace MyStagePass.Services.Services
 			CreateMap<Model.Requests.EventUpdateRequest, Database.Event>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 			CreateMap<Database.Location, Model.Models.Location>();
-			CreateMap<Database.Performer, Model.Models.Performer>();
 			CreateMap<Database.Status, Model.Models.Status>();
 			CreateMap<Database.Ticket, Model.Models.Ticket>();
 			CreateMap<Database.Review, Model.Models.Review>();
@@ -39,6 +38,13 @@ namespace MyStagePass.Services.Services
 			CreateMap<Database.City, Model.Models.City>();
 			CreateMap<Database.Country, Model.Models.Country>();
 
+			CreateMap<Database.Performer, Model.Models.Performer>()
+				.ForMember(dest => dest.Genres,
+					opt => opt.MapFrom(src => src.Genres.Select(pg => pg.Genre.Name).ToList()));
+
+			CreateMap<Database.Genre, Model.Models.Genre>()
+				.ForMember(dest => dest.Performers,
+					opt => opt.MapFrom(src => src.Performers.Select(pg => pg.Performer.ArtistName).ToList()));
 
 		}
 	}

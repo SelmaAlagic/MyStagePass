@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MyStagePass.Services.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialEntities : Migration
+    public partial class initialEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,19 +50,6 @@ namespace MyStagePass.Services.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Statuses", x => x.StatusID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TicketTypes",
-                columns: table => new
-                {
-                    TicketTypeID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TicketTypeName = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TicketTypes", x => x.TicketTypeID);
                 });
 
             migrationBuilder.CreateTable(
@@ -263,8 +250,11 @@ namespace MyStagePass.Services.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EventName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalTickets = table.Column<int>(type: "int", nullable: false),
                     TicketsSold = table.Column<int>(type: "int", nullable: false),
-                    TicketsAvailable = table.Column<int>(type: "int", nullable: false),
+                    RegularPrice = table.Column<int>(type: "int", nullable: false),
+                    VipPrice = table.Column<int>(type: "int", nullable: false),
+                    PremiumPrice = table.Column<int>(type: "int", nullable: false),
                     PerformerID = table.Column<int>(type: "int", nullable: false),
                     EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LocationID = table.Column<int>(type: "int", nullable: false),
@@ -354,9 +344,9 @@ namespace MyStagePass.Services.Migrations
                 {
                     TicketID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Price = table.Column<float>(type: "real", nullable: false),
+                    Price = table.Column<int>(type: "int", nullable: false),
                     EventID = table.Column<int>(type: "int", nullable: false),
-                    TicketTypeID = table.Column<int>(type: "int", nullable: false),
+                    TicketType = table.Column<int>(type: "int", nullable: false),
                     PurchaseID = table.Column<int>(type: "int", nullable: false),
                     QRCodeData = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
@@ -374,12 +364,6 @@ namespace MyStagePass.Services.Migrations
                         principalTable: "Purchases",
                         principalColumn: "PurchaseID",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tickets_TicketTypes_TicketTypeID",
-                        column: x => x.TicketTypeID,
-                        principalTable: "TicketTypes",
-                        principalColumn: "TicketTypeID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
@@ -414,21 +398,9 @@ namespace MyStagePass.Services.Migrations
                 columns: new[] { "StatusID", "StatusName" },
                 values: new object[,]
                 {
-                    { 1, "Upcoming" },
-                    { 2, "Ended" },
-                    { 3, "Pending" },
-                    { 4, "Approved" },
-                    { 5, "Rejected" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "TicketTypes",
-                columns: new[] { "TicketTypeID", "TicketTypeName" },
-                values: new object[,]
-                {
-                    { 1, "Regular" },
-                    { 2, "VIP" },
-                    { 3, "Premium" }
+                    { 1, "Pending" },
+                    { 2, "Approved" },
+                    { 3, "Rejected" }
                 });
 
             migrationBuilder.InsertData(
@@ -554,13 +526,13 @@ namespace MyStagePass.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "Events",
-                columns: new[] { "EventID", "Description", "EventDate", "EventName", "LocationID", "PerformerID", "RatingAverage", "RatingCount", "StatusID", "TicketsAvailable", "TicketsSold", "TotalScore" },
+                columns: new[] { "EventID", "Description", "EventDate", "EventName", "LocationID", "PerformerID", "PremiumPrice", "RatingAverage", "RatingCount", "RegularPrice", "StatusID", "TicketsSold", "TotalScore", "TotalTickets", "VipPrice" },
                 values: new object[,]
                 {
-                    { 1, null, new DateTime(2025, 11, 15, 18, 0, 0, 0, DateTimeKind.Unspecified), "Rock Concert", 1, 1, 0f, 0, 1, 200, 50, 0 },
-                    { 2, null, new DateTime(2025, 11, 15, 21, 0, 0, 0, DateTimeKind.Unspecified), "Jazz Night", 1, 2, 0f, 0, 1, 100, 30, 0 },
-                    { 3, "Outdoor pop music festival", new DateTime(2025, 12, 20, 18, 0, 0, 0, DateTimeKind.Unspecified), "Pop Festival", 3, 3, 0f, 0, 1, 1000, 300, 0 },
-                    { 4, "Symphony orchestra live performance", new DateTime(2026, 1, 10, 19, 0, 0, 0, DateTimeKind.Unspecified), "Classical Evening", 4, 4, 0f, 0, 1, 150, 50, 0 }
+                    { 1, "Rock Concert 2025", new DateTime(2025, 11, 15, 18, 0, 0, 0, DateTimeKind.Unspecified), "Rock Concert", 1, 1, 50, 0f, 0, 30, 1, 200, 0, 15000, 40 },
+                    { 2, "Jazz Night 2525", new DateTime(2025, 11, 15, 21, 0, 0, 0, DateTimeKind.Unspecified), "Jazz Night", 1, 2, 50, 0f, 0, 25, 1, 370, 0, 15000, 30 },
+                    { 3, "Outdoor pop music festival", new DateTime(2025, 12, 20, 18, 0, 0, 0, DateTimeKind.Unspecified), "Pop Festival", 3, 3, 50, 0f, 0, 25, 1, 700, 0, 12000, 30 },
+                    { 4, "Symphony orchestra live performance", new DateTime(2026, 1, 10, 19, 0, 0, 0, DateTimeKind.Unspecified), "Classical Evening", 4, 4, 50, 0f, 0, 25, 3, 50, 0, 8000, 30 }
                 });
 
             migrationBuilder.InsertData(
@@ -589,13 +561,13 @@ namespace MyStagePass.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "Tickets",
-                columns: new[] { "TicketID", "EventID", "Price", "PurchaseID", "QRCodeData", "TicketTypeID" },
+                columns: new[] { "TicketID", "EventID", "Price", "PurchaseID", "QRCodeData", "TicketType" },
                 values: new object[,]
                 {
-                    { 1, 1, 50f, 1, null, 1 },
-                    { 2, 2, 30f, 1, null, 2 },
-                    { 3, 3, 60f, 2, null, 1 },
-                    { 4, 1, 40f, 2, null, 3 }
+                    { 1, 1, 40, 1, null, 2 },
+                    { 2, 1, 40, 1, null, 2 },
+                    { 3, 3, 25, 2, null, 1 },
+                    { 4, 3, 25, 2, null, 1 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -692,11 +664,6 @@ namespace MyStagePass.Services.Migrations
                 column: "PurchaseID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tickets_TicketTypeID",
-                table: "Tickets",
-                column: "TicketTypeID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
@@ -740,9 +707,6 @@ namespace MyStagePass.Services.Migrations
 
             migrationBuilder.DropTable(
                 name: "Purchases");
-
-            migrationBuilder.DropTable(
-                name: "TicketTypes");
 
             migrationBuilder.DropTable(
                 name: "Locations");

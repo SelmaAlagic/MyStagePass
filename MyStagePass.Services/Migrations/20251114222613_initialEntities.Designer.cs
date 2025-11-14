@@ -12,8 +12,8 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    [Migration("20251113211245_RefactorEntities4")]
-    partial class RefactorEntities4
+    [Migration("20251114222613_initialEntities")]
+    partial class initialEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -412,7 +412,7 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 25,
-                            StatusID = 1,
+                            StatusID = 3,
                             TicketsSold = 50,
                             TotalScore = 0,
                             TotalTickets = 8000,
@@ -962,26 +962,16 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             StatusID = 1,
-                            StatusName = "Upcoming"
-                        },
-                        new
-                        {
-                            StatusID = 2,
-                            StatusName = "Ended"
-                        },
-                        new
-                        {
-                            StatusID = 3,
                             StatusName = "Pending"
                         },
                         new
                         {
-                            StatusID = 4,
+                            StatusID = 2,
                             StatusName = "Approved"
                         },
                         new
                         {
-                            StatusID = 5,
+                            StatusID = 3,
                             StatusName = "Rejected"
                         });
                 });
@@ -1276,7 +1266,7 @@ namespace MyStagePass.Services.Migrations
                         .IsRequired();
 
                     b.HasOne("MyStagePass.Services.Database.Performer", "Performer")
-                        .WithMany()
+                        .WithMany("Events")
                         .HasForeignKey("PerformerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1427,6 +1417,8 @@ namespace MyStagePass.Services.Migrations
 
             modelBuilder.Entity("MyStagePass.Services.Database.Performer", b =>
                 {
+                    b.Navigation("Events");
+
                     b.Navigation("Genres");
                 });
 

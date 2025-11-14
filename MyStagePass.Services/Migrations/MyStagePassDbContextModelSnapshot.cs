@@ -1263,7 +1263,7 @@ namespace MyStagePass.Services.Migrations
                         .IsRequired();
 
                     b.HasOne("MyStagePass.Services.Database.Performer", "Performer")
-                        .WithMany()
+                        .WithMany("Events")
                         .HasForeignKey("PerformerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1414,6 +1414,8 @@ namespace MyStagePass.Services.Migrations
 
             modelBuilder.Entity("MyStagePass.Services.Database.Performer", b =>
                 {
+                    b.Navigation("Events");
+
                     b.Navigation("Genres");
                 });
 
