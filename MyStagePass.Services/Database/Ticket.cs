@@ -14,11 +14,6 @@ namespace MyStagePass.Services.Database
 		public virtual Purchase Purchase { get; set; } = null!;
 		public byte[]? QRCodeData { get; set; } //QR kao slika
 
-		internal static decimal Sum(Func<object, object> value)
-		{
-			throw new NotImplementedException();
-		}
-
 		public void GenerateQRCode(string text)
 		{
 			using (QRCodeGenerator qrGenerator = new QRCodeGenerator())

@@ -64,6 +64,8 @@ builder.Services.AddTransient<IPerformerService, PerformerService>();
 builder.Services.AddTransient<IEventService, EventService>();
 builder.Services.AddTransient<ICityService, CityService>();
 builder.Services.AddTransient<IGenreService, GenreService>();
+builder.Services.AddTransient<ITicketService, TicketService>();
+
 
 builder.Services.AddAutoMapper(cfg =>
 {

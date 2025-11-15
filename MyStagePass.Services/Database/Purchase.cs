@@ -14,4 +14,3 @@ namespace MyStagePass.Services.Database
 		public int Total => Tickets.Sum(i => i.Price);
 	}
 }
-//provjeriti da li je bolje da kupovina podrazumijeva samo jednu kartu ili njih vise kao sto je sada stavljeno?
