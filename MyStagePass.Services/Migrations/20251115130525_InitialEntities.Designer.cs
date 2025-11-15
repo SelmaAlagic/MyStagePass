@@ -12,8 +12,8 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    [Migration("20251114222613_initialEntities")]
-    partial class initialEntities
+    [Migration("20251115130525_InitialEntities")]
+    partial class InitialEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -839,6 +839,9 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("CustomerID")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
@@ -853,12 +856,14 @@ namespace MyStagePass.Services.Migrations
                         {
                             PurchaseID = 1,
                             CustomerID = 1,
+                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 10, 27, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 2,
                             CustomerID = 2,
+                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 10, 28, 15, 30, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -987,6 +992,9 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("EventID")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
@@ -1012,6 +1020,7 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 1,
                             EventID = 1,
+                            IsDeleted = false,
                             Price = 40,
                             PurchaseID = 1,
                             TicketType = 2
@@ -1020,6 +1029,7 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 2,
                             EventID = 1,
+                            IsDeleted = false,
                             Price = 40,
                             PurchaseID = 1,
                             TicketType = 2
@@ -1028,6 +1038,7 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 3,
                             EventID = 3,
+                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 2,
                             TicketType = 1
@@ -1036,6 +1047,7 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 4,
                             EventID = 3,
+                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 2,
                             TicketType = 1

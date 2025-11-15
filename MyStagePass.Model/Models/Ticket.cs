@@ -15,7 +15,7 @@ namespace MyStagePass.Model.Models
 		public virtual Purchase Purchase { get; set; } = null!;
 		public Event.TicketType TicketType { get; set; }
 		public byte[]? QRCodeData { get; set; } //QR kao slika
-
+		public bool IsDeleted { get; set; } = false;
 		public void GenerateQRCode(string text)
 		{
 			using (QRCodeGenerator qrGenerator = new QRCodeGenerator())

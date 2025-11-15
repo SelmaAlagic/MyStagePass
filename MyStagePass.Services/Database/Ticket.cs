@@ -13,7 +13,7 @@ namespace MyStagePass.Services.Database
 		public int PurchaseID { get; set; }
 		public virtual Purchase Purchase { get; set; } = null!;
 		public byte[]? QRCodeData { get; set; } //QR kao slika
-
+		public bool IsDeleted { get; set; } = false;
 		public void GenerateQRCode(string text)
 		{
 			using (QRCodeGenerator qrGenerator = new QRCodeGenerator())

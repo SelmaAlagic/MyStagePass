@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MyStagePass.Services.Migrations
 {
     /// <inheritdoc />
-    public partial class initialEntities : Migration
+    public partial class InitialEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -204,7 +204,8 @@ namespace MyStagePass.Services.Migrations
                     PurchaseID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PurchaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CustomerID = table.Column<int>(type: "int", nullable: false)
+                    CustomerID = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -348,7 +349,8 @@ namespace MyStagePass.Services.Migrations
                     EventID = table.Column<int>(type: "int", nullable: false),
                     TicketType = table.Column<int>(type: "int", nullable: false),
                     PurchaseID = table.Column<int>(type: "int", nullable: false),
-                    QRCodeData = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                    QRCodeData = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -517,11 +519,11 @@ namespace MyStagePass.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "Purchases",
-                columns: new[] { "PurchaseID", "CustomerID", "PurchaseDate" },
+                columns: new[] { "PurchaseID", "CustomerID", "IsDeleted", "PurchaseDate" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2025, 10, 27, 12, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, 2, new DateTime(2025, 10, 28, 15, 30, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, 1, false, new DateTime(2025, 10, 27, 12, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 2, false, new DateTime(2025, 10, 28, 15, 30, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(
@@ -561,13 +563,13 @@ namespace MyStagePass.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "Tickets",
-                columns: new[] { "TicketID", "EventID", "Price", "PurchaseID", "QRCodeData", "TicketType" },
+                columns: new[] { "TicketID", "EventID", "IsDeleted", "Price", "PurchaseID", "QRCodeData", "TicketType" },
                 values: new object[,]
                 {
-                    { 1, 1, 40, 1, null, 2 },
-                    { 2, 1, 40, 1, null, 2 },
-                    { 3, 3, 25, 2, null, 1 },
-                    { 4, 3, 25, 2, null, 1 }
+                    { 1, 1, false, 40, 1, null, 2 },
+                    { 2, 1, false, 40, 1, null, 2 },
+                    { 3, 3, false, 25, 2, null, 1 },
+                    { 4, 3, false, 25, 2, null, 1 }
                 });
 
             migrationBuilder.CreateIndex(

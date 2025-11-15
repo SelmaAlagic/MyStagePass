@@ -14,6 +14,7 @@ namespace MyStagePass.Services.Services
 		}
 		public override IQueryable<Database.Ticket> AddInclude(IQueryable<Database.Ticket> query, TicketSearchObject? search = null)
 		{
+			query = query.Where(p => !p.IsDeleted);
 			return base.AddInclude(query, search);
 		}
 
