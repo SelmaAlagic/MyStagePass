@@ -12,7 +12,7 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    [Migration("20251115130525_InitialEntities")]
+    [Migration("20251117214342_InitialEntities")]
     partial class InitialEntities
     {
         /// <inheritdoc />
@@ -1256,17 +1256,21 @@ namespace MyStagePass.Services.Migrations
 
             modelBuilder.Entity("MyStagePass.Services.Database.CustomerFavoriteEvent", b =>
                 {
-                    b.HasOne("MyStagePass.Services.Database.Customer", null)
+                    b.HasOne("MyStagePass.Services.Database.Customer", "Customer")
                         .WithMany("FavoriteEvents")
                         .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyStagePass.Services.Database.Event", null)
+                    b.HasOne("MyStagePass.Services.Database.Event", "Event")
                         .WithMany("FavoritedByCustomers")
                         .HasForeignKey("EventID")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("MyStagePass.Services.Database.Event", b =>

@@ -1253,17 +1253,21 @@ namespace MyStagePass.Services.Migrations
 
             modelBuilder.Entity("MyStagePass.Services.Database.CustomerFavoriteEvent", b =>
                 {
-                    b.HasOne("MyStagePass.Services.Database.Customer", null)
+                    b.HasOne("MyStagePass.Services.Database.Customer", "Customer")
                         .WithMany("FavoriteEvents")
                         .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyStagePass.Services.Database.Event", null)
+                    b.HasOne("MyStagePass.Services.Database.Event", "Event")
                         .WithMany("FavoritedByCustomers")
                         .HasForeignKey("EventID")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("MyStagePass.Services.Database.Event", b =>

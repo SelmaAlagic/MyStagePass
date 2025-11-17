@@ -41,20 +41,19 @@ namespace MyStagePass.Services.Database
 				entity.HasKey(ce => ce.CustomerFavoriteEventID);
 
 				entity.HasIndex(ce => new { ce.EventID, ce.CustomerID })
-				.IsUnique();
+					.IsUnique();
 
-				entity.HasOne<Customer>()
+				entity.HasOne(ce => ce.Customer)  // ← Bez <Customer>, koristite navigation property
 					.WithMany(c => c.FavoriteEvents)
 					.HasForeignKey(e => e.CustomerID)
-					.OnDelete(DeleteBehavior.Cascade); //brisanje customera znaci brisanje cfe
+					.OnDelete(DeleteBehavior.Cascade);
 
-				entity.HasOne<Event>()
+				entity.HasOne(ce => ce.Event)  // ← Bez <Event>, koristite navigation property
 					.WithMany(ev => ev.FavoritedByCustomers)
 					.HasForeignKey(e => e.EventID)
-					.OnDelete(DeleteBehavior.ClientCascade); //brisanje evebta znaci brisanje cfe 
+					.OnDelete(DeleteBehavior.ClientCascade);
 			});
 
-	
 			modelBuilder.Entity<Ticket>(entity =>
 			{
 				entity.HasKey(t => t.TicketID);

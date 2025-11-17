@@ -5,9 +5,9 @@
 		public int CustomerID {  get; set; }
 		public int UserID {  get; set; }
 		public virtual User User { get; set; } = null!;
-		public ICollection<CustomerFavoriteEvent> FavoriteEvents { get; set; } = new List<CustomerFavoriteEvent>();
+		public virtual ICollection<CustomerFavoriteEvent> FavoriteEvents { get; set; } = new List<CustomerFavoriteEvent>();
 		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
-		public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
+		public virtual ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
 
 	}
 }

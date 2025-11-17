@@ -66,6 +66,8 @@ builder.Services.AddTransient<ICityService, CityService>();
 builder.Services.AddTransient<IGenreService, GenreService>();
 builder.Services.AddTransient<ITicketService, TicketService>();
 builder.Services.AddTransient<IPurchaseService, PurchaseService>();
+builder.Services.AddTransient<ICustomerFavoriteEventService, CustomerFavoriteEventService>();
+
 
 
 builder.Services.AddAutoMapper(cfg =>

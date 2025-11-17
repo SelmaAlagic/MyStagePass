@@ -31,8 +31,8 @@ namespace MyStagePass.Model.Models
 		public int TotalScore { get; set; } //ukupan zbir ocjena iz recenzija
 		public int RatingCount { get; set; } //broj ocjena recenzija
 		public float RatingAverage { get; set; } //prosjecne ocjena svih recenzija
-		public ICollection<CustomerFavoriteEvent> FavoritedByCustomers { get; set; } = new List<CustomerFavoriteEvent>();
-		public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+		public virtual ICollection<CustomerFavoriteEvent> FavoritedByCustomers { get; set; } = new List<CustomerFavoriteEvent>();
+		public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
 		[NotMapped]
