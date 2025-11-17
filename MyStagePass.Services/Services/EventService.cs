@@ -31,6 +31,12 @@ namespace MyStagePass.Services.Services
 			entity.TicketsSold = 0; 
 		}
 
+		public override IQueryable<Event> AddInclude(IQueryable<Event> query, EventSearchObject? search = null)
+		{
+			query = query.Include(e => e.FavoritedByCustomers);
+
+			return base.AddInclude(query, search);
+		}
 		public override IQueryable<Event> AddFilter(IQueryable<Event> query, EventSearchObject? search = null)
 		{
 			if (search == null)

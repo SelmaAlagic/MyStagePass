@@ -46,8 +46,6 @@ namespace MyStagePass.Services.Services
 			CreateMap<Database.Genre, Model.Models.Genre>()
 				.ForMember(dest => dest.Performers,
 					opt => opt.MapFrom(src => src.Performers.Select(pg => pg.Performer.ArtistName).ToList()));
-
-
 		}
 	}
 }

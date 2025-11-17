@@ -38,6 +38,8 @@ namespace MyStagePass.Services.Services
 				query = query.Include("User");
 			}
 
+			query = query.Include(c => c.FavoriteEvents);
+
 			if (!string.IsNullOrWhiteSpace(search?.searchTerm))
 			{
 				string term = search.searchTerm.ToLower();
