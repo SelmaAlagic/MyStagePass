@@ -171,6 +171,10 @@ namespace MyStagePass.Services.Database
 					.WithMany(co => co.Events)
 					.HasForeignKey(n => n.StatusID); //po defautu je restrict ili no action, ako brisem event status je netaknut, a ako hocu obrisati status, necu moci jer ima event sa istim
 
+				entity.HasOne(e => e.Location)
+				   .WithMany(l => l.Events)
+				   .HasForeignKey(e => e.LocationID)
+				   .OnDelete(DeleteBehavior.Restrict);
 			});
 
 			modelBuilder.Entity<Admin>().SeedData();
