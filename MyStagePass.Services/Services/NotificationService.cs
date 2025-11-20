@@ -11,6 +11,22 @@ namespace MyStagePass.Services.Services
 		public NotificationService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
 		{
 		}
+		
+		public override IQueryable<Notification> AddFilter(IQueryable<Notification> query, NotificationSearchObject? search = null)
+		{
+			if (search == null)
+				return query;
+
+			query = query.Where(p => !p.IsDeleted);
+
+			if (search.UserID != null)
+				query = query.Where(n => n.UserID == search.UserID);
+
+			if (search.IsRead != null)
+				query = query.Where(n => n.isRead == search.IsRead);
+
+			return query;
+		}
 
 		public async Task SoftDelete(int id)
 		{
