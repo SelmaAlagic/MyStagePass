@@ -10,7 +10,8 @@ namespace MyStagePass.Model.Models
         public string Message { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        //public bool isRead {  get; set; }
+		//public bool isRead {  get; set; }
+		public bool IsDeleted {  get; set; }
 
-    }
+	}
 }

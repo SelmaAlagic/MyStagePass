@@ -42,6 +42,7 @@ namespace MyStagePass.Services.Services
 			CreateMap<Database.CustomerFavoriteEvent, Model.Models.CustomerFavoriteEvent>();
 			CreateMap<Database.City, Model.Models.City>();
 			CreateMap<Database.Country, Model.Models.Country>();
+			CreateMap<Database.Notification, Model.Models.Notification>();
 
 			CreateMap<Database.Performer, Model.Models.Performer>()
 				.ForMember(dest => dest.Genres,
