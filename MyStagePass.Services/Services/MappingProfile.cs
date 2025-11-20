@@ -35,7 +35,10 @@ namespace MyStagePass.Services.Services
 			CreateMap<LocationInsertRequest, Database.Location>();
 			CreateMap<LocationUpdateRequest, Database.Location>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-			CreateMap<Database.Status, Model.Models.Status>();
+			CreateMap<Database.Status, Model.Models.Status>().ForMember(dest => dest.Events, opt => {opt.MapFrom(src => src.Events.Select(e => new Model.Models.Event{EventID = e.EventID,
+					EventName = e.EventName}).ToList());
+					opt.ExplicitExpansion();});
+
 			CreateMap<Database.Ticket, Model.Models.Ticket>();
 			CreateMap<Database.Review, Model.Models.Review>();
 			CreateMap<Database.Purchase, Model.Models.Purchase>();
@@ -44,13 +47,8 @@ namespace MyStagePass.Services.Services
 			CreateMap<Database.Country, Model.Models.Country>();
 			CreateMap<Database.Notification, Model.Models.Notification>();
 
-			CreateMap<Database.Performer, Model.Models.Performer>()
-				.ForMember(dest => dest.Genres,
-					opt => opt.MapFrom(src => src.Genres.Select(pg => pg.Genre.Name).ToList()));
-
-			CreateMap<Database.Genre, Model.Models.Genre>()
-				.ForMember(dest => dest.Performers,
-					opt => opt.MapFrom(src => src.Performers.Select(pg => pg.Performer.ArtistName).ToList()));
+			CreateMap<Database.Performer, Model.Models.Performer>().ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Genres.Select(pg => pg.Genre.Name).ToList()));
+			CreateMap<Database.Genre, Model.Models.Genre>().ForMember(dest => dest.Performers, opt => opt.MapFrom(src => src.Performers.Select(pg => pg.Performer.ArtistName).ToList()));
 		}
 	}
 }
