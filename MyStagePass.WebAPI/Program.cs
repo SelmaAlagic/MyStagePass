@@ -70,6 +70,7 @@ builder.Services.AddTransient<ICustomerFavoriteEventService, CustomerFavoriteEve
 builder.Services.AddTransient<ILocationService, LocationService>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
 builder.Services.AddTransient<IStatusService, StatusService>();
+builder.Services.AddTransient<ICountryService, CountryService>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
