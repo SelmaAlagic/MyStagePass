@@ -43,12 +43,12 @@ namespace MyStagePass.Services.Database
 				entity.HasIndex(ce => new { ce.EventID, ce.CustomerID })
 					.IsUnique();
 
-				entity.HasOne(ce => ce.Customer)  // ← Bez <Customer>, koristite navigation property
+				entity.HasOne(ce => ce.Customer)  
 					.WithMany(c => c.FavoriteEvents)
 					.HasForeignKey(e => e.CustomerID)
 					.OnDelete(DeleteBehavior.Cascade);
 
-				entity.HasOne(ce => ce.Event)  // ← Bez <Event>, koristite navigation property
+				entity.HasOne(ce => ce.Event)  
 					.WithMany(ev => ev.FavoritedByCustomers)
 					.HasForeignKey(e => e.EventID)
 					.OnDelete(DeleteBehavior.ClientCascade);
@@ -81,12 +81,12 @@ namespace MyStagePass.Services.Database
 				entity.HasIndex(r => new { r.EventID, r.CustomerID })
 					  .IsUnique();
 
-				entity.HasOne<Event>()
+				entity.HasOne(r => r.Event)
 					.WithMany(r => r.Reviews)
 					.HasForeignKey(e => e.EventID)
 					.OnDelete(DeleteBehavior.Cascade); //Kada se obriše event obriše se review
 
-				entity.HasOne<Customer>()
+				entity.HasOne(r => r.Customer)
 					.WithMany(r => r.Reviews)
 					.HasForeignKey(u => u.CustomerID)
 					.OnDelete(DeleteBehavior.ClientCascade); //kad se obrise customer ne obrise se review jer je ocjena bitna za prosjek ocjene izvodjaca, ali ne odzivljava setnull, pogledati sutra to

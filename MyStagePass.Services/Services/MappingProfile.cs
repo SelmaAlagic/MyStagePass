@@ -40,7 +40,10 @@ namespace MyStagePass.Services.Services
 					opt.ExplicitExpansion();});
 
 			CreateMap<Database.Ticket, Model.Models.Ticket>();
+
 			CreateMap<Database.Review, Model.Models.Review>();
+			CreateMap<ReviewInsertRequest, Database.Review>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
 			CreateMap<Database.Purchase, Model.Models.Purchase>();
 			CreateMap<Database.CustomerFavoriteEvent, Model.Models.CustomerFavoriteEvent>();
 			CreateMap<Database.City, Model.Models.City>();

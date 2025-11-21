@@ -37,7 +37,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Admins");
+                    b.ToTable("Admins", (string)null);
 
                     b.HasData(
                         new
@@ -65,7 +65,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("CountryID");
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
 
                     b.HasData(
                         new
@@ -167,7 +167,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasKey("CountryID");
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
 
                     b.HasData(
                         new
@@ -212,7 +212,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
 
                     b.HasData(
                         new
@@ -253,7 +253,7 @@ namespace MyStagePass.Services.Migrations
                     b.HasIndex("EventID", "CustomerID")
                         .IsUnique();
 
-                    b.ToTable("CustomerFavoriteEvent");
+                    b.ToTable("CustomerFavoriteEvent", (string)null);
 
                     b.HasData(
                         new
@@ -340,7 +340,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("StatusID");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
 
                     b.HasData(
                         new
@@ -430,7 +430,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasKey("GenreID");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", (string)null);
 
                     b.HasData(
                         new
@@ -499,7 +499,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("CityID");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
 
                     b.HasData(
                         new
@@ -612,7 +612,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
 
                     b.HasData(
                         new
@@ -704,7 +704,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Performers");
+                    b.ToTable("Performers", (string)null);
 
                     b.HasData(
                         new
@@ -770,7 +770,7 @@ namespace MyStagePass.Services.Migrations
                     b.HasIndex("PerformerID", "GenreID")
                         .IsUnique();
 
-                    b.ToTable("PerformerGenre");
+                    b.ToTable("PerformerGenre", (string)null);
 
                     b.HasData(
                         new
@@ -856,7 +856,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("CustomerID");
 
-                    b.ToTable("Purchases");
+                    b.ToTable("Purchases", (string)null);
 
                     b.HasData(
                         new
@@ -902,7 +902,7 @@ namespace MyStagePass.Services.Migrations
                     b.HasIndex("EventID", "CustomerID")
                         .IsUnique();
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
 
                     b.HasData(
                         new
@@ -968,7 +968,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasKey("StatusID");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Statuses", (string)null);
 
                     b.HasData(
                         new
@@ -1020,7 +1020,7 @@ namespace MyStagePass.Services.Migrations
 
                     b.HasIndex("PurchaseID");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
 
                     b.HasData(
                         new
@@ -1106,7 +1106,7 @@ namespace MyStagePass.Services.Migrations
                         .IsUnique()
                         .HasFilter("[Username] IS NOT NULL");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new

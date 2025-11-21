@@ -81,7 +81,7 @@ namespace MyStagePass.Services.Services
 			var status = await _context.Statuses.FirstOrDefaultAsync(s => s.StatusName.ToLower() == newStatus.ToLower());
 			if (status == null)
 				throw new Exception("Status not found");
-
+			
 			entity.StatusID = status.StatusID;
 			await _context.SaveChangesAsync();
 

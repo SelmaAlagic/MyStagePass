@@ -66,11 +66,11 @@ builder.Services.AddTransient<ICityService, CityService>();
 builder.Services.AddTransient<IGenreService, GenreService>();
 builder.Services.AddTransient<ITicketService, TicketService>();
 builder.Services.AddTransient<IPurchaseService, PurchaseService>();
-builder.Services.AddTransient<ICustomerFavoriteEventService, CustomerFavoriteEventService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
 builder.Services.AddTransient<IStatusService, StatusService>();
 builder.Services.AddTransient<ICountryService, CountryService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
