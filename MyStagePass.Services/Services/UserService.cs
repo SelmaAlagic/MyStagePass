@@ -1,48 +1,50 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.Services.Services
 {
-    public class UserService : IUserService
-    {
-        private readonly MyStagePassDbContext _context;
+	public class UserService : BaseService<Model.Models.User, Database.User, UserSearchObject>, IUserService
+	{
+		public UserService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
+		{
+		}
 
-        public UserService(MyStagePassDbContext context)
-        {
-            _context = context;
-        }
+		public override IQueryable<User> AddFilter(IQueryable<User> query, UserSearchObject? search = null)
+		{
+			if (search == null)
+				return query;
 
-        public virtual List<User> Get(UserSearchObject search)
-        {
-            var query = _context.Users.Include(x => x.Notifications).AsQueryable();
 
-            // Pretraga po imenu
-            if (!string.IsNullOrWhiteSpace(search?.FirstName))
-            {
-                query = query.Where(x => x.FirstName.ToLower() == search.FirstName.ToLower());
-            }
+			if (!string.IsNullOrWhiteSpace(search.FTS))
+			{
+				string lowerQuery = search.FTS.ToLower();
+				query = query.Where(u =>
+					u.FirstName!.ToLower().Contains(lowerQuery) ||
+					u.LastName!.ToLower().Contains(lowerQuery) ||
+					u.Username!.ToLower().Contains(lowerQuery) ||
+					u.Email!.ToLower().Contains(lowerQuery));
+			}
 
-            // Full Text Search (FTS) - pretraga po imenu, prezimenu, emailu, username-u i telefonu
-            if (!string.IsNullOrWhiteSpace(search?.FTS))
-            {
-                var ftsLower = search.FTS.ToLower();
-                query = query.Where(x =>
-                    x.FirstName != null && x.FirstName.ToLower().Contains(ftsLower) ||
-                    x.LastName != null && x.LastName.ToLower().Contains(ftsLower) ||
-                    x.Email != null && x.Email.ToLower().Contains(ftsLower) ||
-                    x.Username != null && x.Username.ToLower().Contains(ftsLower) ||
-                    x.PhoneNumber != null && x.PhoneNumber.ToLower().Contains(ftsLower)
-                );
-            }
+			if (search.IsActive.HasValue)
+			{
+				query = query.Where(u => u.IsActive == search.IsActive.Value);
+			}
 
-            return query.ToList();
-        }
+			return query;
+		}
 
-        public virtual User Get(int id)
-        {
-            return _context.Users.Include(x => x.Notifications).FirstOrDefault(x => x.UserID == id);
-        }
-    }
+		public async Task Delete(int id)
+		{
+			var entity = await _context.Users.FirstOrDefaultAsync(u => u.UserID == id);
+			if (entity == null)
+				throw new Exception("User not found");
+
+			entity.IsActive = false;
+
+			await _context.SaveChangesAsync();
+		}
+	}
 }

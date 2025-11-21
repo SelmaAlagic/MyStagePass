@@ -1,32 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyStagePass.Services.Database;
+using MyStagePass.Model.Models;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
-	[ApiController]
-	public class UserController : ControllerBase
+	public class UserController : BaseController<User, UserSearchObject>
 	{
-		//UserService userService=new UserService();
-
-		protected IUserService _userService;
-		public UserController(IUserService service) 
+		public UserController(ILogger<BaseController<User, UserSearchObject>> logger, IUserService service) : base(logger, service)
 		{
-			_userService=service;
 		}
 
-		[HttpGet()]
-		public IEnumerable<User> Get([FromQuery]UserSearchObject? search)
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> Delete(int id)
 		{
-			return _userService.Get(search);
-		}
+			var userService = _service as IUserService;
+			if (userService == null)
+				return BadRequest("Service not available");
 
-		[HttpGet("{Id}")]
-		public User Get(int Id)
-		{
-			return _userService.Get(Id);
+			await userService.Delete(id);
+			return Ok("User successfully deleted!");
 		}
 	}
 }
