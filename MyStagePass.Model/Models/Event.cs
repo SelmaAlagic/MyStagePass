@@ -40,5 +40,17 @@ namespace MyStagePass.Model.Models
 		{
 			return TicketsAvailable >= requestedAmount;
 		}
+
+		[NotMapped]
+		public string TimeStatus
+		{
+			get
+			{
+				if (EventDate < DateTime.Now)
+					return "Ended";
+				else
+					return "Upcoming";
+			}
+		}
 	}
 }
