@@ -45,7 +45,10 @@ namespace MyStagePass.Services.Services
 			CreateMap<ReviewInsertRequest, Database.Review>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
 			CreateMap<Database.Purchase, Model.Models.Purchase>();
+
 			CreateMap<Database.CustomerFavoriteEvent, Model.Models.CustomerFavoriteEvent>();
+			CreateMap<CustomerFavoriteEventInsertRequest, Database.CustomerFavoriteEvent>();
+
 			CreateMap<Database.City, Model.Models.City>();
 			CreateMap<Database.Country, Model.Models.Country>();
 			CreateMap<Database.Notification, Model.Models.Notification>();

@@ -13,6 +13,7 @@ namespace MyStagePass.Services.Database
 		public DbSet<City> Cities { get; set; }
 		public DbSet<Country> Countries { get; set; }
 		public DbSet<Customer> Customers { get; set; }
+		public DbSet<CustomerFavoriteEvent> CustomerFavoriteEvents { get; set; } = null!;
 		public DbSet<Event> Events { get; set; }
 		public DbSet<Genre> Genres { get; set; }
 		public DbSet<Location> Locations { get; set; }
@@ -81,12 +82,8 @@ namespace MyStagePass.Services.Database
 				entity.HasOne(r => r.Customer)
 					.WithMany(r => r.Reviews)
 					.HasForeignKey(u => u.CustomerID)
-					.OnDelete(DeleteBehavior.ClientCascade); //kad se obrise customer ne obrise se review jer je ocjena bitna za prosjek ocjene izvodjaca, ali ne odzivljava setnull, pogledati sutra to
+					.OnDelete(DeleteBehavior.ClientCascade); 
 			});
-
-			//var user = await _context.Users   --> kod client casacde-a svakog moram includeati u ovom slucaju reviews kad se brise user, i kod brisanja eventa onda isto za favoritevents...
-			//.Include(u => u.Reviews)  
-			//.FirstOrDefaultAsync(u => u.UserID == userId);
 
 			modelBuilder.Entity<City>(entity =>
 			{
