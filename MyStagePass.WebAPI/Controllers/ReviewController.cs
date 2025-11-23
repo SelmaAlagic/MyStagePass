@@ -3,7 +3,6 @@ using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Interfaces;
-using MyStagePass.Services.Services;
 
 namespace MyStagePass.WebAPI.Controllers
 {

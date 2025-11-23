@@ -12,7 +12,6 @@ namespace MyStagePass.Services.Services
 
 		public virtual async Task BeforeInsert(TDb entity, TInsert insert)
 		{
-
 		}
 
 		public virtual async Task<T> Insert(TInsert insert)

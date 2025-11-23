@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;

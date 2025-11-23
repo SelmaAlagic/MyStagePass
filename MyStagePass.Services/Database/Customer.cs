@@ -8,6 +8,5 @@
 		public virtual ICollection<CustomerFavoriteEvent> FavoriteEvents { get; set; } = new List<CustomerFavoriteEvent>();
 		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 		public virtual ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
-
 	}
 }

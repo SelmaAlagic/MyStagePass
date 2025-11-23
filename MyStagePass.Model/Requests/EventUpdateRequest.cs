@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace MyStagePass.Model.Requests
 {
@@ -24,7 +22,5 @@ namespace MyStagePass.Model.Requests
 		public DateTime? EventDate { get; set; }
 
 		public int? LocationID { get; set; }
-
 	}
 }
-

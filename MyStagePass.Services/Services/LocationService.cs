@@ -53,7 +53,5 @@ namespace MyStagePass.Services.Services
 			if (!cityExists)
 				throw new Exception("City does not exist.");
 		}
-
 	}
 }
-

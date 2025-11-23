@@ -11,6 +11,5 @@ namespace MyStagePass.Model.Models
         public virtual Event Event { get; set; } = null!;
         public int RatingValue { get; set; }
         public DateTime CreatedAt { get; set; }
-
     }
 } 

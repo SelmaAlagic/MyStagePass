@@ -9,6 +9,5 @@
 		public int CityID {  get; set; }
 		public virtual City City { get; set; } = null!;
 		public virtual ICollection<Event> Events { get; set; } = new List<Event>();
-
 	}
 }

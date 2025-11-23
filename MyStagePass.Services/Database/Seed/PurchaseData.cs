@@ -10,7 +10,6 @@ namespace MyStagePass.Services.Database.Seed
 			   new Purchase { PurchaseID = 1, CustomerID = 1, PurchaseDate = new DateTime(2025, 10, 27, 12, 0, 0) },
 			   new Purchase { PurchaseID = 2, CustomerID = 2, PurchaseDate = new DateTime(2025, 10, 28, 15, 30, 0) }
 			);
-
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿
-namespace MyStagePass.Services.Database
+﻿namespace MyStagePass.Services.Database
 {
     public class Review
     {
@@ -10,6 +9,5 @@ namespace MyStagePass.Services.Database
         public virtual Event Event { get; set; } = null!;
         public int RatingValue { get; set; }
         public DateTime CreatedAt { get; set; }
-
     }
 } 

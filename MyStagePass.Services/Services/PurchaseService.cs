@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Interfaces;
-using System.Runtime.InteropServices;
 
 namespace MyStagePass.Services.Services
 {
@@ -55,6 +54,5 @@ namespace MyStagePass.Services.Services
 
 			await _context.SaveChangesAsync(); ;
 		}
-
 	}
 }

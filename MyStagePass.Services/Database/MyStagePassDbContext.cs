@@ -28,14 +28,6 @@ namespace MyStagePass.Services.Database
 		{
 			base.OnModelCreating(modelBuilder);
 
-			modelBuilder.Entity<User>()
- 				.HasIndex(u => u.Email)  //index za pretragu po usernameu i emailu, primjer
-				.IsUnique();
-
-			modelBuilder.Entity<User>()
-				.HasIndex(u => u.Username)
-				.IsUnique();
-
 			modelBuilder.Entity<CustomerFavoriteEvent>(entity =>
 			{
 				entity.HasKey(ce => ce.CustomerFavoriteEventID);
@@ -162,7 +154,6 @@ namespace MyStagePass.Services.Database
 					.WithMany(co => co.Purchases)
 					.HasForeignKey(n => n.CustomerID)
 					.OnDelete(DeleteBehavior.Cascade);
-
 			});
 
 			modelBuilder.Entity<Event>(entity =>

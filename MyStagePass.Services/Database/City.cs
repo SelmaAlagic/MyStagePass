@@ -7,6 +7,5 @@
 		public int CountryID {  get; set; }
 		public virtual Country Country { get; set; } = null!;
 		public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
-
 	}
 }

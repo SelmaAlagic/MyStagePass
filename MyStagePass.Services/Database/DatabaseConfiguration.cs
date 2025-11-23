@@ -9,6 +9,5 @@ namespace MyStagePass.Services.Database
 		{
 			services.AddDbContext<MyStagePassDbContext>(options => options.UseSqlServer(connectionString));
 		}
-
 	}
 }

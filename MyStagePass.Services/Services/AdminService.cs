@@ -6,7 +6,6 @@ using MyStagePass.Services.Database;
 using MyStagePass.Services.Helpers;
 using MyStagePass.Services.Interfaces;
 
-
 namespace MyStagePass.Services.Services
 {
 	public class AdminService : BaseCRUDService<Model.Models.Admin, Admin, AdminSearchObject, AdminInsertRequest, AdminUpdateRequest>, IAdminService
@@ -50,6 +49,5 @@ namespace MyStagePass.Services.Services
 			await _context.SaveChangesAsync();
 			return _mapper.Map<Model.Models.Admin>(entity);
 		}
-
 	}
 }

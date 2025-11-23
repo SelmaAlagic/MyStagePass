@@ -12,7 +12,6 @@ namespace MyStagePass.Model.Models
 			Vip = 2,
 			Premium = 3
 		}
-
 		public int EventID { get; set; }
 		public string? EventName { get; set; }
 		public string? Description { get; set; }

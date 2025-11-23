@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MyStagePass.Model.Models;
+﻿using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Interfaces;

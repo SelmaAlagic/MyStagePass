@@ -5,7 +5,6 @@ using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Interfaces;
 
-
 namespace MyStagePass.Services.Services
 {
 	public class ReviewService : BaseService<Model.Models.Review, Database.Review, ReviewSearchObject>, IReviewService

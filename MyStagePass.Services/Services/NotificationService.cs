@@ -39,7 +39,6 @@ namespace MyStagePass.Services.Services
 			notification.IsDeleted = true;
 
 			await _context.SaveChangesAsync();
-
 		}
 	}
 }

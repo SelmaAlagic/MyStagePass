@@ -16,6 +16,5 @@
 		public ICollection<Performer> Performers { get; set; } = new List<Performer>();
 		public ICollection<Customer> Customers { get; set; } = new List<Customer>();
 		public virtual ICollection<Admin> Admins { get; set; } = new List<Admin>();
-
 	}
 }

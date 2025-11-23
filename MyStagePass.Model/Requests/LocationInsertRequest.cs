@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
 namespace MyStagePass.Model.Requests
 {
 	public class LocationInsertRequest
@@ -19,6 +19,5 @@ namespace MyStagePass.Model.Requests
 
 		[Required]
 		public int CityID { get; set; }
-
 	}
 }

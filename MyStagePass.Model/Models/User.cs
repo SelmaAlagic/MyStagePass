@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace MyStagePass.Model.Models
 {
@@ -20,6 +19,5 @@ namespace MyStagePass.Model.Models
 		public ICollection<Customer> Customers { get; set; } = new List<Customer>();
 		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 		public virtual ICollection<Admin> Admins { get; set; } = new List<Admin>();
-
 	}
 }

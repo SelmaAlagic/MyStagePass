@@ -51,9 +51,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost\\SQLEXPRESS;Database=MyStagePassDummy;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"; //konekcija na bazu ukoliko nemamo u appsetting.json vec definiran default connection
 builder.Services.AddDatabaseServices(connectionString);
 
-builder.Services.AddControllers()
-	.AddJsonOptions(x =>
-		x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -72,10 +71,7 @@ builder.Services.AddTransient<IStatusService, StatusService>();
 builder.Services.AddTransient<ICountryService, CountryService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
 
-builder.Services.AddAutoMapper(cfg =>
-{
-	cfg.AddProfile<MappingProfile>();
-});
+builder.Services.AddAutoMapper(cfg => { cfg.AddProfile<MappingProfile>(); });
 
 var app = builder.Build();
 
@@ -92,12 +88,8 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

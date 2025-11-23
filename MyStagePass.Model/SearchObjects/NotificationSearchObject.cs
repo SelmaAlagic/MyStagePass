@@ -4,6 +4,5 @@
 	{
 		public bool? IsRead {  get; set; }
 		public int? UserID {  get; set; }
-
 	}
 }
