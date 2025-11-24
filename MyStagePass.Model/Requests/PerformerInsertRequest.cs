@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyStagePass.Model.Requests
 {
-	public class PerformerInsetRequest
+	public class PerformerInsertRequest
 	{
 		[Required]
 		[MinLength(3)]
@@ -23,6 +24,9 @@ namespace MyStagePass.Model.Requests
 		[Required]
 		[MinLength(5)]
 		public string ArtistName { get; set; }
+
+		[Required]
+		public List<int> GenreIds { get; set; } = new List<int>();
 
 		[Required]
 		[MinLength(10)]

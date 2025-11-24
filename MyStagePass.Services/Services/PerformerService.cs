@@ -8,12 +8,12 @@ using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.Services.Services
 {
-	public class PerformerService : BaseCRUDService<Model.Models.Performer, Performer, PerformerSearchObject, PerformerInsetRequest, PerformerUpdateRequest>, IPerformerService
+	public class PerformerService : BaseCRUDService<Model.Models.Performer, Performer, PerformerSearchObject, PerformerInsertRequest, PerformerUpdateRequest>, IPerformerService
 	{
 		public PerformerService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
 		{
 		}
-		public override async Task BeforeInsert(Performer entity, PerformerInsetRequest insert)
+		public override async Task BeforeInsert(Performer entity, PerformerInsertRequest insert)
 		{
 			if (insert.Password != insert.PasswordConfirm)
 				throw new Exception("Password and confirmation do not match.");
@@ -28,6 +28,27 @@ namespace MyStagePass.Services.Services
 			entity.User = user;
 			entity.User.Salt = PasswordHelper.GenerateSalt();
 			entity.User.Password = PasswordHelper.GenerateHash(entity.User.Salt, insert.Password);
+
+			entity.Genres = new List<PerformerGenre>();
+			if (insert.GenreIds != null && insert.GenreIds.Count > 0)
+			{
+				var distinctGenreIds = insert.GenreIds.Distinct().ToList();
+				var genresFromDb = await _context.Genres.Where(g => distinctGenreIds.Contains(g.GenreID)).ToListAsync();
+
+				foreach (var genreId in distinctGenreIds)
+				{
+					var genreEntity = genresFromDb.FirstOrDefault(g => g.GenreID == genreId);
+					if (genreEntity == null)
+						throw new Exception($"Genre with ID {genreId} does not exist.");
+
+					entity.Genres.Add(new PerformerGenre
+					{
+						GenreID = genreId,
+						Performer = entity,
+						Genre = genreEntity
+					});
+				}
+			}
 		}
 
 		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
@@ -53,6 +74,12 @@ namespace MyStagePass.Services.Services
 			{
 				query = query.Where(p => p.IsApproved == search.IsApproved);
 			}
+
+			if (search?.GenreID != null)
+			{
+				query = query.Where(p => p.Genres.Any(pg => pg.GenreID == search.GenreID.Value));
+			}
+
 			return base.AddInclude(query, search);
 		}
 

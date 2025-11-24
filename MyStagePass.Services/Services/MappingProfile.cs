@@ -22,8 +22,8 @@ namespace MyStagePass.Services.Services
 			CreateMap<Model.Requests.CustomerUpdateRequest, Database.Customer>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 			CreateMap<Database.Performer, Performer>();
-			CreateMap<Model.Requests.PerformerInsetRequest, Database.User>();
-			CreateMap<Model.Requests.PerformerInsetRequest, Database.Performer>();
+			CreateMap<Model.Requests.PerformerInsertRequest, Database.User>();
+			CreateMap<Model.Requests.PerformerInsertRequest, Database.Performer>();
 			CreateMap<Model.Requests.PerformerUpdateRequest, Database.User>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 			CreateMap<Model.Requests.PerformerUpdateRequest, Database.Performer>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
