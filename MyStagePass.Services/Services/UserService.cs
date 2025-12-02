@@ -1,15 +1,24 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
+using MyStagePass.Services.Helpers;
 using MyStagePass.Services.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace MyStagePass.Services.Services
 {
 	public class UserService : BaseService<Model.Models.User, Database.User, UserSearchObject>, IUserService
 	{
-		public UserService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
+		private readonly IConfiguration _configuration;
+		public UserService(MyStagePassDbContext context, IMapper mapper, IConfiguration configuration) : base(context, mapper)
 		{
+			_configuration=configuration;
 		}
 
 		public override IQueryable<User> AddFilter(IQueryable<User> query, UserSearchObject? search = null)
@@ -45,6 +54,91 @@ namespace MyStagePass.Services.Services
 			entity.IsActive = false;
 
 			await _context.SaveChangesAsync();
+		}
+
+		public async Task<AuthResponse> AuthenticateUser(string username, string password)
+		{
+			var user = await _context.Users
+				.Include(u => u.Admins)
+				.Include(u => u.Performers)
+				.Include(u => u.Customers)
+				.FirstOrDefaultAsync(u => u.Username == username);
+
+			if (user == null)
+			{
+				return new AuthResponse { Result = AuthResult.UserNotFound };
+			}
+
+			if (!user.IsActive)
+			{
+				return new AuthResponse { Result = AuthResult.UserNotFound };
+			}
+
+			if (!PasswordHelper.VerifyPassword(password, user.Password, user.Salt))
+			{
+				return new AuthResponse { Result = AuthResult.InvalidPassword };
+			}
+
+			string userRole;
+			int roleId;
+
+			if (user.Admins != null && user.Admins.Any())
+			{
+				userRole = "Admin";
+				roleId = user.Admins.First().AdminID;
+			}
+			else if (user.Performers != null && user.Performers.Any())
+			{
+				userRole = "Performer";
+				roleId = user.Performers.First().PerformerID;
+			}
+			else if (user.Customers != null && user.Customers.Any())
+			{
+				userRole = "Customer";
+				roleId = user.Customers.First().CustomerID;
+			}
+			else
+			{
+				return new AuthResponse { Result = AuthResult.UserNotFound };
+			}
+
+			var token = GenerateJwtToken(user, userRole, roleId);
+
+			return new AuthResponse
+			{
+				Result = AuthResult.Success,
+				Token = token,
+				UserId = user.UserID,
+				RoleId = roleId
+			};
+		}
+		
+		private string GenerateJwtToken(Database.User user, string userRole, int roleId)
+		{
+			var claims = new List<Claim>
+			{
+				new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),     
+                new Claim(ClaimTypes.Email, user.Email),                          
+                new Claim(ClaimTypes.Role, userRole),                            
+                new Claim("RoleId", roleId.ToString()),                         
+                new Claim("Username", user.Username ?? string.Empty),             
+                new Claim("FirstName", user.FirstName ?? string.Empty),          
+                new Claim("LastName", user.LastName ?? string.Empty)              
+            };
+
+			var key = new SymmetricSecurityKey(
+				Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"])
+			);
+
+			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+			var token = new JwtSecurityToken(
+				claims: claims,
+				expires: DateTime.Now.AddHours(8),  
+				signingCredentials: creds
+			);
+
+			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 	}
 }

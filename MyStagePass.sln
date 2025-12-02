@@ -3,18 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStagePass.WebAPI", "MyStagePass.WebAPI\MyStagePass.WebAPI.csproj", "{1C06C48A-367D-4333-A4AD-1D6C5CD43F6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyStagePass.WebAPI", "MyStagePass.WebAPI\MyStagePass.WebAPI.csproj", "{1C06C48A-367D-4333-A4AD-1D6C5CD43F6C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C} = {3474B1A8-6779-4C0D-AE26-D77A18EFF50C}
 		{EF0A2E53-3E84-4FB1-8FE2-5235968458AA} = {EF0A2E53-3E84-4FB1-8FE2-5235968458AA}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStagePass.Services", "MyStagePass.Services\MyStagePass.Services.csproj", "{EF0A2E53-3E84-4FB1-8FE2-5235968458AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyStagePass.Services", "MyStagePass.Services\MyStagePass.Services.csproj", "{EF0A2E53-3E84-4FB1-8FE2-5235968458AA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3474B1A8-6779-4C0D-AE26-D77A18EFF50C} = {3474B1A8-6779-4C0D-AE26-D77A18EFF50C}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStagePass.Model", "MyStagePass.Model\MyStagePass.Model.csproj", "{3474B1A8-6779-4C0D-AE26-D77A18EFF50C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyStagePass.Model", "MyStagePass.Model\MyStagePass.Model.csproj", "{3474B1A8-6779-4C0D-AE26-D77A18EFF50C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1109,9 +1109,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "User",
-                            Password = "hashed_password",
+                            Password = "87uR2UGEwJb+G94YYYqc4IZIbthyTaHA4boQDN5CExA=",
                             PhoneNumber = "000000000",
-                            Salt = "salt",
+                            Salt = "IhR/4bRJzroO4bcmtgHGkqYUmN1Wla4zV4czkA3g7ms=",
                             Username = "admin"
                         },
                         new
@@ -1122,9 +1122,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Ramovic",
-                            Password = "hashed_password",
+                            Password = "wVeM+A7xFOWmNz6WUzs23LSzd+Pm7/PplyQ9GpV87Hk=",
                             PhoneNumber = "111222333",
-                            Salt = "salt",
+                            Salt = "pvjWq+VujYdSTol9MA3VVhP6EY+Kql6fYFCBASS+d8M=",
                             Username = "dzejla"
                         },
                         new
@@ -1135,9 +1135,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Karahmet",
-                            Password = "hashed_password",
+                            Password = "uxK0YxJPz9QLsVfw4ee8fL+dM1uUN8vN6WFPCyOAcqA=",
                             PhoneNumber = "222333444",
-                            Salt = "salt",
+                            Salt = "BqpqvdzJDc8t1l7ZBXd1IRCWTZWSg/59+fEDHpoVWrQ=",
                             Username = "ilma"
                         },
                         new
@@ -1148,9 +1148,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Rozga",
-                            Password = "hashed_password",
+                            Password = "TL7rkXHBNDNC3NPpuVp+h5+SnysyzvjZuqnmmJHcFjM=",
                             PhoneNumber = "333444555",
-                            Salt = "salt",
+                            Salt = "I4Pn06A7oNUVQ/kUYqo237If6DFHywUzqb6P5HiHbIU=",
                             Username = "jelena"
                         },
                         new
@@ -1161,9 +1161,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Cetinski",
-                            Password = "hashed_password",
+                            Password = "mW/8bOiXthVpBSuYPLobPjvy8i+xTfHNmcDqUIlCDU8=",
                             PhoneNumber = "444555666",
-                            Salt = "salt",
+                            Salt = "70L4RL1BfNDf3kdFuFnV8CVKa6P0IwCqpBbhGlydWn0=",
                             Username = "toni"
                         },
                         new
@@ -1174,9 +1174,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Samardzic",
-                            Password = "hashed_password",
+                            Password = "yqgTF438f2Lmh9UVeFJUiwqM9ms4pVlRKExytyEcoLc=",
                             PhoneNumber = "555666777",
-                            Salt = "salt",
+                            Salt = "cSWM+1tJLPyb+F6cK8ZQDBzo6Cw+A0qKIWsXkmnKUxU=",
                             Username = "zeljko"
                         },
                         new
@@ -1187,9 +1187,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Alagic",
-                            Password = "hashed_password",
+                            Password = "3norKUP6vaGTTLxYT6z8ViqMTwel5H9VzDJtvv8UXsc=",
                             PhoneNumber = "666777888",
-                            Salt = "salt",
+                            Salt = "IthWo0ZtwYbd7p5WbFFRhzKQwlPrWpoezX88mm5jVRw=",
                             Username = "selmica"
                         },
                         new
@@ -1200,9 +1200,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Erdem",
-                            Password = "hashed_password",
+                            Password = "TeYbmcLPN0RiS6SerDD5m48oJE24WAvx009eqCWJK0A=",
                             PhoneNumber = "777888999",
-                            Salt = "salt",
+                            Salt = "p4tjDRYIxKl+mM7f+BAEOGwWCOPqIvpJlo5JIoTqKv4=",
                             Username = "eda"
                         },
                         new
@@ -1213,9 +1213,9 @@ namespace MyStagePass.Services.Migrations
                             Image = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 },
                             IsActive = true,
                             LastName = "Zahirovic",
-                            Password = "hashed_password",
+                            Password = "5DFY+n7My58tZKF07JOHUu8qJjgTkM7r+hRYKT3qRQQ=",
                             PhoneNumber = "888999000",
-                            Salt = "salt",
+                            Salt = "c10TpCTlVieWsdcohjgjLNfMA9KgWwybFQ+3U5o9oUM=",
                             Username = "tess"
                         });
                 });

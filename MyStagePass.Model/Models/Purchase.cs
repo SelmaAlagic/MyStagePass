@@ -12,8 +12,8 @@ namespace MyStagePass.Model.Models
 		public int CustomerID { get; set; }
 		//public virtual Customer Customer { get; set; } = null!;
 		public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+		public bool IsDeleted { get; set; } = false;
 
-		public bool IsDeleted { get; set; }
 		[NotMapped]
 		public int Total => Tickets.Sum(i => i.Price);
 	}

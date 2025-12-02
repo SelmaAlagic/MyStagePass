@@ -11,7 +11,7 @@
 		public string? Salt { get; set; }
 		public string? PhoneNumber { get; set; }
 		public byte[]? Image {  get; set; }
-		public bool IsActive {  get; set; }
+		public bool IsActive { get; set; } = true;
 		public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 		public ICollection<Performer> Performers { get; set; } = new List<Performer>();
 		public ICollection<Customer> Customers { get; set; } = new List<Customer>();

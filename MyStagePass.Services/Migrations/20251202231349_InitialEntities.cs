@@ -60,8 +60,8 @@ namespace MyStagePass.Services.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Username = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Salt = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -140,7 +140,8 @@ namespace MyStagePass.Services.Migrations
                     UserID = table.Column<int>(type: "int", nullable: false),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    isRead = table.Column<bool>(type: "bit", nullable: false)
+                    isRead = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -272,7 +273,7 @@ namespace MyStagePass.Services.Migrations
                         column: x => x.LocationID,
                         principalTable: "Locations",
                         principalColumn: "LocationID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Events_Performers_PerformerID",
                         column: x => x.PerformerID,
@@ -288,7 +289,7 @@ namespace MyStagePass.Services.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomerFavoriteEvent",
+                name: "CustomerFavoriteEvents",
                 columns: table => new
                 {
                     CustomerFavoriteEventID = table.Column<int>(type: "int", nullable: false)
@@ -298,15 +299,15 @@ namespace MyStagePass.Services.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomerFavoriteEvent", x => x.CustomerFavoriteEventID);
+                    table.PrimaryKey("PK_CustomerFavoriteEvents", x => x.CustomerFavoriteEventID);
                     table.ForeignKey(
-                        name: "FK_CustomerFavoriteEvent_Customers_CustomerID",
+                        name: "FK_CustomerFavoriteEvents_Customers_CustomerID",
                         column: x => x.CustomerID,
                         principalTable: "Customers",
                         principalColumn: "CustomerID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CustomerFavoriteEvent_Events_EventID",
+                        name: "FK_CustomerFavoriteEvents_Events_EventID",
                         column: x => x.EventID,
                         principalTable: "Events",
                         principalColumn: "EventID");
@@ -410,15 +411,15 @@ namespace MyStagePass.Services.Migrations
                 columns: new[] { "UserID", "Email", "FirstName", "Image", "IsActive", "LastName", "Password", "PhoneNumber", "Salt", "Username" },
                 values: new object[,]
                 {
-                    { 1, "admin@example.com", "Admin", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "User", "hashed_password", "000000000", "salt", "admin" },
-                    { 2, "dzejla@example.com", "Dzejla", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Ramovic", "hashed_password", "111222333", "salt", "dzejla" },
-                    { 3, "ilma@example.com", "Ilma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Karahmet", "hashed_password", "222333444", "salt", "ilma" },
-                    { 4, "jelena@example.com", "Jelena", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Rozga", "hashed_password", "333444555", "salt", "jelena" },
-                    { 5, "toni@example.com", "Toni", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Cetinski", "hashed_password", "444555666", "salt", "toni" },
-                    { 6, "zeljko@example.com", "Zeljko", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Samardzic", "hashed_password", "555666777", "salt", "zeljko" },
-                    { 7, "selma@example.com", "Selma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Alagic", "hashed_password", "666777888", "salt", "selmica" },
-                    { 8, "eda@example.com", "Eda", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Erdem", "hashed_password", "777888999", "salt", "eda" },
-                    { 9, "tesa@example.com", "Tesa", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Zahirovic", "hashed_password", "888999000", "salt", "tess" }
+                    { 1, "admin@example.com", "Admin", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "User", "87uR2UGEwJb+G94YYYqc4IZIbthyTaHA4boQDN5CExA=", "000000000", "IhR/4bRJzroO4bcmtgHGkqYUmN1Wla4zV4czkA3g7ms=", "admin" },
+                    { 2, "dzejla@example.com", "Dzejla", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Ramovic", "wVeM+A7xFOWmNz6WUzs23LSzd+Pm7/PplyQ9GpV87Hk=", "111222333", "pvjWq+VujYdSTol9MA3VVhP6EY+Kql6fYFCBASS+d8M=", "dzejla" },
+                    { 3, "ilma@example.com", "Ilma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Karahmet", "uxK0YxJPz9QLsVfw4ee8fL+dM1uUN8vN6WFPCyOAcqA=", "222333444", "BqpqvdzJDc8t1l7ZBXd1IRCWTZWSg/59+fEDHpoVWrQ=", "ilma" },
+                    { 4, "jelena@example.com", "Jelena", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Rozga", "TL7rkXHBNDNC3NPpuVp+h5+SnysyzvjZuqnmmJHcFjM=", "333444555", "I4Pn06A7oNUVQ/kUYqo237If6DFHywUzqb6P5HiHbIU=", "jelena" },
+                    { 5, "toni@example.com", "Toni", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Cetinski", "mW/8bOiXthVpBSuYPLobPjvy8i+xTfHNmcDqUIlCDU8=", "444555666", "70L4RL1BfNDf3kdFuFnV8CVKa6P0IwCqpBbhGlydWn0=", "toni" },
+                    { 6, "zeljko@example.com", "Zeljko", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Samardzic", "yqgTF438f2Lmh9UVeFJUiwqM9ms4pVlRKExytyEcoLc=", "555666777", "cSWM+1tJLPyb+F6cK8ZQDBzo6Cw+A0qKIWsXkmnKUxU=", "zeljko" },
+                    { 7, "selma@example.com", "Selma", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Alagic", "3norKUP6vaGTTLxYT6z8ViqMTwel5H9VzDJtvv8UXsc=", "666777888", "IthWo0ZtwYbd7p5WbFFRhzKQwlPrWpoezX88mm5jVRw=", "selmica" },
+                    { 8, "eda@example.com", "Eda", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Erdem", "TeYbmcLPN0RiS6SerDD5m48oJE24WAvx009eqCWJK0A=", "777888999", "p4tjDRYIxKl+mM7f+BAEOGwWCOPqIvpJlo5JIoTqKv4=", "eda" },
+                    { 9, "tesa@example.com", "Tesa", new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218, 99, 252, 255, 2, 0, 2, 5, 1, 0, 239, 159, 224, 185, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }, true, "Zahirovic", "5DFY+n7My58tZKF07JOHUu8qJjgTkM7r+hRYKT3qRQQ=", "888999000", "c10TpCTlVieWsdcohjgjLNfMA9KgWwybFQ+3U5o9oUM=", "tess" }
                 });
 
             migrationBuilder.InsertData(
@@ -459,16 +460,16 @@ namespace MyStagePass.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "Notifications",
-                columns: new[] { "NotificationID", "CreatedAt", "Message", "UserID", "isRead" },
+                columns: new[] { "NotificationID", "CreatedAt", "IsDeleted", "Message", "UserID", "isRead" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 10, 29, 10, 0, 0, 0, DateTimeKind.Unspecified), "New performer request waiting for verification!", 1, true },
-                    { 2, new DateTime(2025, 10, 29, 10, 30, 0, 0, DateTimeKind.Unspecified), "You have some events waiting for approval!", 1, true },
-                    { 3, new DateTime(2025, 11, 28, 12, 0, 0, 0, DateTimeKind.Unspecified), "Ilma Karahmet added a new event!", 7, false },
-                    { 4, new DateTime(2025, 10, 28, 10, 0, 0, 0, DateTimeKind.Unspecified), "Toni Cetinski added a new event!", 9, true },
-                    { 5, new DateTime(2025, 12, 31, 14, 0, 0, 0, DateTimeKind.Unspecified), "Your event has been approved!", 4, false },
-                    { 6, new DateTime(2025, 1, 22, 16, 0, 0, 0, DateTimeKind.Unspecified), "Your event has been rejected!", 5, false },
-                    { 7, new DateTime(2025, 2, 9, 16, 0, 0, 0, DateTimeKind.Unspecified), "Your event has been rejected!", 3, false }
+                    { 1, new DateTime(2025, 10, 29, 10, 0, 0, 0, DateTimeKind.Unspecified), false, "New performer request waiting for verification!", 1, true },
+                    { 2, new DateTime(2025, 10, 29, 10, 30, 0, 0, DateTimeKind.Unspecified), false, "You have some events waiting for approval!", 1, true },
+                    { 3, new DateTime(2025, 11, 28, 12, 0, 0, 0, DateTimeKind.Unspecified), false, "Ilma Karahmet added a new event!", 7, false },
+                    { 4, new DateTime(2025, 10, 28, 10, 0, 0, 0, DateTimeKind.Unspecified), false, "Toni Cetinski added a new event!", 9, true },
+                    { 5, new DateTime(2025, 12, 31, 14, 0, 0, 0, DateTimeKind.Unspecified), false, "Your event has been approved!", 4, false },
+                    { 6, new DateTime(2025, 1, 22, 16, 0, 0, 0, DateTimeKind.Unspecified), false, "Your event has been rejected!", 5, false },
+                    { 7, new DateTime(2025, 2, 9, 16, 0, 0, 0, DateTimeKind.Unspecified), false, "Your event has been rejected!", 3, false }
                 });
 
             migrationBuilder.InsertData(
@@ -538,7 +539,7 @@ namespace MyStagePass.Services.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "CustomerFavoriteEvent",
+                table: "CustomerFavoriteEvents",
                 columns: new[] { "CustomerFavoriteEventID", "CustomerID", "EventID" },
                 values: new object[,]
                 {
@@ -583,13 +584,13 @@ namespace MyStagePass.Services.Migrations
                 column: "CountryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomerFavoriteEvent_CustomerID",
-                table: "CustomerFavoriteEvent",
+                name: "IX_CustomerFavoriteEvents_CustomerID",
+                table: "CustomerFavoriteEvents",
                 column: "CustomerID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomerFavoriteEvent_EventID_CustomerID",
-                table: "CustomerFavoriteEvent",
+                name: "IX_CustomerFavoriteEvents_EventID_CustomerID",
+                table: "CustomerFavoriteEvents",
                 columns: new[] { "EventID", "CustomerID" },
                 unique: true);
 
@@ -664,20 +665,6 @@ namespace MyStagePass.Services.Migrations
                 name: "IX_Tickets_PurchaseID",
                 table: "Tickets",
                 column: "PurchaseID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
-                table: "Users",
-                column: "Email",
-                unique: true,
-                filter: "[Email] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Username",
-                table: "Users",
-                column: "Username",
-                unique: true,
-                filter: "[Username] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -687,7 +674,7 @@ namespace MyStagePass.Services.Migrations
                 name: "Admins");
 
             migrationBuilder.DropTable(
-                name: "CustomerFavoriteEvent");
+                name: "CustomerFavoriteEvents");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
