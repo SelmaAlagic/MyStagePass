@@ -12,15 +12,10 @@ namespace MyStagePass.Model.Requests
 		public string? Description { get; set; }
 
 		public int? RegularPrice { get; set; }
-
 		public int? VipPrice { get; set; }
-
 		public int? PremiumPrice { get; set; }
-
 		public int? PerformerID { get; set; }
-
 		public DateTime? EventDate { get; set; }
-
 		public int? LocationID { get; set; }
 	}
 }

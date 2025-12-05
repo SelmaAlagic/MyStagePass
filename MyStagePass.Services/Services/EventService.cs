@@ -33,7 +33,7 @@ namespace MyStagePass.Services.Services
 
 		public override IQueryable<Event> AddInclude(IQueryable<Event> query, EventSearchObject? search = null)
 		{
-			query = query.Include(e => e.FavoritedByCustomers);
+			query = query.Include(e => e.FavoritedByCustomers).Include(e => e.Status); 
 
 			return base.AddInclude(query, search);
 		}
@@ -41,6 +41,12 @@ namespace MyStagePass.Services.Services
 		{
 			if (search == null)
 				return query;
+
+			if (search.PerformerID.HasValue)
+				query = query.Where(e => e.PerformerID == search.PerformerID.Value);
+
+			if (!string.IsNullOrEmpty(search.Status))
+				query = query.Where(e => e.Status.StatusName == search.Status);
 
 			if (!string.IsNullOrEmpty(search.EventName))
 				query = query.Where(e => e.EventName!.ToLower().Contains(search.EventName.ToLower()));
@@ -73,8 +79,7 @@ namespace MyStagePass.Services.Services
 
 		public async Task<Model.Models.Event> UpdateAdminStatus(int eventId, string newStatus)
 		{
-			var entity = await _context.Events.Include(e => e.Status)
-											  .FirstOrDefaultAsync(e => e.EventID == eventId);
+			var entity = await _context.Events.Include(e => e.Status).FirstOrDefaultAsync(e => e.EventID == eventId);
 			if (entity == null)
 				throw new Exception("Event not found");
 
@@ -87,6 +92,5 @@ namespace MyStagePass.Services.Services
 
 			return _mapper.Map<Model.Models.Event>(entity);
 		}
-
 	}
 }

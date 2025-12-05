@@ -6,5 +6,6 @@ namespace MyStagePass.Services.Interfaces
 {
 	public interface IEventService:ICRUDService<Event, EventSearchObject, EventInsertRequest, EventUpdateRequest>
 	{
+		Task<Model.Models.Event> UpdateAdminStatus(int eventId, string newStatus);
 	}
 }

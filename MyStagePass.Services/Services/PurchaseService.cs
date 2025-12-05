@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
+using MyStagePass.Model.Models;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Interfaces;
@@ -25,6 +27,9 @@ namespace MyStagePass.Services.Services
 
 			query = query.Where(p => !p.IsDeleted);
 
+			if (search.CustomerID.HasValue)
+				query = query.Where(p => p.CustomerID == search.CustomerID.Value);
+
 			if (search.DateFrom != null)
 				query = query.Where(p => p.PurchaseDate >= search.DateFrom);
 
@@ -33,6 +38,7 @@ namespace MyStagePass.Services.Services
 
 			return query;
 		}
+
 		public async Task SoftDelete(int id)
 		{
 			var entity = await _context.Purchases

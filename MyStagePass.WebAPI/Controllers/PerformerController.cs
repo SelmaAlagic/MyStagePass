@@ -7,6 +7,8 @@ using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.WebAPI.Controllers
 {
+	[ApiController]
+	[Route("api/[controller]")]
 	public class PerformerController : BaseCRUDController<Performer, PerformerSearchObject, PerformerInsertRequest, PerformerUpdateRequest>
 	{
 		public PerformerController(ILogger<BaseController<Performer, PerformerSearchObject>> logger, IPerformerService service) : base(logger, service)
@@ -14,6 +16,7 @@ namespace MyStagePass.WebAPI.Controllers
 		}
 
 		[AllowAnonymous]
+		[HttpPost("register")]
 		public override Task<Performer> Insert([FromBody] PerformerInsertRequest insert)
 		{
 			return base.Insert(insert);
