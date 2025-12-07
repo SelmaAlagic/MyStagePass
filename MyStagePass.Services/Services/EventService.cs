@@ -11,11 +11,13 @@ namespace MyStagePass.Services.Services
 	{
 		private readonly MyStagePassDbContext _context;
 		private readonly IMapper _mapper;
+		private readonly INotificationService _notificationService;
 
-		public EventService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
+		public EventService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService) : base(context, mapper)
 		{
 			_context = context;
 			_mapper = mapper;
+			_notificationService = notificationService;
 		}
 
 		public override async Task BeforeInsert(Event entity, EventInsertRequest insert)
@@ -30,7 +32,14 @@ namespace MyStagePass.Services.Services
 
 			entity.TicketsSold = 0; 
 		}
+		public override async Task<Model.Models.Event> Insert(EventInsertRequest insert)
+		{
+			var result = await base.Insert(insert);
 
+			await _notificationService.NotifyUser(1, $"Event '{result.EventName}' has been created and is waiting for approval!");
+
+			return result;
+		}
 		public override IQueryable<Event> AddInclude(IQueryable<Event> query, EventSearchObject? search = null)
 		{
 			query = query.Include(e => e.FavoritedByCustomers).Include(e => e.Status); 

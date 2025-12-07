@@ -9,7 +9,7 @@ namespace MyStagePass.Model.Models
         public virtual User User { get; set; } = null!;
         public string Message { get; set; }
         public DateTime CreatedAt { get; set; }
-	    public bool isRead {  get; set; }
+	    public bool isRead { get; set; } = false;
         public bool IsDeleted { get; set; } = false;
 	}
 }

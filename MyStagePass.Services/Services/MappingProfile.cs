@@ -42,7 +42,7 @@ namespace MyStagePass.Services.Services
 			CreateMap<Database.Ticket, Model.Models.Ticket>();
 
 			CreateMap<Database.Review, Model.Models.Review>();
-			CreateMap<ReviewInsertRequest, Database.Review>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+			CreateMap<ReviewInsertRequest, Database.Review>();
 
 			CreateMap<Database.Purchase, Model.Models.Purchase>();
 
@@ -51,7 +51,9 @@ namespace MyStagePass.Services.Services
 
 			CreateMap<Database.City, Model.Models.City>();
 			CreateMap<Database.Country, Model.Models.Country>();
+
 			CreateMap<Database.Notification, Model.Models.Notification>();
+			CreateMap<NotificationInsertRequest, Database.Notification>();
 
 			CreateMap<Database.Performer, Model.Models.Performer>().ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Genres.Select(pg => pg.Genre.Name).ToList()));
 			CreateMap<Database.Genre, Model.Models.Genre>().ForMember(dest => dest.Performers, opt => opt.MapFrom(src => src.Performers.Select(pg => pg.Performer.ArtistName).ToList()));

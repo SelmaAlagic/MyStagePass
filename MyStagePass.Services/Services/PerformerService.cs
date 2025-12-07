@@ -10,9 +10,12 @@ namespace MyStagePass.Services.Services
 {
 	public class PerformerService : BaseCRUDService<Model.Models.Performer, Performer, PerformerSearchObject, PerformerInsertRequest, PerformerUpdateRequest>, IPerformerService
 	{
-		public PerformerService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
+		private readonly INotificationService _notificationService;
+		public PerformerService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService) : base(context, mapper)
 		{
+			_notificationService = notificationService;
 		}
+
 		public override async Task BeforeInsert(Performer entity, PerformerInsertRequest insert)
 		{
 			if (insert.Password != insert.PasswordConfirm)
@@ -49,6 +52,8 @@ namespace MyStagePass.Services.Services
 					});
 				}
 			}
+
+			await _notificationService.NotifyUser(1, $"New performer '{insert.Username}' is waiting for approval!");
 		}
 
 		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
