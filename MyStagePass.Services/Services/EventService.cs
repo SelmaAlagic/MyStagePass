@@ -88,7 +88,8 @@ namespace MyStagePass.Services.Services
 
 		public async Task<Model.Models.Event> UpdateAdminStatus(int eventId, string newStatus)
 		{
-			var entity = await _context.Events.Include(e => e.Status).FirstOrDefaultAsync(e => e.EventID == eventId);
+
+			var entity = await _context.Events.Include(e => e.Status).Include(e => e.Performer).FirstOrDefaultAsync(e => e.EventID == eventId);
 			if (entity == null)
 				throw new Exception("Event not found");
 
@@ -98,6 +99,23 @@ namespace MyStagePass.Services.Services
 			
 			entity.StatusID = status.StatusID;
 			await _context.SaveChangesAsync();
+
+			string statusLower = newStatus.ToLower();
+
+			if (statusLower == "approved")
+			{
+				await _notificationService.NotifyUser(
+					entity.Performer.UserID,
+					$"Great news! Your event '{entity.EventName}' has been approved and is now live!"
+				);
+			}
+			else if (statusLower == "rejected")
+			{
+				await _notificationService.NotifyUser(
+					entity.Performer.UserID,
+					$"Unfortunately, your event '{entity.EventName}' was not approved."
+				);
+			}
 
 			return _mapper.Map<Model.Models.Event>(entity);
 		}
