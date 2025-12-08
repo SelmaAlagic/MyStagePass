@@ -9,6 +9,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize(Roles = "Admin")]
 	public class AdminController : BaseCRUDController<Admin, AdminSearchObject, AdminInsertRequest, AdminUpdateRequest>
 	{
 		public AdminController(ILogger<BaseController<Admin, AdminSearchObject>> logger, IAdminService service) : base(logger, service)

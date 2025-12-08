@@ -43,7 +43,7 @@ namespace MyStagePass.WebAPI.Controllers
 				{
 					AuthResult.Success => Ok(response),
 					AuthResult.UserNotFound => NotFound(new { message = "User not found or account is inactive" }),
-					AuthResult.InvalidPassword => Unauthorized(new { message = "Invalid password" }),
+					AuthResult.InvalidPassword => Unauthorized(new { message = "Invalid username or password" }),
 					_ => BadRequest(new { message = "Login failed" })
 				};
 			}

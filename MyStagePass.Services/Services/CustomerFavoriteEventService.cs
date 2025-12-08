@@ -12,5 +12,15 @@ namespace MyStagePass.Services.Services
 		public CustomerFavoriteEventService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
 		{
 		}
+		public override IQueryable<Database.CustomerFavoriteEvent> AddFilter(IQueryable<Database.CustomerFavoriteEvent> query, CustomerFavoriteEventSearchObject? search = null)
+		{
+			if (search == null)
+				return query;
+
+			if (search.CustomerID.HasValue)
+				query = query.Where(f => f.CustomerID == search.CustomerID.Value);
+
+			return query;
+		}
 	}
 }

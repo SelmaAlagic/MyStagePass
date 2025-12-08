@@ -108,6 +108,29 @@ namespace MyStagePass.Services.Services
 					entity.Performer.UserID,
 					$"Great news! Your event '{entity.EventName}' has been approved and is now live!"
 				);
+
+				var followerUserIds = await _context.CustomerFavoriteEvents
+						.Include(f => f.Event)
+						.Include(f => f.Customer)
+							.ThenInclude(c => c.User)
+						.Where(f => f.Event.PerformerID == entity.PerformerID)
+						.Select(f => f.Customer.User.UserID)
+						.Distinct()
+						.ToListAsync();
+
+				if (followerUserIds.Any())
+				{
+					var performer = await _context.Performers
+						.FirstOrDefaultAsync(p => p.PerformerID == entity.PerformerID);
+
+					if (performer != null)
+					{
+						await _notificationService.NotifyUsers(
+							followerUserIds,
+							$"Your favorite performer '{performer.ArtistName}' has added a new event '{entity.EventName}'!"
+						);
+					}
+				}
 			}
 			else if (statusLower == "rejected")
 			{
