@@ -6,5 +6,6 @@ namespace MyStagePass.Services.Interfaces
 {
 	public interface IPerformerService : ICRUDService<Performer, PerformerSearchObject, PerformerInsertRequest, PerformerUpdateRequest>
 	{
+		Task<Performer> ApprovePerformer(int performerId, bool isApprove);
 	}
 }

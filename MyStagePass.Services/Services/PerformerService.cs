@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
@@ -11,9 +12,12 @@ namespace MyStagePass.Services.Services
 	public class PerformerService : BaseCRUDService<Model.Models.Performer, Performer, PerformerSearchObject, PerformerInsertRequest, PerformerUpdateRequest>, IPerformerService
 	{
 		private readonly INotificationService _notificationService;
-		public PerformerService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService) : base(context, mapper)
+		private IRabbitMQProducer _rabbitMQProducer;
+
+		public PerformerService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService, IRabbitMQProducer rabbitMQProducer) : base(context, mapper)
 		{
 			_notificationService = notificationService;
+			_rabbitMQProducer=rabbitMQProducer;
 		}
 
 		public override async Task BeforeInsert(Performer entity, PerformerInsertRequest insert)
@@ -86,6 +90,35 @@ namespace MyStagePass.Services.Services
 			}
 
 			return base.AddInclude(query, search);
+		}
+
+		public async Task<Model.Models.Performer> ApprovePerformer(int performerId, bool isApproved)
+		{
+			var entity = await _context.Performers
+				.Include(p => p.User)
+				.FirstOrDefaultAsync(p => p.PerformerID == performerId);
+
+			if (entity == null)
+				throw new Exception("Performer not found.");
+
+			entity.IsApproved = true;
+
+			var emailModel = new EmailModel
+			{
+				Sender = "noreply@mystagepass.com",
+				Recipient = entity.User.Email,
+				Subject = isApproved ? "Your performer account has been approved"
+							: "Your performer account has been rejected",
+				Content = isApproved
+		   ? $"Hello {entity.User.FirstName},\n\nYour performer account has been approved! You can now access all platform features."
+		   : $"Hello {entity.User.FirstName},\n\nUnfortunately, your performer account has been rejected. Please contact support for more information."
+			};
+
+			_rabbitMQProducer.SendMessage(emailModel);
+
+			await _context.SaveChangesAsync();
+
+			return _mapper.Map<Model.Models.Performer>(entity);
 		}
 
 		public override async Task<Model.Models.Performer> Update(int id, PerformerUpdateRequest update)
