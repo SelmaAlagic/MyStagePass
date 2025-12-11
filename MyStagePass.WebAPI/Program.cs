@@ -97,7 +97,7 @@ builder.Services.AddTransient<ICountryService, CountryService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<ICustomerFavoriteEventService, CustomerFavoriteEventService>();
 builder.Services.AddTransient<IRabbitMQProducer, RabbitMQProducer>();
-
+builder.Services.AddScoped<IRecommendedService, RecommendedService>();
 
 builder.Services.AddAutoMapper(cfg => { cfg.AddProfile<MappingProfile>(); });
 
