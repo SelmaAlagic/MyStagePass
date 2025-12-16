@@ -4,12 +4,12 @@ using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Interfaces;
-using MyStagePass.Services.Services;
 
 namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[AllowAnonymous]
 	public class PerformerController : BaseCRUDController<Performer, PerformerSearchObject, PerformerInsertRequest, PerformerUpdateRequest>
 	{
 		private readonly IPerformerService _performerService;
@@ -18,7 +18,6 @@ namespace MyStagePass.WebAPI.Controllers
 			_performerService = service;
 		}
 
-		[AllowAnonymous]
 		[HttpPost("register")]
 		public override Task<Performer> Insert([FromBody] PerformerInsertRequest insert)
 		{
@@ -33,6 +32,28 @@ namespace MyStagePass.WebAPI.Controllers
 			if (result == null)
 				return NotFound();
 			return Ok(result);
+		}
+
+		[Authorize(Roles = "Admin,Performer")]
+		[HttpPut("{id}")]
+		public override async Task<Performer> Update(int id, [FromBody] PerformerUpdateRequest update)
+		{
+			int performerId = int.Parse(User.FindFirst("RoleId").Value);
+			if (performerId == null)
+				throw new UnauthorizedAccessException("Invalid token");
+
+			var isAdmin = User.IsInRole("Admin");
+			if (!isAdmin && performerId != id)
+				throw new UnauthorizedAccessException("You can only update your own profile!");
+
+			return await _performerService.Update(id, update);
+		}
+
+		[Authorize(Roles = "Admin")]
+		[HttpDelete("{id}")]
+		public override async Task<Performer> Delete(int id)
+		{
+			return await base.Delete(id);
 		}
 	}
 }

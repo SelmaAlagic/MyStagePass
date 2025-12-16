@@ -11,6 +11,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize(Roles ="Admin")]
 	public class UserController : BaseController<User, UserSearchObject>
 	{
 		private readonly IUserService _userService;
@@ -19,7 +20,6 @@ namespace MyStagePass.WebAPI.Controllers
 			_userService=service;
 		}
 
-		[Authorize(Roles = "Admin")]
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> Delete(int id)
 		{

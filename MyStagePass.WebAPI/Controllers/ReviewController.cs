@@ -9,6 +9,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize]
 	public class ReviewController : BaseController<Review, ReviewSearchObject>
 	{
 		public ReviewController(ILogger<BaseController<Review, ReviewSearchObject>> logger, IReviewService service) : base(logger, service)
