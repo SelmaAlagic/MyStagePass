@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyStagePass.Model;
-using MyStagePass.Model.Models;
 using MyStagePass.Services.Database.Seed;
 
 namespace MyStagePass.Services.Database
@@ -54,13 +52,11 @@ namespace MyStagePass.Services.Database
 				entity.Property(t => t.TicketType)
 					.HasConversion<int>();
 
-				//Purchase -> Ticket (brisanje Purchase briše karte)
 				entity.HasOne(t => t.Purchase)
 					.WithMany(p => p.Tickets)
 					.HasForeignKey(t => t.PurchaseID)
 					.OnDelete(DeleteBehavior.Cascade); 
 
-				//Event -> Ticket (brisanje Event briše karte)
 				entity.HasOne(t => t.Event)
 					.WithMany(e => e.Tickets)
 					.HasForeignKey(t => t.EventID)
@@ -77,7 +73,7 @@ namespace MyStagePass.Services.Database
 				entity.HasOne(r => r.Event)
 					.WithMany(r => r.Reviews)
 					.HasForeignKey(e => e.EventID)
-					.OnDelete(DeleteBehavior.Cascade); //Kada se obriše event obriše se review
+					.OnDelete(DeleteBehavior.Cascade); 
 
 				entity.HasOne(r => r.Customer)
 					.WithMany(r => r.Reviews)
@@ -142,7 +138,7 @@ namespace MyStagePass.Services.Database
 				entity.HasOne<User>()
 					.WithMany(u => u.Notifications)
 					.HasForeignKey(n => n.UserID)
-					.OnDelete(DeleteBehavior.Cascade); // brisanje User -> briše sve njegove Notification
+					.OnDelete(DeleteBehavior.Cascade); 
 			});
 
 			modelBuilder.Entity<Purchase>(entity =>
@@ -157,7 +153,7 @@ namespace MyStagePass.Services.Database
 			{
 				entity.HasOne(c => c.Status)
 					.WithMany(co => co.Events)
-					.HasForeignKey(n => n.StatusID); //po defautu je restrict ili no action, ako brisem event status je netaknut, a ako hocu obrisati status, necu moci jer ima event sa istim
+					.HasForeignKey(n => n.StatusID);
 
 				entity.HasOne(e => e.Location)
 				   .WithMany(l => l.Events)

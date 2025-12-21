@@ -14,7 +14,8 @@ namespace MyStagePass.Services.Database.Seed
 				new Genre { GenreID = 5, Name = "Electronic" },
 				new Genre { GenreID = 6, Name = "Hip-Hop" },
 				new Genre { GenreID = 7, Name = "Metal" },
-				new Genre { GenreID = 8, Name = "Folk" }
+				new Genre { GenreID = 8, Name = "Folk" },
+				new Genre { GenreID = 9, Name = "Pop-Folk" }
 			);
 		}
 	}

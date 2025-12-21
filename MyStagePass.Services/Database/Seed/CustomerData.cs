@@ -7,9 +7,12 @@ namespace MyStagePass.Services.Database.Seed
 		public static void SeedData(this EntityTypeBuilder<Customer> entity)
 		{
 			entity.HasData(
-				new Customer { CustomerID = 1, UserID = 7 },
-				new Customer { CustomerID = 2, UserID = 8 },
-				new Customer { CustomerID = 3, UserID = 9 }
+				new Customer { CustomerID = 1, UserID = 11 },
+				new Customer { CustomerID = 2, UserID = 12 },
+				new Customer { CustomerID = 3, UserID = 13 },
+				new Customer { CustomerID = 4, UserID = 14 },
+				new Customer { CustomerID = 5, UserID = 15 },
+				new Customer { CustomerID = 6, UserID = 16 }
 			);
 		}
 	}
