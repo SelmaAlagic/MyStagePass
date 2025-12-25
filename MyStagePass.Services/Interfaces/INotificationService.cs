@@ -4,13 +4,12 @@ using MyStagePass.Model.SearchObjects;
 
 namespace MyStagePass.Services.Interfaces
 {
-	public interface INotificationService: IService<Notification, NotificationSearchObject>
+	public interface INotificationService : ICRUDService<Notification, NotificationSearchObject, NotificationInsertRequest, NotificationUpdateRequest>
 	{
 		Task<int> GetUnreadCount(int userId);
 		Task MarkAllAsRead(int userId);
 		Task<Model.Models.Notification> Insert(NotificationInsertRequest request);
 		Task NotifyUser(int userId, string message);
 		Task NotifyUsers(List<int> userIds, string message);
-		Task SoftDelete(int id);
 	}
 }
