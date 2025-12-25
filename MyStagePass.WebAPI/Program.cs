@@ -101,6 +101,17 @@ builder.Services.AddScoped<IRecommendedService, RecommendedService>();
 
 builder.Services.AddAutoMapper(cfg => { cfg.AddProfile<MappingProfile>(); });
 
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowFlutter",
+		policy =>
+		{
+			policy.AllowAnyOrigin()
+				  .AllowAnyMethod()
+				  .AllowAnyHeader();
+		});
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -109,6 +120,7 @@ using (var scope = app.Services.CreateScope())
 	dbContext.Database.Migrate(); 
 }
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -116,6 +128,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+app.UseCors("AllowFlutter");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
