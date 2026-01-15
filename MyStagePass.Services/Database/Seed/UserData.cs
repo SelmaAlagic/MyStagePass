@@ -189,7 +189,7 @@ namespace MyStagePass.Services.Database.Seed
 					FirstName = "Amar",
 					LastName = "Hadzic",
 					Username = "amarh",
-					Email = "amar.hadzic@example.com",
+					Email = "amar.hadzic@example.com",                         //amar1234
 					Password = "/fq/ZbEHiyr+6qHRPVl8fFYkHOBMowMiRfUH3Of3x1E=",
 					Salt = "FCzcfULb99fc3b7Qjy+heBwjPKhOmNqedHHS3JjGIfI=",
 					PhoneNumber = "061111222",

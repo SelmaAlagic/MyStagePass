@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'login_screen.dart';
+import 'user_management_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -77,7 +78,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         0,
                         "Manage users",
                         'assets/svg/usersIcon.svg',
-                        () {},
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const UserManagementScreen(),
+                            ),
+                          );
+                        },
                       ),
                       _buildImageCard(
                         1,

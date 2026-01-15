@@ -11,7 +11,7 @@ class ImageHelpers {
     return image?.isNotEmpty ?? true
         ? Image.memory(base64Decode(image!), height: height, width: width)
         : Image.asset(
-            "assets/images/NoImageFound.jpg",
+            "assets/images/NoImageAvailable.png",
             height: height,
             width: height,
           );

@@ -21,6 +21,15 @@ namespace MyStagePass.Services.Services
 			_configuration=configuration;
 		}
 
+		public override IQueryable<User> AddInclude(IQueryable<User> query, UserSearchObject? search = null)
+		{
+			query = query
+				.Include(u => u.Admins)
+				.Include(u => u.Performers)
+				.Include(u => u.Customers);
+
+			return query;
+		}
 		public override IQueryable<User> AddFilter(IQueryable<User> query, UserSearchObject? search = null)
 		{
 			if (search == null)
@@ -80,47 +89,42 @@ namespace MyStagePass.Services.Services
 			}
 
 			string userRole;
-			int roleId;
 
 			if (user.Admins != null && user.Admins.Any())
 			{
 				userRole = "Admin";
-				roleId = user.Admins.First().AdminID;
 			}
 			else if (user.Performers != null && user.Performers.Any())
 			{
 				userRole = "Performer";
-				roleId = user.Performers.First().PerformerID;
 			}
 			else if (user.Customers != null && user.Customers.Any())
 			{
 				userRole = "Customer";
-				roleId = user.Customers.First().CustomerID;
 			}
 			else
 			{
 				return new AuthResponse { Result = AuthResult.UserNotFound };
 			}
 
-			var token = GenerateJwtToken(user, userRole, roleId);
+			var token = GenerateJwtToken(user, userRole);
 
 			return new AuthResponse
 			{
 				Result = AuthResult.Success,
 				Token = token,
 				UserId = user.UserID,
-				RoleId = roleId
+				Role = userRole
 			};
 		}
 		
-		private string GenerateJwtToken(Database.User user, string userRole, int roleId)
+		private string GenerateJwtToken(Database.User user, string userRole)
 		{
 			var claims = new List<Claim>
 			{
 				new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),     
                 new Claim(ClaimTypes.Email, user.Email),                          
                 new Claim(ClaimTypes.Role, userRole),                            
-                new Claim("RoleId", roleId.ToString()),                         
                 new Claim("Username", user.Username ?? string.Empty),             
                 new Claim("FirstName", user.FirstName ?? string.Empty),          
                 new Claim("LastName", user.LastName ?? string.Empty)              

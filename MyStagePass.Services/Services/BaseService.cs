@@ -27,6 +27,9 @@ namespace MyStagePass.Services.Services
 
 			var totalCount = await query.CountAsync();
 
+			int currentPage = search?.Page ?? 0;
+			int currentPageSize = search?.PageSize ?? 10;
+
 			if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
 			{
 				query = query.Skip(search.PageSize.Value * search.Page.Value).Take(search.PageSize.Value);
@@ -35,7 +38,7 @@ namespace MyStagePass.Services.Services
 			var list = await query.ToListAsync();
 			var items = _mapper.Map<List<T>>(list);
 
-			return PagedResult<T>.Create(items, search.Page.Value, search.PageSize.Value, totalCount);
+			return PagedResult<T>.Create(items, currentPage, currentPageSize, totalCount);
 		}
 
 		public virtual async Task<T> GetById(int id)

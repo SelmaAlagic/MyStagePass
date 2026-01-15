@@ -30,7 +30,6 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   Future<SearchResult<T>> get({dynamic filter}) async {
     var url = "$_baseUrl$_endpoint";
-
     if (filter != null) {
       var queryString = StringHelpers.getQueryString(filter);
       url = "$url?$queryString";
@@ -108,11 +107,19 @@ abstract class BaseProvider<T> with ChangeNotifier {
   bool isValidResponse(Response response) {
     if (response.statusCode < 299) {
       return true;
-    } else if (response.statusCode == 401) {
-      throw Exception("Unauthorized");
-    } else {
+    }
+
+    // Ako je odgovor prazan (npr. 404 ili 500 bez poruke), ne radi jsonDecode!
+    if (response.body.isEmpty) {
+      throw Exception("Greška na serveru: Status ${response.statusCode}");
+    }
+
+    // Tek ako ima sadržaja, pokušaj dekodirati
+    try {
       var body = jsonDecode(response.body);
-      throw Exception(body['title']);
+      throw Exception(body['title'] ?? "Nepoznata greška");
+    } catch (e) {
+      throw Exception("Greška status: ${response.statusCode}");
     }
   }
 

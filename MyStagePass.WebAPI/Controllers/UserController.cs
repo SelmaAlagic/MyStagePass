@@ -28,7 +28,12 @@ namespace MyStagePass.WebAPI.Controllers
 				return BadRequest("Service not available");
 
 			await userService.Delete(id);
-			return Ok("User successfully deleted!");
+
+			return Ok(new
+			{
+				message = "User successfully deleted!",
+				success = true
+			});
 		}
 
 		[AllowAnonymous]
