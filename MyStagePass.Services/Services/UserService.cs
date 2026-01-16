@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MyStagePass.Model.Helpers;
+using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Helpers;
@@ -13,7 +14,7 @@ using System.Text;
 
 namespace MyStagePass.Services.Services
 {
-	public class UserService : BaseService<Model.Models.User, Database.User, UserSearchObject>, IUserService
+	public class UserService : BaseCRUDService<Model.Models.User, Database.User, UserSearchObject, UserInsertRequest, UserUpdateRequest>, IUserService
 	{
 		private readonly IConfiguration _configuration;
 		public UserService(MyStagePassDbContext context, IMapper mapper, IConfiguration configuration) : base(context, mapper)
@@ -54,15 +55,28 @@ namespace MyStagePass.Services.Services
 			return query;
 		}
 
-		public async Task Delete(int id)
+		public override async Task<Model.Models.User> Delete(int id) 
 		{
 			var entity = await _context.Users.FirstOrDefaultAsync(u => u.UserID == id);
 			if (entity == null)
 				throw new Exception("User not found");
 
 			entity.IsActive = false;
-
 			await _context.SaveChangesAsync();
+
+			return _mapper.Map<Model.Models.User>(entity);
+		}
+
+		public async Task<Model.Models.User> Restore(int id)
+		{
+			var user = await _context.Users.FindAsync(id);
+			if (user == null)
+				throw new Exception("User not found");
+
+			user.IsActive = true; 
+			await _context.SaveChangesAsync();
+
+			return _mapper.Map<Model.Models.User>(user);
 		}
 
 		public async Task<AuthResponse> AuthenticateUser(string username, string password)

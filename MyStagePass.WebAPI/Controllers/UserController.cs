@@ -12,7 +12,7 @@ namespace MyStagePass.WebAPI.Controllers
 	[ApiController]
 	[Route("api/[controller]")]
 	[Authorize(Roles ="Admin")]
-	public class UserController : BaseController<User, UserSearchObject>
+	public class UserController : BaseCRUDController<User, UserSearchObject, UserInsertRequest, UserUpdateRequest>
 	{
 		private readonly IUserService _userService;
 		public UserController(ILogger<BaseController<User, UserSearchObject>> logger, IUserService service) : base(logger, service)
@@ -20,20 +20,17 @@ namespace MyStagePass.WebAPI.Controllers
 			_userService=service;
 		}
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(int id)
+		[HttpDelete("deactivate/{id}")]
+		public override async Task<User> Delete(int id)
 		{
-			var userService = _service as IUserService;
-			if (userService == null)
-				return BadRequest("Service not available");
+			return await _service.Delete(id);
+		}
 
-			await userService.Delete(id);
-
-			return Ok(new
-			{
-				message = "User successfully deleted!",
-				success = true
-			});
+		[HttpPut("restore/{id}")]
+		public async Task<ActionResult<User>> Restore(int id)
+		{
+			var restoredUser = await _userService.Restore(id);
+			return restoredUser;
 		}
 
 		[AllowAnonymous]
@@ -68,7 +65,6 @@ namespace MyStagePass.WebAPI.Controllers
 				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 				var email = User.FindFirst(ClaimTypes.Email)?.Value;
 				var role = User.FindFirst(ClaimTypes.Role)?.Value;
-				var roleId = User.FindFirst("RoleId")?.Value;
 				var username = User.FindFirst("Username")?.Value;
 				var firstName = User.FindFirst("FirstName")?.Value;
 				var lastName = User.FindFirst("LastName")?.Value;
@@ -78,7 +74,6 @@ namespace MyStagePass.WebAPI.Controllers
 					userId = int.Parse(userId ?? "0"),
 					email,
 					role,
-					roleId = int.Parse(roleId ?? "0"),
 					username,
 					firstName,
 					lastName,

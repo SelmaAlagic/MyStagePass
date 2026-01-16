@@ -9,6 +9,7 @@ class User {
   String? lastName;
   String? email;
   String? role;
+  String? username;
   bool? isActive;
 
   User({
@@ -17,6 +18,7 @@ class User {
     this.lastName,
     this.email,
     this.role,
+    this.username,
     this.isActive,
   });
 
