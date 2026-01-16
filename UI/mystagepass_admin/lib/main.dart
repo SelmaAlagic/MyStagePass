@@ -5,6 +5,7 @@ import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
 import 'utils/colors.dart';
 import 'providers/user_provider.dart';
+import 'providers/performer_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => PerformerProvider()),
       ],
 
       child: const MyStagePassAdmin(),

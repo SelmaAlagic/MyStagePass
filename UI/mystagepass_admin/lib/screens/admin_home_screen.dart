@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mystagepass_admin/screens/performer_management_screen.dart';
 import 'login_screen.dart';
 import 'user_management_screen.dart';
 
@@ -98,7 +99,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         2,
                         "Manage performers",
                         'assets/svg/performersIcon.svg',
-                        () {},
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PerformerManagementScreen(),
+                            ),
+                          );
+                        },
                       ),
                       _buildImageCard(
                         3,

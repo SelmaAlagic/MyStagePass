@@ -67,7 +67,7 @@ namespace MyStagePass.Services.Services
 				query = query.Include("User");
 			}
 
-			query = query.Include(p=> p.Events)
+			query = query.Include(p=> p.Events).Include(p=>p.User)
 						 .Include(p => p.Genres).ThenInclude(pg => pg.Genre);
 
 			if (!string.IsNullOrWhiteSpace(search?.searchTerm))
@@ -144,6 +144,21 @@ namespace MyStagePass.Services.Services
 			_mapper.Map(update, entity?.User);
 			await _context.SaveChangesAsync();
 			return _mapper.Map<Model.Models.Performer>(entity);
+		}
+
+		public override async Task<PagedResult<Model.Models.Performer>> Get(PerformerSearchObject? search = null)
+		{
+			var result = await base.Get(search);
+
+			foreach (var performer in result.Result)
+			{
+				performer.AverageRating = performer.Events
+					.Where(e => e.RatingCount > 0)
+					.Select(e => e.RatingAverage)
+					.DefaultIfEmpty(0)
+					.Average();
+			}
+			return result;
 		}
 	}
 }

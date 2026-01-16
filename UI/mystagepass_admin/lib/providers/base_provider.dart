@@ -109,12 +109,10 @@ abstract class BaseProvider<T> with ChangeNotifier {
       return true;
     }
 
-    // Ako je odgovor prazan (npr. 404 ili 500 bez poruke), ne radi jsonDecode!
     if (response.body.isEmpty) {
       throw Exception("Greška na serveru: Status ${response.statusCode}");
     }
 
-    // Tek ako ima sadržaja, pokušaj dekodirati
     try {
       var body = jsonDecode(response.body);
       throw Exception(body['title'] ?? "Nepoznata greška");
