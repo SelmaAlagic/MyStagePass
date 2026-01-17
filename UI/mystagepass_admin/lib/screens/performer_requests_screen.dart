@@ -2,23 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/Performer/performer.dart';
 import '../providers/performer_provider.dart';
-import 'performer_requests_screen.dart';
 import 'dart:async';
 
-class PerformerManagementScreen extends StatefulWidget {
-  const PerformerManagementScreen({super.key});
+class PerformerRequestsScreen extends StatefulWidget {
+  const PerformerRequestsScreen({super.key});
 
   @override
-  State<PerformerManagementScreen> createState() =>
-      _PerformerManagementScreenState();
+  State<PerformerRequestsScreen> createState() =>
+      _PerformerRequestsScreenState();
 }
 
-class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
+class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
   List<Performer> _performers = [];
   bool _isLoading = false;
   String _searchQuery = "";
-  bool? _statusFilter;
-  bool? _isPending;
 
   int _currentPage = 1;
   int _totalPages = 1;
@@ -42,6 +39,16 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     super.dispose();
   }
 
+  // Popravljen format broja mobitela
+  String _formatPhoneNumber(String? phone) {
+    if (phone == null || phone.isEmpty) return "N/A";
+    String digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length >= 9) {
+      return "${digits.substring(0, 3)}/${digits.substring(3, 6)}-${digits.substring(6)}";
+    }
+    return phone;
+  }
+
   Future<void> _fetchPerformers() async {
     setState(() => _isLoading = true);
     try {
@@ -49,16 +56,11 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       var params = {
         'Page': (_currentPage - 1).toString(),
         'PageSize': _pageSize.toString(),
+        'IsPending': 'true',
       };
 
       if (_searchQuery.length >= 3) {
         params['searchTerm'] = _searchQuery;
-      }
-
-      if (_isPending == true) {
-        params['IsPending'] = 'true';
-      } else if (_statusFilter != null) {
-        params['IsApproved'] = _statusFilter.toString();
       }
 
       var data = await provider.get(filter: params);
@@ -90,27 +92,34 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     }
   }
 
-  String _getStatusFilterValue() {
-    if (_isPending == true) return "Pending";
-    if (_statusFilter == null) return "All";
-    return _statusFilter! ? "Approved" : "Rejected";
-  }
+  Future<void> _handleApproveReject(int performerId, bool isApproved) async {
+    try {
+      var provider = Provider.of<PerformerProvider>(context, listen: false);
+      await provider.approvePerformer(performerId, isApproved);
 
-  void _onStatusFilterChanged(String? value) {
-    setState(() {
-      _isPending = null;
-      _statusFilter = null;
-      _currentPage = 1;
+      if (mounted) {
+        setState(() {
+          _performers.removeWhere((p) => p.performerId == performerId);
+        });
 
-      if (value == "Pending") {
-        _isPending = true;
-      } else if (value == "Approved") {
-        _statusFilter = true;
-      } else if (value == "Rejected") {
-        _statusFilter = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isApproved
+                  ? "Performer successfully approved"
+                  : "Performer successfully rejected",
+            ),
+            backgroundColor: isApproved ? Colors.green : Colors.red,
+          ),
+        );
       }
-    });
-    _fetchPerformers();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   @override
@@ -129,13 +138,11 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
               _buildHeader(),
               _buildBackButton(),
               const SizedBox(height: 10),
-              _buildFilters(),
+              _buildSearch(),
               const SizedBox(height: 20),
               _buildTableStack(),
               const SizedBox(height: 20),
               if (_performers.isNotEmpty) _buildPagination(),
-              const SizedBox(height: 20),
-              _buildPerformerRequestsButton(),
             ],
           ),
         ),
@@ -145,19 +152,21 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
 
   Widget _buildHeader() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(
+        maxWidth: 1100,
+      ), // Povećano da stane više kolona
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            "Performer Management",
+            "Performer Requests",
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1A237E),
             ),
           ),
-          const Icon(Icons.music_note, size: 32, color: Color(0xFF1A237E)),
+          const Icon(Icons.pending_actions, size: 32, color: Color(0xFF1A237E)),
         ],
       ),
     );
@@ -165,7 +174,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
 
   Widget _buildBackButton() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100),
       alignment: Alignment.centerLeft,
       child: TextButton.icon(
         onPressed: () => Navigator.of(context).pop(),
@@ -175,7 +184,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           color: Color(0xFF1A237E),
         ),
         label: const Text(
-          "Back to Dashboard",
+          "Back to Performer Management",
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Color(0xFF1A237E),
@@ -190,79 +199,40 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     );
   }
 
-  Widget _buildFilters() {
+  Widget _buildSearch() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: 220,
-            height: 35,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              cursorColor: const Color(0xFF1A237E),
-              cursorWidth: 1.0,
-              textAlignVertical: TextAlignVertical.center,
-              style: const TextStyle(fontSize: 13, color: Colors.black),
-              decoration: const InputDecoration(
-                hintText: "Search",
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
-                prefixIcon: Icon(Icons.search, size: 16, color: Colors.grey),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 10),
-              ),
-            ),
+      constraints: const BoxConstraints(maxWidth: 1100),
+      alignment: Alignment.centerLeft,
+      child: Container(
+        width: 220,
+        height: 35,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: TextField(
+          controller: _searchController,
+          onChanged: _onSearchChanged,
+          cursorColor: const Color(0xFF1A237E),
+          cursorWidth: 1.0,
+          textAlignVertical: TextAlignVertical.center,
+          style: const TextStyle(fontSize: 13, color: Colors.black),
+          decoration: const InputDecoration(
+            hintText: "Search",
+            hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+            prefixIcon: Icon(Icons.search, size: 16, color: Colors.grey),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 10),
           ),
-          const SizedBox(width: 10),
-          Container(
-            height: 35,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(hoverColor: const Color(0xFFE3F2FD)),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _getStatusFilterValue(),
-                  dropdownColor: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                  style: const TextStyle(fontSize: 13, color: Colors.black),
-                  items: ["All", "Pending", "Approved", "Rejected"]
-                      .map(
-                        (v) => DropdownMenuItem(
-                          value: v,
-                          child: Text(
-                            v,
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: _onStatusFilterChanged,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildTableStack() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100), // Prošireno za tabelu
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -289,13 +259,13 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.people_outline,
+                              Icons.check_circle_outline,
                               size: 64,
                               color: Colors.grey[300],
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              "No performers found",
+                              "No pending requests",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -349,17 +319,15 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           children: [
             _tableHeaderCell('#', width: 40),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Full Name', flex: 2),
+            _tableHeaderCell('Name', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Artist Name', flex: 2),
+            _tableHeaderCell('Phone', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Genres', flex: 2),
+            _tableHeaderCell('Email', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Rating', width: 90),
+            _tableHeaderCell('Genres', flex: 2), // Dodano
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Status', width: 90),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Actions', width: 80),
+            _tableHeaderCell('Actions', width: 180),
           ],
         ),
       ),
@@ -367,12 +335,13 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   }
 
   Widget _buildPerformerRow(int number, Performer performer) {
+    String performerName =
+        performer.artistName ?? performer.user?.fullName ?? "N/A";
+
+    // Tvoja logika za žanrove
     String genresText = performer.genres != null && performer.genres!.isNotEmpty
         ? performer.genres!.join(", ")
         : "No specific genres";
-
-    bool hasRating =
-        performer.averageRating != null && performer.averageRating! > 0;
 
     return Container(
       height: 48,
@@ -384,113 +353,83 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
           _verticalDivider(Colors.grey.shade300),
-          _tableCell(performer.user?.fullName ?? "N/A", flex: 2),
+          _tableCell(performerName, flex: 2),
           _verticalDivider(Colors.grey.shade300),
-          _tableCell(performer.artistName ?? "N/A", flex: 2),
+          _tableCell(_formatPhoneNumber(performer.user?.phoneNumber), flex: 2),
           _verticalDivider(Colors.grey.shade300),
-          _tableCell(
-            genresText,
-            flex: 2,
-            isGrey: performer.genres == null || performer.genres!.isEmpty,
-            isItalic: performer.genres == null || performer.genres!.isEmpty,
-          ),
+          _tableCell(performer.user?.email ?? "N/A", flex: 2),
+          _verticalDivider(Colors.grey.shade300),
+          _tableCell(genresText, flex: 2), // Dodano
           _verticalDivider(Colors.grey.shade300),
           SizedBox(
-            width: 90,
-            child: Center(
-              child: hasRating
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          performer.averageRating!.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.star,
-                          size: 14,
-                          color: Color(0xFFFFA500),
-                        ),
-                      ],
-                    )
-                  : Text(
-                      "No ratings",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-            ),
-          ),
-          _verticalDivider(Colors.grey.shade300),
-          SizedBox(
-            width: 90,
-            child: Center(child: _buildStatusBadge(performer)),
-          ),
-          _verticalDivider(Colors.grey.shade300),
-          SizedBox(
-            width: 80,
-            child: Center(
-              child: InkWell(
-                onTap: () {
-                  // Edit action
-                },
-                child: const Icon(
-                  Icons.edit,
-                  size: 18,
-                  color: Color(0xFF1A237E),
-                ),
-              ),
-            ),
+            width: 180,
+            child: Center(child: _buildActionButtons(performer)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatusBadge(Performer performer) {
-    String statusText;
-    Color bgColor;
-    Color borderColor;
-    Color textColor;
-
-    if (performer.isApproved == true) {
-      statusText = "Approved";
-      bgColor = const Color(0xFFE8F5E9);
-      borderColor = Colors.green;
-      textColor = Colors.green[800]!;
-    } else if (performer.isApproved == false) {
-      statusText = "Rejected";
-      bgColor = const Color(0xFFFFEBEE);
-      borderColor = Colors.red;
-      textColor = Colors.red[800]!;
-    } else {
-      statusText = "Pending";
-      bgColor = const Color(0xFFFFF9C4);
-      borderColor = Colors.orange;
-      textColor = Colors.orange[900]!;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor, width: 0.5),
-      ),
-      child: Text(
-        statusText,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
+  Widget _buildActionButtons(Performer performer) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        InkWell(
+          onTap: () => _handleApproveReject(performer.performerId!, true),
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            width: 80,
+            height: 30,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F5E9),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check, color: Colors.green[800], size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  "Approve",
+                  style: TextStyle(
+                    color: Colors.green[800],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+        const SizedBox(width: 8),
+        InkWell(
+          onTap: () => _handleApproveReject(performer.performerId!, false),
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            width: 80,
+            height: 30,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEBEE),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.close, color: Colors.red[800], size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  "Reject",
+                  style: TextStyle(
+                    color: Colors.red[800],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -501,7 +440,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 13,
+          fontSize: 12,
         ),
       ),
     );
@@ -516,43 +455,25 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     double? width,
     bool isBold = false,
     bool center = false,
-    bool isGrey = false,
-    bool isItalic = false,
   }) {
-    return Container(
-      width: width,
-      child: flex != null
-          ? Expanded(
-              flex: flex,
-              child: _cellText(text, isBold, center, isGrey, isItalic),
-            )
-          : _cellText(text, isBold, center, isGrey, isItalic),
-    );
-  }
-
-  Widget _cellText(
-    String text,
-    bool isBold,
-    bool center,
-    bool isGrey,
-    bool isItalic,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+    Widget content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Align(
         alignment: center ? Alignment.center : Alignment.centerLeft,
         child: Text(
           text,
           style: TextStyle(
-            color: isGrey ? Colors.grey.shade500 : Colors.black,
-            fontSize: 12,
+            color: Colors.black,
+            fontSize: 11,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
           ),
           overflow: TextOverflow.ellipsis,
         ),
       ),
     );
+    return flex != null
+        ? Expanded(flex: flex, child: content)
+        : SizedBox(width: width, child: content);
   }
 
   Widget _verticalDivider(Color color) =>
@@ -594,36 +515,6 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPerformerRequestsButton() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PerformerRequestsScreen(),
-            ),
-          );
-        },
-        icon: const Icon(Icons.person_add_alt_1, size: 20, color: Colors.white),
-        label: const Text(
-          "Performer Requests",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF5865F2),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          elevation: 5,
-        ),
-      ),
     );
   }
 }

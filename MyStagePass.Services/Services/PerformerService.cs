@@ -79,7 +79,11 @@ namespace MyStagePass.Services.Services
 					(p.User.LastName != null && p.User.LastName.ToLower().StartsWith(term)));
 			}
 
-			if (search?.IsApproved != null)
+			if (search?.IsPending == true)
+			{
+				query = query.Where(p => p.IsApproved == null);
+			}
+			else if (search?.IsApproved != null)
 			{
 				query = query.Where(p => p.IsApproved == search.IsApproved);
 			}
@@ -101,7 +105,7 @@ namespace MyStagePass.Services.Services
 			if (entity == null)
 				throw new Exception("Performer not found.");
 
-			entity.IsApproved = true;
+			entity.IsApproved = isApproved;
 
 			var emailModel = new EmailModel
 			{
