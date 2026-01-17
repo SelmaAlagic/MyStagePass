@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/Performer/performer.dart';
-import '../providers/performer_provider.dart';
-import 'performer_requests_screen.dart';
+import 'package:intl/intl.dart';
+import '../models/Event/event.dart';
+import '../providers/event_provider.dart';
+import '../models/search_result.dart';
 import 'dart:async';
 
-class PerformerManagementScreen extends StatefulWidget {
-  const PerformerManagementScreen({super.key});
+class EventManagementScreen extends StatefulWidget {
+  const EventManagementScreen({super.key});
 
   @override
-  State<PerformerManagementScreen> createState() =>
-      _PerformerManagementScreenState();
+  State<EventManagementScreen> createState() => _EventManagementScreenState();
 }
 
-class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
-  List<Performer> _performers = [];
+class _EventManagementScreenState extends State<EventManagementScreen> {
+  List<Event> _events = [];
   bool _isLoading = false;
   String _searchQuery = "";
-  bool? _statusFilter;
-  bool? _isPending;
+  String? _statusFilter = "All";
 
   int _currentPage = 1;
   int _totalPages = 1;
@@ -32,7 +31,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchPerformers();
+    _fetchEvents();
   }
 
   @override
@@ -42,30 +41,42 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchPerformers() async {
+  Future<void> _fetchEvents() async {
+    if (_searchQuery.isNotEmpty && _searchQuery.length < 3) {
+      setState(() {
+        _events = [];
+        _currentPage = 1;
+        _totalPages = 1;
+        _hasPrevious = false;
+        _hasNext = false;
+        _isLoading = false;
+      });
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
-      var provider = Provider.of<PerformerProvider>(context, listen: false);
+      var provider = Provider.of<EventProvider>(context, listen: false);
+
       var params = {
         'Page': (_currentPage - 1).toString(),
         'PageSize': _pageSize.toString(),
+        'statusName': 'approved',
       };
 
       if (_searchQuery.length >= 3) {
         params['searchTerm'] = _searchQuery;
       }
 
-      if (_isPending == true) {
-        params['IsPending'] = 'true';
-      } else if (_statusFilter != null) {
-        params['IsApproved'] = _statusFilter.toString();
+      if (_statusFilter != "All") {
+        params['IsUpcoming'] = (_statusFilter == "Upcoming").toString();
       }
 
-      var data = await provider.get(filter: params);
+      SearchResult<Event> data = await provider.get(filter: params);
 
       if (mounted) {
         setState(() {
-          _performers = data.result;
+          _events = data.result;
           _totalPages = data.meta.totalPages;
           _currentPage = data.meta.currentPage + 1;
           _hasPrevious = data.meta.hasPrevious;
@@ -74,43 +85,29 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-      debugPrint("Error: $e");
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+      debugPrint("Error fetching events: $e");
     }
   }
 
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _searchQuery = query;
-    if (query.length >= 3 || query.isEmpty) {
-      _debounce = Timer(const Duration(milliseconds: 500), () {
-        setState(() => _currentPage = 1);
-        _fetchPerformers();
-      });
-    }
-  }
+    _searchQuery = query.trim();
 
-  String _getStatusFilterValue() {
-    if (_isPending == true) return "Pending";
-    if (_statusFilter == null) return "All";
-    return _statusFilter! ? "Approved" : "Rejected";
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() => _currentPage = 1);
+      _fetchEvents();
+    });
   }
 
   void _onStatusFilterChanged(String? value) {
     setState(() {
-      _isPending = null;
-      _statusFilter = null;
+      _statusFilter = value;
       _currentPage = 1;
-
-      if (value == "Pending") {
-        _isPending = true;
-      } else if (value == "Approved") {
-        _statusFilter = true;
-      } else if (value == "Rejected") {
-        _statusFilter = false;
-      }
     });
-    _fetchPerformers();
+    _fetchEvents();
   }
 
   @override
@@ -131,11 +128,13 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
               const SizedBox(height: 10),
               _buildFilters(),
               const SizedBox(height: 20),
+              if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                _buildSearchHint(),
               _buildTableStack(),
               const SizedBox(height: 20),
-              if (_performers.isNotEmpty) _buildPagination(),
+              if (_events.isNotEmpty) _buildPagination(),
               const SizedBox(height: 20),
-              _buildPerformerRequestsButton(),
+              _buildRequestButton(),
             ],
           ),
         ),
@@ -150,14 +149,14 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            "Performer Management",
+            "Event Management",
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1A237E),
             ),
           ),
-          const Icon(Icons.music_note, size: 32, color: Color(0xFF1A237E)),
+          const Icon(Icons.event, size: 32, color: Color(0xFF1A237E)),
         ],
       ),
     );
@@ -210,13 +209,24 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
               cursorWidth: 1.0,
               textAlignVertical: TextAlignVertical.center,
               style: const TextStyle(fontSize: 13, color: Colors.black),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: "Search",
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
-                prefixIcon: Icon(Icons.search, size: 16, color: Colors.grey),
+                hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  size: 16,
+                  color: Colors.grey,
+                ),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                suffixIcon: _searchQuery.isNotEmpty && _searchQuery.length < 3
+                    ? const Icon(
+                        Icons.info_outline,
+                        size: 14,
+                        color: Colors.orange,
+                      )
+                    : null,
               ),
             ),
           ),
@@ -234,12 +244,12 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
               ).copyWith(hoverColor: const Color(0xFFE3F2FD)),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: _getStatusFilterValue(),
+                  value: _statusFilter,
                   dropdownColor: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
                   style: const TextStyle(fontSize: 13, color: Colors.black),
-                  items: ["All", "Pending", "Approved", "Rejected"]
+                  items: ["All", "Upcoming", "Ended"]
                       .map(
                         (v) => DropdownMenuItem(
                           value: v,
@@ -253,6 +263,31 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                   onChanged: _onStatusFilterChanged,
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchHint() {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 900),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.orange[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange.shade200, width: 1),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, size: 16, color: Colors.orange),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "Enter at least 3 characters to search by event name or location",
+              style: TextStyle(fontSize: 12, color: Colors.orange[800]),
             ),
           ),
         ],
@@ -283,19 +318,24 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
               _buildTableHeader(),
               SizedBox(
                 height: 48.0 * 5,
-                child: _performers.isEmpty && !_isLoading
+                child: _events.isEmpty && !_isLoading
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.people_outline,
+                              Icons.event_busy_outlined,
                               size: 64,
                               color: Colors.grey[300],
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              "No performers found",
+                              _searchQuery.isNotEmpty &&
+                                      _searchQuery.length >= 3
+                                  ? "No events found for '$_searchQuery'"
+                                  : _statusFilter != "All"
+                                  ? "No $_statusFilter events found"
+                                  : "No events found",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -307,14 +347,11 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                     : ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _performers.length,
+                        itemCount: _events.length,
                         itemBuilder: (context, index) {
                           int rowNumber =
                               ((_currentPage - 1) * _pageSize) + index + 1;
-                          return _buildPerformerRow(
-                            rowNumber,
-                            _performers[index],
-                          );
+                          return _buildEventRow(rowNumber, _events[index]);
                         },
                       ),
               ),
@@ -349,15 +386,15 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           children: [
             _tableHeaderCell('#', width: 40),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Full Name', flex: 2),
+            _tableHeaderCell('Date', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Artist Name', flex: 2),
+            _tableHeaderCell('Artist Name', flex: 3),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Genres', flex: 2),
+            _tableHeaderCell('Location', flex: 3),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Rating', width: 90),
+            _tableHeaderCell('Tickets sold', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Status', width: 90),
+            _tableHeaderCell('Status', flex: 2),
             _verticalDivider(Colors.white30),
             _tableHeaderCell('Actions', width: 80),
           ],
@@ -366,13 +403,25 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     );
   }
 
-  Widget _buildPerformerRow(int number, Performer performer) {
-    String genresText = performer.genres != null && performer.genres!.isNotEmpty
-        ? performer.genres!.join(", ")
-        : "No specific genres";
+  Widget _buildEventRow(int number, Event event) {
+    String dateStr = event.eventDate != null
+        ? DateFormat('dd MMM yyyy').format(event.eventDate!)
+        : "N/A";
 
-    bool hasRating =
-        performer.averageRating != null && performer.averageRating! > 0;
+    bool isUpcoming = false;
+    if (event.eventDate != null) {
+      isUpcoming = event.eventDate!.isAfter(DateTime.now());
+    }
+
+    String loc = event.location?.locationName ?? event.locationName ?? "N/A";
+    String city = event.location?.city?.name ?? "";
+    String fullLocation;
+
+    if (city.isNotEmpty && city != "N/A") {
+      fullLocation = "$loc, $city";
+    } else {
+      fullLocation = loc;
+    }
 
     return Container(
       height: 48,
@@ -384,65 +433,65 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
           _verticalDivider(Colors.grey.shade300),
-          _tableCell(performer.user?.fullName ?? "N/A", flex: 2),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(performer.artistName ?? "N/A", flex: 2),
+          _tableCell(dateStr, flex: 2),
           _verticalDivider(Colors.grey.shade300),
           _tableCell(
-            genresText,
+            event.performer?.artistName ?? event.eventName ?? "N/A",
+            flex: 3,
+            isGrey:
+                event.performer?.artistName == null && event.eventName == null,
+            isItalic:
+                event.performer?.artistName == null && event.eventName == null,
+          ),
+          _verticalDivider(Colors.grey.shade300),
+          _tableCell(
+            fullLocation,
+            flex: 3,
+            isGrey: loc == "N/A",
+            isItalic: loc == "N/A",
+          ),
+          _verticalDivider(Colors.grey.shade300),
+          _tableCell(
+            "${event.ticketsSold ?? 0}",
             flex: 2,
-            isGrey: performer.genres == null || performer.genres!.isEmpty,
-            isItalic: performer.genres == null || performer.genres!.isEmpty,
-          ),
-          _verticalDivider(Colors.grey.shade300),
-          SizedBox(
-            width: 90,
-            child: Center(
-              child: hasRating
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          performer.averageRating!.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.star,
-                          size: 14,
-                          color: Color(0xFFFFA500),
-                        ),
-                      ],
-                    )
-                  : Text(
-                      "No ratings",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-            ),
-          ),
-          _verticalDivider(Colors.grey.shade300),
-          SizedBox(
-            width: 90,
-            child: Center(child: _buildStatusBadge(performer)),
+            center: true,
+            isBold: true,
           ),
           _verticalDivider(Colors.grey.shade300),
           SizedBox(
             width: 80,
             child: Center(
-              child: InkWell(
-                onTap: () {},
-                child: const Icon(
-                  Icons.edit,
-                  size: 18,
-                  color: Color(0xFF1A237E),
-                ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 70),
+                child: _buildStatusBadge(isUpcoming),
+              ),
+            ),
+          ),
+          _verticalDivider(Colors.grey.shade300),
+          SizedBox(
+            width: 80,
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {},
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: Color(0xFF1A237E),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  InkWell(
+                    onTap: () {},
+                    child: const Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -451,43 +500,44 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     );
   }
 
-  Widget _buildStatusBadge(Performer performer) {
-    String statusText;
-    Color bgColor;
-    Color borderColor;
-    Color textColor;
-
-    if (performer.isApproved == true) {
-      statusText = "Approved";
-      bgColor = const Color(0xFFE8F5E9);
-      borderColor = Colors.green;
-      textColor = Colors.green[800]!;
-    } else if (performer.isApproved == false) {
-      statusText = "Rejected";
-      bgColor = const Color(0xFFFFEBEE);
-      borderColor = Colors.red;
-      textColor = Colors.red[800]!;
-    } else {
-      statusText = "Pending";
-      bgColor = const Color(0xFFFFF9C4);
-      borderColor = Colors.orange;
-      textColor = Colors.orange[900]!;
-    }
+  Widget _buildStatusBadge(bool isUpcoming) {
+    String statusText = isUpcoming ? "Upcoming" : "Ended";
+    Color bgColor = isUpcoming
+        ? const Color(0xFFE8F5E9)
+        : const Color(0xFFFFEBEE);
+    Color borderColor = isUpcoming ? Colors.green : Colors.red;
+    Color textColor = isUpcoming ? Colors.green[800]! : Colors.red[800]!;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: borderColor, width: 0.5),
       ),
-      child: Text(
-        statusText,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isUpcoming ? Icons.check : Icons.close,
+            size: 10,
+            color: textColor,
+          ),
+          const SizedBox(width: 3),
+          Flexible(
+            child: Text(
+              statusText,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -557,60 +607,63 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       VerticalDivider(color: color, thickness: 1, indent: 6, endIndent: 6);
 
   Widget _buildPagination() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: _hasPrevious
-              ? () {
-                  setState(() => _currentPage--);
-                  _fetchPerformers();
-                }
-              : null,
-          icon: Icon(
-            Icons.chevron_left,
-            color: _hasPrevious ? Colors.white : Colors.white38,
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 900),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: _hasPrevious
+                ? () {
+                    setState(() => _currentPage--);
+                    _fetchEvents();
+                  }
+                : null,
+            icon: Icon(
+              Icons.chevron_left,
+              color: _hasPrevious ? Colors.white : Colors.white38,
+            ),
           ),
-        ),
-        Text(
-          "$_currentPage of $_totalPages",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "$_currentPage of $_totalPages",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1A237E),
+              ),
+            ),
           ),
-        ),
-        IconButton(
-          onPressed: _hasNext
-              ? () {
-                  setState(() => _currentPage++);
-                  _fetchPerformers();
-                }
-              : null,
-          icon: Icon(
-            Icons.chevron_right,
-            color: _hasNext ? Colors.white : Colors.white38,
+          IconButton(
+            onPressed: _hasNext
+                ? () {
+                    setState(() => _currentPage++);
+                    _fetchEvents();
+                  }
+                : null,
+            icon: Icon(
+              Icons.chevron_right,
+              color: _hasNext ? Colors.white : Colors.white38,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildPerformerRequestsButton() {
+  Widget _buildRequestButton() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
       alignment: Alignment.centerRight,
       child: ElevatedButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PerformerRequestsScreen(),
-            ),
-          );
-        },
-        icon: const Icon(Icons.person_add_alt_1, size: 20, color: Colors.white),
+        onPressed: () {},
+        icon: const Icon(Icons.pending_actions, size: 20, color: Colors.white),
         label: const Text(
-          "Performer Requests",
+          "Requests for Approval",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(

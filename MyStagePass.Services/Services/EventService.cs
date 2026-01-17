@@ -42,7 +42,7 @@ namespace MyStagePass.Services.Services
 		}
 		public override IQueryable<Event> AddInclude(IQueryable<Event> query, EventSearchObject? search = null)
 		{
-			query = query.Include(e => e.FavoritedByCustomers).Include(e => e.Status); 
+			query = query.Include(e => e.FavoritedByCustomers).Include(e => e.Status).Include(e=>e.Location).ThenInclude(e=>e.City); 
 
 			return base.AddInclude(query, search);
 		}
@@ -54,14 +54,13 @@ namespace MyStagePass.Services.Services
 			if (search.PerformerID.HasValue)
 				query = query.Where(e => e.PerformerID == search.PerformerID.Value);
 
-			if (!string.IsNullOrEmpty(search.Status))
-				query = query.Where(e => e.Status.StatusName == search.Status);
-
-			if (!string.IsNullOrEmpty(search.EventName))
-				query = query.Where(e => e.EventName!.ToLower().Contains(search.EventName.ToLower()));
-
-			if (!string.IsNullOrEmpty(search.Location))
-				query = query.Where(e => e.Location.LocationName!.ToLower().Contains(search.Location.ToLower()));
+			if (!string.IsNullOrWhiteSpace(search.searchTerm))
+			{
+				string lowerQuery = search.searchTerm.ToLower();
+				query = query.Where(e =>
+					e.EventName.ToLower().Contains(lowerQuery) ||
+					e.Location.LocationName.ToLower().Contains(lowerQuery));
+			};
 
 			if (search.EventDateFrom != null)
 				query = query.Where(e => e.EventDate >= search.EventDateFrom);

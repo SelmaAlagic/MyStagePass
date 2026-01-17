@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mystagepass_admin/screens/event_management_screen.dart';
 import 'package:mystagepass_admin/screens/performer_management_screen.dart';
 import 'login_screen.dart';
 import 'user_management_screen.dart';
@@ -93,7 +94,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         1,
                         "Manage events",
                         'assets/svg/eventsIcon.svg',
-                        () {},
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const EventManagementScreen(),
+                            ),
+                          );
+                        },
                       ),
                       _buildImageCard(
                         2,

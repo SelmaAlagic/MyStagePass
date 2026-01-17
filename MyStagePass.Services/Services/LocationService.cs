@@ -16,7 +16,7 @@ namespace MyStagePass.Services.Services
 
 		public override IQueryable<Database.Location> AddInclude(IQueryable<Database.Location> query, LocationSearchObject? search = null)
 		{
-			return query.Include(l => l.Events);
+			return query.Include(l => l.Events).Include(l=>l.City);
 		}
 
 		public override IQueryable<Database.Location> AddFilter(IQueryable<Database.Location> query, LocationSearchObject? search = null)

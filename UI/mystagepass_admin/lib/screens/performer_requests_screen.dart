@@ -39,7 +39,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
     super.dispose();
   }
 
-  // Popravljen format broja mobitela
   String _formatPhoneNumber(String? phone) {
     if (phone == null || phone.isEmpty) return "N/A";
     String digits = phone.replaceAll(RegExp(r'\D'), '');
@@ -152,9 +151,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   Widget _buildHeader() {
     return Container(
-      constraints: const BoxConstraints(
-        maxWidth: 1100,
-      ), // Povećano da stane više kolona
+      constraints: const BoxConstraints(maxWidth: 1100),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -232,7 +229,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   Widget _buildTableStack() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100), // Prošireno za tabelu
+      constraints: const BoxConstraints(maxWidth: 1100),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -325,7 +322,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
             _verticalDivider(Colors.white30),
             _tableHeaderCell('Email', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Genres', flex: 2), // Dodano
+            _tableHeaderCell('Genres', flex: 2),
             _verticalDivider(Colors.white30),
             _tableHeaderCell('Actions', width: 180),
           ],
@@ -338,7 +335,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
     String performerName =
         performer.artistName ?? performer.user?.fullName ?? "N/A";
 
-    // Tvoja logika za žanrove
     String genresText = performer.genres != null && performer.genres!.isNotEmpty
         ? performer.genres!.join(", ")
         : "No specific genres";
@@ -359,7 +355,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
           _verticalDivider(Colors.grey.shade300),
           _tableCell(performer.user?.email ?? "N/A", flex: 2),
           _verticalDivider(Colors.grey.shade300),
-          _tableCell(genresText, flex: 2), // Dodano
+          _tableCell(genresText, flex: 2),
           _verticalDivider(Colors.grey.shade300),
           SizedBox(
             width: 180,
