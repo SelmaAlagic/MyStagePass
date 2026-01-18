@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
@@ -42,9 +43,26 @@ namespace MyStagePass.Services.Services
 		}
 		public override IQueryable<Event> AddInclude(IQueryable<Event> query, EventSearchObject? search = null)
 		{
-			query = query.Include(e => e.FavoritedByCustomers).Include(e => e.Status).Include(e=>e.Location).ThenInclude(e=>e.City); 
+			query = query.Include(e => e.FavoritedByCustomers).Include(e => e.Status).Include(e=>e.Location).ThenInclude(e=>e.City).Include(e=>e.Performer).ThenInclude(e=>e.Events); 
 
 			return base.AddInclude(query, search);
+		}
+		public override async Task<PagedResult<Model.Models.Event>> Get(EventSearchObject? search = null)
+		{
+			var result = await base.Get(search);
+
+			foreach (var eventObj in result.Result)
+			{
+				if (eventObj.Performer != null && eventObj.Performer.Events != null)
+				{
+					eventObj.Performer.AverageRating = eventObj.Performer.Events
+						.Where(e => e.RatingCount > 0)
+						.Select(e => e.RatingAverage)
+						.DefaultIfEmpty(0)
+						.Average();
+				}
+			}
+			return result;
 		}
 		public override IQueryable<Event> AddFilter(IQueryable<Event> query, EventSearchObject? search = null)
 		{
@@ -61,6 +79,11 @@ namespace MyStagePass.Services.Services
 					e.EventName.ToLower().Contains(lowerQuery) ||
 					e.Location.LocationName.ToLower().Contains(lowerQuery));
 			};
+
+			if (!string.IsNullOrWhiteSpace(search.Status))
+			{
+				query = query.Where(e => e.Status.StatusName.ToLower() == search.Status.ToLower());
+			}
 
 			if (search.EventDateFrom != null)
 				query = query.Where(e => e.EventDate >= search.EventDateFrom);

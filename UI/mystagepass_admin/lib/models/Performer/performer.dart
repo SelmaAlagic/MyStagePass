@@ -26,9 +26,6 @@ class Performer {
     this.user,
   });
 
-  String get genresFormatted =>
-      genres != null && genres!.isNotEmpty ? genres!.join(', ') : 'No genres';
-
   factory Performer.fromJson(Map<String, dynamic> json) =>
       _$PerformerFromJson(json);
   Map<String, dynamic> toJson() => _$PerformerToJson(this);

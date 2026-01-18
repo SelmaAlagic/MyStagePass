@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:mystagepass_admin/screens/event_requests_screen.dart';
-import 'package:mystagepass_admin/screens/upcoming_events_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/Event/event.dart';
 import '../providers/event_provider.dart';
 import '../models/search_result.dart';
+import '../utils/alert_helpers.dart';
 import 'dart:async';
 
-class EventManagementScreen extends StatefulWidget {
-  const EventManagementScreen({super.key});
+class EventRequestsScreen extends StatefulWidget {
+  const EventRequestsScreen({super.key});
 
   @override
-  State<EventManagementScreen> createState() => _EventManagementScreenState();
+  State<EventRequestsScreen> createState() => _EventRequestsScreenState();
 }
 
-class _EventManagementScreenState extends State<EventManagementScreen> {
+class _EventRequestsScreenState extends State<EventRequestsScreen> {
   List<Event> _events = [];
   bool _isLoading = false;
   String _searchQuery = "";
@@ -60,35 +59,72 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     try {
       var provider = Provider.of<EventProvider>(context, listen: false);
 
-      var params = {
-        'Page': (_currentPage - 1).toString(),
-        'PageSize': _pageSize.toString(),
-        'Status': 'approved',
-      };
+      // ✅ Kada je "All", dohvati pending i rejected odvojeno i kombiniraj
+      if (_statusFilter == "All") {
+        var pendingParams = {
+          'Page': (_currentPage - 1).toString(),
+          'PageSize': _pageSize.toString(),
+          'Status': 'pending',
+        };
 
-      if (_searchQuery.length >= 3) {
-        params['searchTerm'] = _searchQuery;
-      }
+        var rejectedParams = {
+          'Page': (_currentPage - 1).toString(),
+          'PageSize': _pageSize.toString(),
+          'Status': 'rejected',
+        };
 
-      if (_statusFilter != "All") {
-        params['IsUpcoming'] = (_statusFilter == "Upcoming").toString();
-      }
+        if (_searchQuery.length >= 3) {
+          pendingParams['searchTerm'] = _searchQuery;
+          rejectedParams['searchTerm'] = _searchQuery;
+        }
 
-      SearchResult<Event> data = await provider.get(filter: params);
+        // Fetchuj oba statusa paralelno
+        var pendingData = await provider.get(filter: pendingParams);
+        var rejectedData = await provider.get(filter: rejectedParams);
 
-      if (mounted) {
-        setState(() {
-          _events = data.result;
-          _totalPages = data.meta.totalPages;
-          _currentPage = data.meta.currentPage + 1;
-          _hasPrevious = data.meta.hasPrevious;
-          _hasNext = data.meta.hasNext;
-          _isLoading = false;
-        });
+        // Kombiniraj rezultate
+        List<Event> allEvents = [...pendingData.result, ...rejectedData.result];
+
+        if (mounted) {
+          setState(() {
+            _events = allEvents;
+            // Koristi metadata od pending requesta za paginaciju
+            _totalPages = pendingData.meta.totalPages;
+            _currentPage = pendingData.meta.currentPage + 1;
+            _hasPrevious = pendingData.meta.hasPrevious;
+            _hasNext = pendingData.meta.hasNext || rejectedData.meta.hasNext;
+            _isLoading = false;
+          });
+        }
+      } else {
+        // ✅ Za Pending ili Rejected, standardan fetch
+        var params = {
+          'Page': (_currentPage - 1).toString(),
+          'PageSize': _pageSize.toString(),
+          'Status': _statusFilter!.toLowerCase(),
+        };
+
+        if (_searchQuery.length >= 3) {
+          params['searchTerm'] = _searchQuery;
+        }
+
+        SearchResult<Event> data = await provider.get(filter: params);
+
+        if (mounted) {
+          setState(() {
+            _events = data.result;
+            _totalPages = data.meta.totalPages;
+            _currentPage = data.meta.currentPage + 1;
+            _hasPrevious = data.meta.hasPrevious;
+            _hasNext = data.meta.hasNext;
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
+        AlertHelpers.showError(context, "Failed to load event requests: $e");
       }
       debugPrint("Error fetching events: $e");
     }
@@ -110,6 +146,104 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       _currentPage = 1;
     });
     _fetchEvents();
+  }
+
+  Future<void> _handleApprove(Event event) async {
+    if (event.eventId == null) {
+      AlertHelpers.showError(
+        context,
+        "Cannot approve event: Event ID is missing",
+      );
+      return;
+    }
+
+    try {
+      var provider = Provider.of<EventProvider>(context, listen: false);
+      await provider.updateStatus(event.eventId!, "approved");
+
+      if (mounted) {
+        AlertHelpers.showSuccess(
+          context,
+          "Event '${event.eventName ?? 'Unknown'}' has been approved successfully!",
+        );
+        _fetchEvents();
+      }
+    } catch (e) {
+      if (mounted) {
+        AlertHelpers.showError(context, "Failed to approve event: $e");
+      }
+      debugPrint("Error approving event: $e");
+    }
+  }
+
+  Future<void> _handleReject(Event event) async {
+    if (event.eventId == null) {
+      AlertHelpers.showError(
+        context,
+        "Cannot reject event: Event ID is missing",
+      );
+      return;
+    }
+
+    try {
+      var provider = Provider.of<EventProvider>(context, listen: false);
+      await provider.updateStatus(event.eventId!, "rejected");
+
+      if (mounted) {
+        AlertHelpers.showSuccess(
+          context,
+          "Event '${event.eventName ?? 'Unknown'}' has been rejected.",
+        );
+        _fetchEvents();
+      }
+    } catch (e) {
+      if (mounted) {
+        AlertHelpers.showError(context, "Failed to reject event: $e");
+      }
+      debugPrint("Error rejecting event: $e");
+    }
+  }
+
+  void _showConfirmDialog(Event event, bool isApprove) {
+    String statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
+    bool isRejected = statusLower == 'rejected';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(isApprove ? "Approve Event" : "Reject Event"),
+        content: Text(
+          isApprove
+              ? isRejected
+                    ? "Are you sure you want to reactivate '${event.eventName ?? 'this event'}'?"
+                    : "Are you sure you want to approve '${event.eventName ?? 'this event'}'?"
+              : "Are you sure you want to reject '${event.eventName ?? 'this event'}'?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (isApprove) {
+                _handleApprove(event);
+              } else {
+                _handleReject(event);
+              }
+            },
+            child: Text(
+              isApprove ? (isRejected ? "Reactivate" : "Approve") : "Reject",
+              style: TextStyle(
+                color: isApprove ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -135,8 +269,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
               _buildTableStack(),
               const SizedBox(height: 20),
               if (_events.isNotEmpty) _buildPagination(),
-              const SizedBox(height: 20),
-              _buildActionButtons(),
             ],
           ),
         ),
@@ -146,19 +278,19 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
   Widget _buildHeader() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            "Event Management",
+            "Event Requests for Approval",
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1A237E),
             ),
           ),
-          const Icon(Icons.event, size: 32, color: Color(0xFF1A237E)),
+          const Icon(Icons.pending_actions, size: 32, color: Color(0xFF1A237E)),
         ],
       ),
     );
@@ -166,17 +298,19 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
   Widget _buildBackButton() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100),
       alignment: Alignment.centerLeft,
       child: TextButton.icon(
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          Navigator.of(context).pop(true);
+        },
         icon: const Icon(
           Icons.arrow_back_ios_new_rounded,
           size: 16,
           color: Color(0xFF1A237E),
         ),
         label: const Text(
-          "Back to Dashboard",
+          "Back to Event Management",
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Color(0xFF1A237E),
@@ -193,12 +327,12 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
   Widget _buildFilters() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            width: 220,
+            width: 280,
             height: 35,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -212,7 +346,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
               textAlignVertical: TextAlignVertical.center,
               style: const TextStyle(fontSize: 13, color: Colors.black),
               decoration: InputDecoration(
-                hintText: "Search",
+                hintText: "Search by performer or location",
                 hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
                 prefixIcon: const Icon(
                   Icons.search,
@@ -251,7 +385,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                   borderRadius: BorderRadius.circular(12),
                   icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
                   style: const TextStyle(fontSize: 13, color: Colors.black),
-                  items: ["All", "Upcoming", "Ended"]
+                  items: ["All", "Pending", "Rejected"]
                       .map(
                         (v) => DropdownMenuItem(
                           value: v,
@@ -274,7 +408,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
   Widget _buildSearchHint() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100),
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
@@ -288,7 +422,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "Enter at least 3 characters to search by event name or location",
+              "Enter at least 3 characters to search by performer name or location",
               style: TextStyle(fontSize: 12, color: Colors.orange[800]),
             ),
           ),
@@ -299,13 +433,13 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
   Widget _buildTableStack() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -326,7 +460,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.event_busy_outlined,
+                              Icons.inbox_outlined,
                               size: 64,
                               color: Colors.grey[300],
                             ),
@@ -334,10 +468,10 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                             Text(
                               _searchQuery.isNotEmpty &&
                                       _searchQuery.length >= 3
-                                  ? "No events found for '$_searchQuery'"
-                                  : _statusFilter != "All"
-                                  ? "No $_statusFilter events found"
-                                  : "No events found",
+                                  ? "No ${_statusFilter == 'All' ? '' : _statusFilter!.toLowerCase()} requests found for '$_searchQuery'"
+                                  : _statusFilter == 'All'
+                                  ? "No pending or rejected event requests"
+                                  : "No ${_statusFilter!.toLowerCase()} event requests",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -390,15 +524,19 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             _verticalDivider(Colors.white30),
             _tableHeaderCell('Date', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Performer Name', flex: 3),
+            _tableHeaderCell('Performer', flex: 3),
             _verticalDivider(Colors.white30),
             _tableHeaderCell('Location', flex: 3),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Tickets sold', flex: 2),
+            _tableHeaderCell('Regular', flex: 2),
+            _verticalDivider(Colors.white30),
+            _tableHeaderCell('VIP', flex: 2),
+            _verticalDivider(Colors.white30),
+            _tableHeaderCell('Premium', flex: 2),
             _verticalDivider(Colors.white30),
             _tableHeaderCell('Status', flex: 2),
             _verticalDivider(Colors.white30),
-            _tableHeaderCell('Actions', width: 80),
+            _tableHeaderCell('Actions', width: 100),
           ],
         ),
       ),
@@ -410,11 +548,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         ? DateFormat('dd MMM yyyy').format(event.eventDate!)
         : "N/A";
 
-    bool isUpcoming = false;
-    if (event.eventDate != null) {
-      isUpcoming = event.eventDate!.isAfter(DateTime.now());
-    }
-
     String loc = event.location?.locationName ?? event.locationName ?? "N/A";
     String city = event.location?.city?.name ?? "";
     String fullLocation;
@@ -424,6 +557,9 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     } else {
       fullLocation = loc;
     }
+
+    String statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
+    bool isPending = statusLower == 'pending';
 
     return Container(
       height: 48,
@@ -438,12 +574,10 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           _tableCell(dateStr, flex: 2),
           _verticalDivider(Colors.grey.shade300),
           _tableCell(
-            event.performer?.artistName ?? event.eventName ?? "N/A",
+            event.performer?.artistName ?? "N/A",
             flex: 3,
-            isGrey:
-                event.performer?.artistName == null && event.eventName == null,
-            isItalic:
-                event.performer?.artistName == null && event.eventName == null,
+            isGrey: event.performer?.artistName == null,
+            isItalic: event.performer?.artistName == null,
           ),
           _verticalDivider(Colors.grey.shade300),
           _tableCell(
@@ -454,7 +588,21 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           ),
           _verticalDivider(Colors.grey.shade300),
           _tableCell(
-            "${event.ticketsSold ?? 0}",
+            "${event.regularPrice ?? 0}KM",
+            flex: 2,
+            center: true,
+            isBold: true,
+          ),
+          _verticalDivider(Colors.grey.shade300),
+          _tableCell(
+            "${event.vipPrice ?? 0}KM",
+            flex: 2,
+            center: true,
+            isBold: true,
+          ),
+          _verticalDivider(Colors.grey.shade300),
+          _tableCell(
+            "${event.premiumPrice ?? 0}KM",
             flex: 2,
             center: true,
             isBold: true,
@@ -465,36 +613,86 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 70),
-                child: _buildStatusBadge(isUpcoming),
+                child: _buildStatusBadge(statusLower),
               ),
             ),
           ),
           _verticalDivider(Colors.grey.shade300),
           SizedBox(
-            width: 80,
+            width: 100,
             child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.edit_outlined,
-                      size: 18,
-                      color: Color(0xFF1A237E),
+              child: isPending
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () => _showConfirmDialog(event, true),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.green, width: 1),
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        InkWell(
+                          onTap: () => _showConfirmDialog(event, false),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.red[50],
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.red, width: 1),
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : InkWell(
+                      onTap: () => _showConfirmDialog(event, true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green[50],
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.green, width: 1),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.restore,
+                              size: 14,
+                              color: Colors.green,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "Approve",
+                              style: TextStyle(
+                                color: Colors.green[800],
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  InkWell(
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.delete_outline,
-                      size: 18,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
@@ -502,13 +700,28 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     );
   }
 
-  Widget _buildStatusBadge(bool isUpcoming) {
-    String statusText = isUpcoming ? "Upcoming" : "Ended";
-    Color bgColor = isUpcoming
-        ? const Color(0xFFE8F5E9)
-        : const Color(0xFFFFEBEE);
-    Color borderColor = isUpcoming ? Colors.green : Colors.red;
-    Color textColor = isUpcoming ? Colors.green[800]! : Colors.red[800]!;
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color borderColor;
+    Color textColor;
+    IconData icon;
+
+    if (status == 'pending') {
+      bgColor = const Color(0xFFFFF8E1);
+      borderColor = Colors.orange;
+      textColor = Colors.orange.shade800;
+      icon = Icons.access_time;
+    } else if (status == 'rejected') {
+      bgColor = const Color(0xFFFFEBEE);
+      borderColor = Colors.red;
+      textColor = Colors.red.shade800;
+      icon = Icons.cancel;
+    } else {
+      bgColor = Colors.grey.shade100;
+      borderColor = Colors.grey;
+      textColor = Colors.grey.shade800;
+      icon = Icons.help_outline;
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -521,15 +734,11 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            isUpcoming ? Icons.check : Icons.close,
-            size: 10,
-            color: textColor,
-          ),
+          Icon(icon, size: 10, color: textColor),
           const SizedBox(width: 3),
           Flexible(
             child: Text(
-              statusText,
+              status[0].toUpperCase() + status.substring(1),
               style: TextStyle(
                 color: textColor,
                 fontSize: 9,
@@ -610,7 +819,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
   Widget _buildPagination() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1100),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -650,79 +859,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             icon: Icon(
               Icons.chevron_right,
               color: _hasNext ? Colors.white : Colors.white38,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerRight,
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: [
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UpcomingEventsScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.upcoming, size: 20, color: Colors.white),
-            label: const Text(
-              "Upcoming Events",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1A237E),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-              elevation: 5,
-            ),
-          ),
-
-          ElevatedButton.icon(
-            onPressed: () async {
-              final shouldRefresh = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EventRequestsScreen(),
-                ),
-              );
-              if (shouldRefresh == true) {
-                _fetchEvents();
-              }
-            },
-            icon: const Icon(
-              Icons.pending_actions,
-              size: 20,
-              color: Colors.white,
-            ),
-            label: const Text(
-              "Requests for Approval",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5865F2),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-              elevation: 5,
             ),
           ),
         ],

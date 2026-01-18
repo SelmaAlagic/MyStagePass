@@ -235,7 +235,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black,
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -291,7 +291,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(

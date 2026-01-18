@@ -249,7 +249,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black,
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),

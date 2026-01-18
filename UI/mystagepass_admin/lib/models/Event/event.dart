@@ -7,12 +7,16 @@ part 'event.g.dart';
 
 @JsonSerializable()
 class Event {
+  @JsonKey(name: 'eventID')
   int? eventId;
   String? eventName;
   int? ticketsSold;
   String? locationName;
   DateTime? eventDate;
   String? timeStatus;
+  int? regularPrice;
+  int? vipPrice;
+  int? premiumPrice;
 
   Performer? performer;
   Location? location;
@@ -25,6 +29,9 @@ class Event {
     this.locationName,
     this.eventDate,
     this.timeStatus,
+    this.regularPrice,
+    this.vipPrice,
+    this.premiumPrice,
     this.performer,
     this.location,
     this.status,

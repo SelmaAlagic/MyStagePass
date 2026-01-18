@@ -14,7 +14,7 @@ class EventProvider extends BaseProvider<Event> {
 
   Future<void> updateStatus(int id, String status) async {
     final url = Uri.parse(
-      '${getBaseUrl()}$_eventEndpoint/$id/status?status=$status',
+      '${getBaseUrl()}api/Event/$id/status?newStatus=$status',
     );
     final headers = await createHeaders();
     final response = await http.put(url, headers: headers);

@@ -7,7 +7,7 @@ part of 'event.dart';
 // **************************************************************************
 
 Event _$EventFromJson(Map<String, dynamic> json) => Event(
-  eventId: (json['eventId'] as num?)?.toInt(),
+  eventId: (json['eventID'] as num?)?.toInt(),
   eventName: json['eventName'] as String?,
   ticketsSold: (json['ticketsSold'] as num?)?.toInt(),
   locationName: json['locationName'] as String?,
@@ -15,6 +15,9 @@ Event _$EventFromJson(Map<String, dynamic> json) => Event(
       ? null
       : DateTime.parse(json['eventDate'] as String),
   timeStatus: json['timeStatus'] as String?,
+  regularPrice: (json['regularPrice'] as num?)?.toInt(),
+  vipPrice: (json['vipPrice'] as num?)?.toInt(),
+  premiumPrice: (json['premiumPrice'] as num?)?.toInt(),
   performer: json['performer'] == null
       ? null
       : Performer.fromJson(json['performer'] as Map<String, dynamic>),
@@ -27,12 +30,15 @@ Event _$EventFromJson(Map<String, dynamic> json) => Event(
 );
 
 Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
-  'eventId': instance.eventId,
+  'eventID': instance.eventId,
   'eventName': instance.eventName,
   'ticketsSold': instance.ticketsSold,
   'locationName': instance.locationName,
   'eventDate': instance.eventDate?.toIso8601String(),
   'timeStatus': instance.timeStatus,
+  'regularPrice': instance.regularPrice,
+  'vipPrice': instance.vipPrice,
+  'premiumPrice': instance.premiumPrice,
   'performer': instance.performer,
   'location': instance.location,
   'status': instance.status,
