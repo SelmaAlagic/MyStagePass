@@ -1,31 +1,14 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../User/user.dart';
 part 'admin.g.dart';
 
 @JsonSerializable()
 class Admin {
-  String? firstName;
-  String? lastName;
-  String? email;
-  String? username;
-  String? password;
+  int? adminID;
 
-  Admin(
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.username,
-    this.password,
-  );
+  User? user;
 
-  factory Admin.fromInitialValues(Map<String, dynamic> initialValues) {
-    return Admin(
-      initialValues["firstName"] as String?,
-      initialValues["lastName"] as String?,
-      initialValues["email"] as String?,
-      initialValues["username"] as String?,
-      initialValues["password"] as String?,
-    );
-  }
+  Admin(this.adminID, this.user);
 
   factory Admin.fromJson(Map<String, dynamic> json) => _$AdminFromJson(json);
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mystagepass_admin/providers/admin_provider.dart';
+import 'package:mystagepass_admin/providers/notification_provider.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
@@ -19,6 +20,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AdminProvider()),
         ChangeNotifierProvider(create: (_) => PerformerProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
 
       child: const MyStagePassAdmin(),

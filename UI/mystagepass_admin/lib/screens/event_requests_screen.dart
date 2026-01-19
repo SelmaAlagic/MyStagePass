@@ -59,7 +59,6 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     try {
       var provider = Provider.of<EventProvider>(context, listen: false);
 
-      // ✅ Kada je "All", dohvati pending i rejected odvojeno i kombiniraj
       if (_statusFilter == "All") {
         var pendingParams = {
           'Page': (_currentPage - 1).toString(),
@@ -78,17 +77,14 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           rejectedParams['searchTerm'] = _searchQuery;
         }
 
-        // Fetchuj oba statusa paralelno
         var pendingData = await provider.get(filter: pendingParams);
         var rejectedData = await provider.get(filter: rejectedParams);
 
-        // Kombiniraj rezultate
         List<Event> allEvents = [...pendingData.result, ...rejectedData.result];
 
         if (mounted) {
           setState(() {
             _events = allEvents;
-            // Koristi metadata od pending requesta za paginaciju
             _totalPages = pendingData.meta.totalPages;
             _currentPage = pendingData.meta.currentPage + 1;
             _hasPrevious = pendingData.meta.hasPrevious;
@@ -97,7 +93,6 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           });
         }
       } else {
-        // ✅ Za Pending ili Rejected, standardan fetch
         var params = {
           'Page': (_currentPage - 1).toString(),
           'PageSize': _pageSize.toString(),

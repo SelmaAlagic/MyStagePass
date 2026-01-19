@@ -32,11 +32,20 @@ class _LoginScreenState extends State<LoginScreen> {
         final response = await authProvider.login();
 
         if (response.result == 0) {
+          int? userId = await authProvider.getCurrentUserId();
+
           if (!mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
+
+          if (userId != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(userId: userId),
+              ),
+            );
+          } else {
+            setState(() => _errorMessage = "Error loading user data.");
+          }
         } else {
           setState(
             () => _errorMessage = "Your username or password is incorrect.",
