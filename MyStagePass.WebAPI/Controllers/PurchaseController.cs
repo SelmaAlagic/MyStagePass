@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Models;
+using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Interfaces;
 
@@ -10,9 +11,10 @@ namespace MyStagePass.WebAPI.Controllers
 	[ApiController]
 	[Route("api/[controller]")]
 	[Authorize(Roles = "Customer")]
-	public class PurchaseController : BaseController<Purchase, PurchaseSearchObject>
+	public class PurchaseController : BaseCRUDController<Purchase, PurchaseSearchObject, PurchaseInsertRequest, PurchaseUpdateRequest>
 	{
-		public PurchaseController(ILogger<BaseController<Purchase, PurchaseSearchObject>> logger, IPurchaseService service) : base(logger, service)
+		public PurchaseController(ILogger<BaseController<Purchase, PurchaseSearchObject>> logger, IPurchaseService service)
+			: base(logger, service)
 		{
 		}
 
@@ -30,14 +32,19 @@ namespace MyStagePass.WebAPI.Controllers
 			return await base.Get(search);
 		}
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> SoftDelete(int id)
+		[HttpPost]
+		public override async Task<Purchase> Insert([FromBody] PurchaseInsertRequest request)
 		{
-			var purchaseService = _service as IPurchaseService;
-			if (purchaseService == null)
-				return BadRequest("Service not available");
-			await purchaseService.SoftDelete(id);
-			return Ok("Purchase successfully soft-deleted!");
+			var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+			request.CustomerID = userId;
+
+			return await base.Insert(request);
+		}
+
+		[HttpDelete("{id}")]
+		public override async Task<Purchase> Delete(int id)
+		{
+			return await base.Delete(id);
 		}
 	}
 }

@@ -56,7 +56,7 @@ namespace MyStagePass.WebAPI.Controllers
 			}
 		}
 
-		[Authorize]
+		[AllowAnonymous]
 		[HttpGet("current")]
 		public IActionResult GetCurrentUser()
 		{
@@ -87,7 +87,7 @@ namespace MyStagePass.WebAPI.Controllers
 			}
 		}
 
-		[Authorize]
+		[AllowAnonymous]
 		[HttpGet("my-profile")]
 		public async Task<IActionResult> GetMyProfile()
 		{
