@@ -24,7 +24,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   int _totalPages = 1;
   bool _hasPrevious = false;
   bool _hasNext = false;
-  final int _pageSize = 5;
+  final int _pageSize = 6;
 
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -116,27 +116,33 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DB4FF),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeader(),
-              _buildBackButton(),
-              const SizedBox(height: 10),
-              _buildFilters(),
-              const SizedBox(height: 20),
-              _buildTableStack(),
-              const SizedBox(height: 20),
-              if (_performers.isNotEmpty) _buildPagination(),
-              const SizedBox(height: 20),
-              _buildPerformerRequestsButton(),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 60),
+                _buildFilters(),
+                const SizedBox(height: 30),
+                _buildTableStack(),
+                const SizedBox(height: 30),
+                if (_performers.isNotEmpty) _buildPagination(),
+                const SizedBox(height: 30),
+                _buildBottomButtonsRow(),
+              ],
+            ),
           ),
         ),
       ),
@@ -146,45 +152,21 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   Widget _buildHeader() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Performer Management",
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A237E),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.music_note, size: 36, color: Colors.white),
+            const SizedBox(width: 12),
+            const Text(
+              "Performer Management",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-          ),
-          const Icon(Icons.music_note, size: 32, color: Color(0xFF1A237E)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackButton() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerLeft,
-      child: TextButton.icon(
-        onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 16,
-          color: Color(0xFF1A237E),
-        ),
-        label: const Text(
-          "Back to Dashboard",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A237E),
-            fontSize: 14,
-          ),
-        ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          foregroundColor: const Color(0xFF1A237E),
+          ],
         ),
       ),
     );
@@ -231,7 +213,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
             child: Theme(
               data: Theme.of(
                 context,
-              ).copyWith(hoverColor: const Color(0xFFE3F2FD)),
+              ).copyWith(hoverColor: const Color.fromARGB(146, 26, 104, 169)),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _getStatusFilterValue(),
@@ -282,14 +264,14 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
             children: [
               _buildTableHeader(),
               SizedBox(
-                height: 48.0 * 5,
+                height: 56.0 * 6,
                 child: _performers.isEmpty && !_isLoading
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.people_outline,
+                              Icons.music_note,
                               size: 64,
                               color: Colors.grey[300],
                             ),
@@ -340,25 +322,25 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   Widget _buildTableHeader() {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF5865F2),
+        color: Color(0xFFE8E8E8),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: IntrinsicHeight(
         child: Row(
           children: [
             _tableHeaderCell('#', width: 40),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Full Name', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Artist Name', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Genres', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Rating', width: 90),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Status', width: 90),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Actions', width: 80),
           ],
         ),
@@ -375,7 +357,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         performer.averageRating != null && performer.averageRating! > 0;
 
     return Container(
-      height: 48,
+      height: 56,
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
@@ -383,18 +365,18 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       child: Row(
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(performer.user?.fullName ?? "N/A", flex: 2),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(performer.artistName ?? "N/A", flex: 2),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             genresText,
             flex: 2,
             isGrey: performer.genres == null || performer.genres!.isEmpty,
             isItalic: performer.genres == null || performer.genres!.isEmpty,
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
             width: 90,
             child: Center(
@@ -405,7 +387,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                         Text(
                           performer.averageRating!.toStringAsFixed(1),
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color: Colors.black,
                           ),
                         ),
@@ -420,29 +402,43 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                   : Text(
                       "No ratings",
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         color: Colors.grey.shade500,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
             ),
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
             width: 90,
             child: Center(child: _buildStatusBadge(performer)),
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
             width: 80,
             child: Center(
-              child: InkWell(
-                onTap: () {},
-                child: const Icon(
-                  Icons.edit,
-                  size: 18,
-                  color: Color(0xFF1A237E),
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {},
+                    child: const Icon(
+                      Icons.edit,
+                      size: 22,
+                      color: Color(0xFF1A237E),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  InkWell(
+                    onTap: () {},
+                    child: const Icon(
+                      Icons.delete_outline,
+                      size: 22,
+                      color: Color(0xFFE53935),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -497,7 +493,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white,
+          color: Color.fromARGB(249, 8, 18, 70),
           fontWeight: FontWeight.bold,
           fontSize: 13,
         ),
@@ -542,8 +538,10 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         child: Text(
           text,
           style: TextStyle(
-            color: isGrey ? Colors.grey.shade500 : Colors.black,
-            fontSize: 12,
+            color: isGrey
+                ? Colors.grey.shade500
+                : const Color.fromARGB(248, 0, 0, 1),
+            fontSize: 13,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
           ),
@@ -569,6 +567,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
               : null,
           icon: Icon(
             Icons.chevron_left,
+            size: 32,
             color: _hasPrevious ? Colors.white : Colors.white38,
           ),
         ),
@@ -576,6 +575,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           "$_currentPage of $_totalPages",
           style: const TextStyle(
             fontWeight: FontWeight.bold,
+            fontSize: 16,
             color: Colors.white,
           ),
         ),
@@ -588,6 +588,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
               : null,
           icon: Icon(
             Icons.chevron_right,
+            size: 32,
             color: _hasNext ? Colors.white : Colors.white38,
           ),
         ),
@@ -595,32 +596,54 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     );
   }
 
-  Widget _buildPerformerRequestsButton() {
+  Widget _buildBottomButtonsRow() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PerformerRequestsScreen(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            label: const Text(
+              "Back to Dashboard",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
-          );
-        },
-        icon: const Icon(Icons.person_add_alt_1, size: 20, color: Colors.white),
-        label: const Text(
-          "Performer Requests",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF5865F2),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Color.fromARGB(255, 29, 35, 93),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              elevation: 5,
+            ),
           ),
-          elevation: 5,
-        ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PerformerRequestsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.person_add_alt_1, size: 20),
+            label: const Text(
+              "Performer Requests",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Color.fromARGB(255, 29, 35, 93),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              elevation: 5,
+            ),
+          ),
+        ],
       ),
     );
   }

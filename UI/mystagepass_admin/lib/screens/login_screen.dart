@@ -66,8 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return Theme(
       data: Theme.of(context).copyWith(
         textSelectionTheme: TextSelectionThemeData(
-          selectionColor: Colors.blue,
-          cursorColor: const Color(0xFF1A56DB),
+          selectionColor: Color.fromARGB(255, 29, 35, 93),
+          cursorColor: Color.fromARGB(255, 29, 35, 93),
         ),
       ),
       child: Scaffold(
@@ -193,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue.shade600,
+                              backgroundColor: Color.fromARGB(255, 29, 35, 93),
                               foregroundColor: Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -210,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   )
                                 : const Text(
-                                    "LOGIN",
+                                    "Login",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14,
@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
-      prefixIcon: Icon(icon, color: Colors.blue.shade400, size: 22),
+      prefixIcon: Icon(icon, color: Color.fromARGB(255, 29, 35, 93), size: 22),
       errorStyle: const TextStyle(
         color: Colors.redAccent,
         fontWeight: FontWeight.w300,
@@ -248,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ? IconButton(
               icon: Icon(
                 _isObscured ? Icons.visibility_off : Icons.visibility,
-                color: const Color(0xFF667085),
+                color: Color.fromARGB(255, 29, 35, 93),
                 size: 20,
               ),
               onPressed: () => setState(() => _isObscured = !_isObscured),
@@ -263,7 +263,10 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.blue, width: 1.5),
+        borderSide: const BorderSide(
+          color: Color.fromARGB(255, 29, 35, 93),
+          width: 1.5,
+        ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

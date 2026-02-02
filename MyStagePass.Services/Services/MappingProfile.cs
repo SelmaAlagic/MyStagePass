@@ -10,9 +10,26 @@ namespace MyStagePass.Services.Services
 		{
 			CreateMap<Database.Admin, Admin>();
 			CreateMap<Database.User, User>();
-			CreateMap<Model.Requests.AdminInsertRequest, Database.User>();
+			CreateMap<AdminInsertRequest, Database.User>().ForMember(dest => dest.Password, opt => opt.Ignore()).ForMember(dest => dest.Salt, opt => opt.Ignore());
 			CreateMap<Model.Requests.AdminInsertRequest, Database.Admin>();
-			CreateMap<Model.Requests.AdminUpdateRequest, Database.User>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+			CreateMap<AdminUpdateRequest, Database.User>().ForMember(dest => dest.Password, opt => opt.Ignore()).ForMember(dest => dest.Salt, opt => opt.Ignore()).ForMember(dest => dest.Image, opt => opt.MapFrom((src, dest) =>
+			{
+				if (string.IsNullOrWhiteSpace(src.Image))
+					return dest.Image;
+
+				try
+				{
+					var base64String = src.Image;
+					if (base64String.Contains("base64,"))
+						base64String = base64String.Split("base64,")[1];
+
+					return Convert.FromBase64String(base64String);
+				}
+				catch
+				{
+					return dest.Image; 
+				}
+			})).ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 			CreateMap<Model.Requests.AdminUpdateRequest, Database.Admin>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 			CreateMap<Database.Customer, Customer>();

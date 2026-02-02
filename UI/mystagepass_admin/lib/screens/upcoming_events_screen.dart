@@ -199,24 +199,6 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     _fetchEvents();
   }
 
-  void _previousPage() {
-    if (_hasPrevious) {
-      setState(() {
-        _currentPage--;
-      });
-      _fetchEvents();
-    }
-  }
-
-  void _nextPage() {
-    if (_hasNext) {
-      setState(() {
-        _currentPage++;
-      });
-      _fetchEvents();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,7 +233,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         Visibility(visible: !_isLoading, child: _buildEventsGrid()),
 
         if (_isLoading) ...[
-          Container(color: Colors.white.withOpacity(0.7)),
+          Container(color: Colors.white),
 
           Center(
             child: Container(
@@ -261,7 +243,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black,
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -282,7 +264,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                             child: CircularProgressIndicator(
                               strokeWidth: 3,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                const Color(0xFF5865F2).withOpacity(0.3),
+                                Color.fromARGB(255, 29, 35, 93),
                               ),
                             ),
                           ),
@@ -342,7 +324,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -363,25 +345,21 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
   Widget _buildBackButton() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerLeft,
-      child: TextButton.icon(
+      child: ElevatedButton.icon(
         onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 16,
-          color: Color(0xFF1A237E),
-        ),
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
         label: const Text(
           "Back to Event Management",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A237E),
-            fontSize: 14,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
         ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          foregroundColor: const Color(0xFF1A237E),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          elevation: 5,
         ),
       ),
     );
@@ -435,7 +413,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black,
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -480,7 +458,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black,
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -607,7 +585,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black,
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -663,7 +641,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                         max: 500,
                         divisions: 50,
                         activeColor: const Color(0xFF5865F2),
-                        inactiveColor: const Color(0xFF9DB4FF).withOpacity(0.3),
+                        inactiveColor: const Color(0xFF9DB4FF),
                         labels: RangeLabels(
                           "${_minPrice.toInt()} KM",
                           "${_maxPrice.toInt()} KM",
@@ -778,7 +756,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black,
             blurRadius: 15,
             offset: const Offset(0, 3),
           ),
@@ -792,10 +770,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF9DB4FF).withOpacity(0.3),
-                  const Color(0xFF9DB4FF).withOpacity(0.1),
-                ],
+                colors: [const Color(0xFF9DB4FF), const Color(0xFF9DB4FF)],
               ),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
@@ -813,7 +788,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black,
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -844,7 +819,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black,
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -936,51 +911,44 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
   }
 
   Widget _buildPagination() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            onPressed: _hasPrevious ? _previousPage : null,
-            icon: Icon(
-              Icons.chevron_left,
-              color: _hasPrevious ? const Color(0xFF5865F2) : Colors.grey,
-            ),
-            iconSize: 28,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: _hasPrevious
+              ? () {
+                  setState(() => _currentPage--);
+                  _fetchEvents();
+                }
+              : null,
+          icon: Icon(
+            Icons.chevron_left,
+            size: 32,
+            color: _hasPrevious ? Colors.white : Colors.white38,
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Text(
-              '$_currentPage / $_totalPages',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A237E),
-              ),
-            ),
+        ),
+        Text(
+          "$_currentPage of $_totalPages",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.white,
           ),
-          IconButton(
-            onPressed: _hasNext ? _nextPage : null,
-            icon: Icon(
-              Icons.chevron_right,
-              color: _hasNext ? const Color(0xFF5865F2) : Colors.grey,
-            ),
-            iconSize: 28,
+        ),
+        IconButton(
+          onPressed: _hasNext
+              ? () {
+                  setState(() => _currentPage++);
+                  _fetchEvents();
+                }
+              : null,
+          icon: Icon(
+            Icons.chevron_right,
+            size: 32,
+            color: _hasNext ? Colors.white : Colors.white38,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

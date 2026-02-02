@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 import '../models/Event/event.dart';
 import '../providers/event_provider.dart';
 import '../models/search_result.dart';
 import '../utils/alert_helpers.dart';
+import 'package:mystagepass_admin/screens/upcoming_events_screen.dart';
 import 'dart:async';
 
 class EventRequestsScreen extends StatefulWidget {
@@ -85,7 +87,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         if (mounted) {
           setState(() {
             _events = allEvents;
-            _totalPages = pendingData.meta.totalPages;
+            _totalPages = max(1, pendingData.meta.totalPages);
             _currentPage = pendingData.meta.currentPage + 1;
             _hasPrevious = pendingData.meta.hasPrevious;
             _hasNext = pendingData.meta.hasNext || rejectedData.meta.hasNext;
@@ -108,7 +110,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         if (mounted) {
           setState(() {
             _events = data.result;
-            _totalPages = data.meta.totalPages;
+            _totalPages = max(1, data.meta.totalPages);
             _currentPage = data.meta.currentPage + 1;
             _hasPrevious = data.meta.hasPrevious;
             _hasNext = data.meta.hasNext;
@@ -203,68 +205,66 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     String statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
     bool isRejected = statusLower == 'rejected';
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(isApprove ? "Approve Event" : "Reject Event"),
-        content: Text(
-          isApprove
-              ? isRejected
-                    ? "Are you sure you want to reactivate '${event.eventName ?? 'this event'}'?"
-                    : "Are you sure you want to approve '${event.eventName ?? 'this event'}'?"
-              : "Are you sure you want to reject '${event.eventName ?? 'this event'}'?",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (isApprove) {
-                _handleApprove(event);
-              } else {
-                _handleReject(event);
-              }
-            },
-            child: Text(
-              isApprove ? (isRejected ? "Reactivate" : "Approve") : "Reject",
-              style: TextStyle(
-                color: isApprove ? Colors.green : Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
+    String title = isApprove
+        ? (isRejected ? "Reactivate Event" : "Approve Event")
+        : "Reject Event";
+    String message = isApprove
+        ? isRejected
+              ? "Are you sure you want to reactivate '${event.eventName ?? 'this event'}'? This event will be visible again."
+              : "Are you sure you want to approve '${event.eventName ?? 'this event'}'? The organizer will be notified."
+        : "Are you sure you want to reject '${event.eventName ?? 'this event'}'? The organizer will be notified.";
+
+    AlertHelpers.showConfirmationAlert(
+      context,
+      title,
+      message,
+      confirmButtonText: isApprove
+          ? (isRejected ? "Reactivate" : "Approve")
+          : "Reject",
+      cancelButtonText: "Cancel",
+      isDelete: !isApprove,
+      onConfirm: () {
+        if (isApprove) {
+          _handleApprove(event);
+        } else {
+          _handleReject(event);
+        }
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DB4FF),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeader(),
-              _buildBackButton(),
-              const SizedBox(height: 10),
-              _buildFilters(),
-              const SizedBox(height: 20),
-              if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
-                _buildSearchHint(),
-              _buildTableStack(),
-              const SizedBox(height: 20),
-              if (_events.isNotEmpty) _buildPagination(),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 60),
+                _buildFilters(),
+                const SizedBox(height: 30),
+                if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                  _buildSearchHint(),
+                _buildTableStack(),
+                const SizedBox(height: 30),
+                if (_events.isNotEmpty) _buildPagination(),
+                const SizedBox(height: 30),
+                _buildBottomButtonsRow(),
+              ],
+            ),
           ),
         ),
       ),
@@ -273,27 +273,30 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Widget _buildHeader() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Event Requests for Approval",
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A237E),
+      constraints: const BoxConstraints(maxWidth: 900),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.pending_actions, size: 36, color: Colors.white),
+            SizedBox(width: 12),
+            Text(
+              "Event Requests for Approval",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-          ),
-          const Icon(Icons.pending_actions, size: 32, color: Color(0xFF1A237E)),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildBackButton() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       alignment: Alignment.centerLeft,
       child: TextButton.icon(
         onPressed: () {
@@ -302,19 +305,19 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         icon: const Icon(
           Icons.arrow_back_ios_new_rounded,
           size: 16,
-          color: Color(0xFF1A237E),
+          color: Color.fromARGB(255, 29, 35, 93),
         ),
         label: const Text(
           "Back to Event Management",
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1A237E),
+            color: Color.fromARGB(255, 29, 35, 93),
             fontSize: 14,
           ),
         ),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          foregroundColor: const Color(0xFF1A237E),
+          foregroundColor: const Color.fromARGB(255, 29, 35, 93),
         ),
       ),
     );
@@ -322,12 +325,12 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Widget _buildFilters() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            width: 280,
+            width: 220,
             height: 35,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -336,12 +339,12 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: _onSearchChanged,
-              cursorColor: const Color(0xFF1A237E),
+              cursorColor: Color.fromARGB(255, 29, 35, 93),
               cursorWidth: 1.0,
               textAlignVertical: TextAlignVertical.center,
               style: const TextStyle(fontSize: 13, color: Colors.black),
               decoration: InputDecoration(
-                hintText: "Search by performer or location",
+                hintText: "Search",
                 hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
                 prefixIcon: const Icon(
                   Icons.search,
@@ -372,7 +375,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             child: Theme(
               data: Theme.of(
                 context,
-              ).copyWith(hoverColor: const Color(0xFFE3F2FD)),
+              ).copyWith(hoverColor: const Color.fromARGB(192, 81, 136, 182)),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _statusFilter,
@@ -403,7 +406,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Widget _buildSearchHint() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
@@ -417,7 +420,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "Enter at least 3 characters to search by performer name or location",
+              "Enter at least 3 characters to search by event name or location",
               style: TextStyle(fontSize: 12, color: Colors.orange[800]),
             ),
           ),
@@ -428,13 +431,13 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Widget _buildTableStack() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black,
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -448,7 +451,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             children: [
               _buildTableHeader(),
               SizedBox(
-                height: 48.0 * 5,
+                height: 56.0 * 6,
                 child: _events.isEmpty && !_isLoading
                     ? Center(
                         child: Column(
@@ -496,7 +499,9 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF5865F2)),
+                  child: CircularProgressIndicator(
+                    color: Color.fromARGB(255, 29, 35, 93),
+                  ),
                 ),
               ),
             ),
@@ -508,29 +513,23 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   Widget _buildTableHeader() {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF5865F2),
+        color: Color(0xFFE8E8E8),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: IntrinsicHeight(
         child: Row(
           children: [
             _tableHeaderCell('#', width: 40),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Date', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Performer', flex: 3),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Performer Name', flex: 3),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Location', flex: 3),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Regular', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('VIP', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Premium', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Status', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Actions', width: 100),
           ],
         ),
@@ -557,7 +556,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     bool isPending = statusLower == 'pending';
 
     return Container(
-      height: 48,
+      height: 56,
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
@@ -565,44 +564,23 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       child: Row(
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(dateStr, flex: 2),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             event.performer?.artistName ?? "N/A",
             flex: 3,
             isGrey: event.performer?.artistName == null,
             isItalic: event.performer?.artistName == null,
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             fullLocation,
             flex: 3,
             isGrey: loc == "N/A",
             isItalic: loc == "N/A",
           ),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(
-            "${event.regularPrice ?? 0}KM",
-            flex: 2,
-            center: true,
-            isBold: true,
-          ),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(
-            "${event.vipPrice ?? 0}KM",
-            flex: 2,
-            center: true,
-            isBold: true,
-          ),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(
-            "${event.premiumPrice ?? 0}KM",
-            flex: 2,
-            center: true,
-            isBold: true,
-          ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
             width: 80,
             child: Center(
@@ -612,7 +590,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               ),
             ),
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
             width: 100,
             child: Center(
@@ -753,7 +731,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white,
+          color: Color.fromARGB(249, 8, 18, 70),
           fontWeight: FontWeight.bold,
           fontSize: 13,
         ),
@@ -798,8 +776,10 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         child: Text(
           text,
           style: TextStyle(
-            color: isGrey ? Colors.grey.shade500 : Colors.black,
-            fontSize: 12,
+            color: isGrey
+                ? Colors.grey.shade500
+                : const Color.fromARGB(248, 0, 0, 1),
+            fontSize: 13,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
           ),
@@ -813,48 +793,102 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       VerticalDivider(color: color, thickness: 1, indent: 6, endIndent: 6);
 
   Widget _buildPagination() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: _hasPrevious
+              ? () {
+                  setState(() => _currentPage--);
+                  _fetchEvents();
+                }
+              : null,
+          icon: Icon(
+            Icons.chevron_left,
+            size: 32,
+            color: _hasPrevious ? Colors.white : Colors.white38,
+          ),
+        ),
+        Text(
+          "$_currentPage of $_totalPages",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.white,
+          ),
+        ),
+        IconButton(
+          onPressed: _hasNext
+              ? () {
+                  setState(() => _currentPage++);
+                  _fetchEvents();
+                }
+              : null,
+          icon: Icon(
+            Icons.chevron_right,
+            size: 32,
+            color: _hasNext ? Colors.white : Colors.white38,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomButtonsRow() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            onPressed: _hasPrevious
-                ? () {
-                    setState(() => _currentPage--);
-                    _fetchEvents();
-                  }
-                : null,
-            icon: Icon(
-              Icons.chevron_left,
-              color: _hasPrevious ? Colors.white : Colors.white38,
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            label: const Text(
+              "Back to Dashboard",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              "$_currentPage of $_totalPages",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A237E),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
               ),
+              elevation: 5,
             ),
           ),
-          IconButton(
-            onPressed: _hasNext
-                ? () {
-                    setState(() => _currentPage++);
-                    _fetchEvents();
-                  }
-                : null,
-            icon: Icon(
-              Icons.chevron_right,
-              color: _hasNext ? Colors.white : Colors.white38,
-            ),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UpcomingEventsScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.upcoming, size: 20),
+                label: const Text(
+                  "Upcoming Events",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  elevation: 5,
+                ),
+              ),
+            ],
           ),
         ],
       ),

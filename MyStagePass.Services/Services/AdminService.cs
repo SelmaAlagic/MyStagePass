@@ -31,12 +31,40 @@ namespace MyStagePass.Services.Services
 			return base.AddInclude(query, search);
 		}
 
+		public override async Task<Model.Models.Admin> GetById(int id)
+		{
+			var entity = await _context.Set<Admin>()
+				.Include(x => x.User)
+				.FirstOrDefaultAsync(x => x.AdminID == id);
+
+			return _mapper.Map<Model.Models.Admin>(entity);
+		}
 		public override async Task<Model.Models.Admin> Update(int id, AdminUpdateRequest update)
 		{
+			if (!string.IsNullOrEmpty(update.Password))
+			{
+				if (string.IsNullOrEmpty(update.PasswordConfirm))
+					throw new Exception("Password confirmation is required.");
+
+				if (update.Password != update.PasswordConfirm)
+					throw new Exception("Password and confirmation do not match.");
+			}
+
 			var set = _context.Set<Admin>();
 			var entity = await set.Include(a => a.User).FirstOrDefaultAsync(a => a.AdminID == id);
-			_mapper.Map(update, entity?.User);
+
+			if (entity?.User == null)
+				throw new Exception("Admin or User not found");
+
+			_mapper.Map(update, entity.User);
 			_mapper.Map(update, entity);
+
+			if (!string.IsNullOrWhiteSpace(update.Password))
+			{
+				entity.User.Salt = PasswordHelper.GenerateSalt();
+				entity.User.Password = PasswordHelper.GenerateHash(entity.User.Salt, update.Password);
+			}
+
 			await _context.SaveChangesAsync();
 			return _mapper.Map<Model.Models.Admin>(entity);
 		}

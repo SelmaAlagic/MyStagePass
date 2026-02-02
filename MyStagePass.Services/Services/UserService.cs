@@ -31,6 +31,7 @@ namespace MyStagePass.Services.Services
 
 			return query;
 		}
+
 		public override IQueryable<User> AddFilter(IQueryable<User> query, UserSearchObject? search = null)
 		{
 			if (search == null)
@@ -54,7 +55,7 @@ namespace MyStagePass.Services.Services
 
 			return query;
 		}
-
+				
 		public override async Task<Model.Models.User> Delete(int id) 
 		{
 			var entity = await _context.Users.FirstOrDefaultAsync(u => u.UserID == id);

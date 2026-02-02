@@ -3,6 +3,7 @@ import 'package:mystagepass_admin/providers/admin_provider.dart';
 import 'package:provider/provider.dart';
 import '../models/User/user.dart';
 import '../providers/user_provider.dart';
+import '../utils/alert_helpers.dart';
 import 'dart:async';
 
 class UserManagementScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   int _totalPages = 1;
   bool _hasPrevious = false;
   bool _hasNext = false;
-  final int _pageSize = 5;
+  final int _pageSize = 6;
 
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -74,151 +75,57 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   }
 
   void _showDeleteConfirmation(User user) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          title: const Center(
-            child: Text(
-              "Deletion Confirmation",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          content: RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 14, color: Colors.black),
-              children: [
-                const TextSpan(text: "Are you sure you want to delete user "),
-                TextSpan(
-                  text: "${user.firstName} ${user.lastName}",
-                  style: const TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const TextSpan(text: "?"),
-              ],
-            ),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.blue,
-                    side: const BorderSide(color: Colors.blue, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 10,
-                    ),
-                  ),
-                  onHover: (isHovering) {},
-                  child: const Text(
-                    "Cancel",
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 10,
-                    ),
-                  ),
-                  onPressed: () async {
-                    final provider = Provider.of<UserProvider>(
-                      context,
-                      listen: false,
-                    );
+    String userFullName = "${user.firstName} ${user.lastName}";
+    AlertHelpers.showConfirmationAlert(
+      context,
+      "Delete User",
+      "Are you sure you want to delete $userFullName?",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      isDelete: true,
+      highlightText: userFullName,
+      onConfirm: () async {
+        final provider = Provider.of<UserProvider>(context, listen: false);
 
-                    Navigator.pop(context);
+        if (user.userId == null) {
+          if (mounted) {
+            AlertHelpers.showError(context, "User does not have a valid ID");
+          }
+          return;
+        }
 
-                    if (user.userId == null) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("User does not have a valid ID"),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                      return;
-                    }
+        try {
+          await provider.deactivate(user.userId!);
 
-                    try {
-                      await provider.deactivate(user.userId!);
+          if (mounted) {
+            AlertHelpers.showSuccess(context, "User successfully deleted");
 
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("User successfully deactivated"),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-
-                        if (_statusFilter == true) {
-                          setState(() {
-                            _users.removeWhere((u) => u.userId == user.userId);
-                          });
-                        } else if (_statusFilter == null) {
-                          setState(() {
-                            int index = _users.indexWhere(
-                              (u) => u.userId == user.userId,
-                            );
-                            if (index != -1) {
-                              _users[index] = User(
-                                userId: user.userId,
-                                firstName: user.firstName,
-                                lastName: user.lastName,
-                                email: user.email,
-                                role: user.role,
-                                isActive: false,
-                              );
-                            }
-                          });
-                        }
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Error: $e"),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: const Text("Delete"),
-                ),
-              ],
-            ),
-          ],
-        );
+            if (_statusFilter == true) {
+              setState(() {
+                _users.removeWhere((u) => u.userId == user.userId);
+              });
+            } else if (_statusFilter == null) {
+              setState(() {
+                int index = _users.indexWhere((u) => u.userId == user.userId);
+                if (index != -1) {
+                  _users[index] = User(
+                    userId: user.userId,
+                    username: user.username,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role,
+                    isActive: false,
+                  );
+                }
+              });
+            }
+          }
+        } catch (e) {
+          if (mounted) {
+            AlertHelpers.showError(context, "Error: $e");
+          }
+        }
       },
     );
   }
@@ -226,65 +133,70 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DB4FF),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeader(),
-              _buildBackButton(),
-              const SizedBox(height: 10),
-              const SizedBox(height: 20),
-              _buildFilters(),
-              const SizedBox(height: 20),
-              Container(
-                constraints: const BoxConstraints(maxWidth: 900),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black,
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildTableHeader(),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _users.length,
-                      itemBuilder: (context, index) {
-                        int rowNumber =
-                            ((_currentPage - 1) * _pageSize) + index + 1;
-                        return _buildUserRow(rowNumber, _users[index]);
-                      },
-                    ),
-                    if (_users.isEmpty && !_isLoading)
-                      const Padding(
-                        padding: EdgeInsets.all(30.0),
-                        child: Text(
-                          "No users found",
-                          style: TextStyle(color: Colors.grey),
-                        ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 60),
+                _buildFilters(),
+                const SizedBox(height: 30),
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
                       ),
-                  ],
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTableHeader(),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _users.length,
+                        itemBuilder: (context, index) {
+                          int rowNumber =
+                              ((_currentPage - 1) * _pageSize) + index + 1;
+                          return _buildUserRow(rowNumber, _users[index]);
+                        },
+                      ),
+                      if (_users.isEmpty && !_isLoading)
+                        const Padding(
+                          padding: EdgeInsets.all(30.0),
+                          child: Text(
+                            "No users found",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              if (_users.isNotEmpty) _buildPagination(),
-              const SizedBox(height: 20),
-              _buildAddNewUserButton(),
-            ],
+                const SizedBox(height: 30),
+                if (_users.isNotEmpty) _buildPagination(),
+                const SizedBox(height: 30),
+                _buildBottomButtonsRow(),
+              ],
+            ),
           ),
         ),
       ),
@@ -294,23 +206,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   Widget _buildHeader() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "User Management",
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A237E),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.person_search_rounded,
+              size: 36,
+              color: Colors.white,
             ),
-          ),
-          const Icon(
-            Icons.account_circle_outlined,
-            size: 32,
-            color: Color(0xFF1A237E),
-          ),
-        ],
+            const SizedBox(width: 12),
+            const Text(
+              "User Management",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -356,7 +271,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             child: Theme(
               data: Theme.of(
                 context,
-              ).copyWith(hoverColor: const Color(0xFFE3F2FD)),
+              ).copyWith(hoverColor: const Color.fromARGB(192, 5, 89, 158)),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _statusFilter == null
@@ -390,25 +305,25 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   Widget _buildTableHeader() {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF5865F2),
+        color: Color(0xFFE8E8E8),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: IntrinsicHeight(
         child: Row(
           children: [
             _tableHeaderCell('#', width: 40),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Full Name', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Username', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Username', flex: 1),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Email', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Role', width: 80),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Status', width: 90),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Actions', width: 100),
           ],
         ),
@@ -418,7 +333,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Widget _buildUserRow(int number, User user) {
     return Container(
-      height: 48,
+      height: 56,
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
@@ -426,17 +341,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       child: Row(
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell("${user.firstName} ${user.lastName}", flex: 2),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(user.username ?? "", flex: 2),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _tableCell(user.username ?? "", flex: 1),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(user.email ?? "", flex: 2),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(user.role ?? "User", width: 80, center: true),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(width: 90, child: Center(child: _buildStatusBadge(user))),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(width: 100, child: Center(child: _buildActionButtons(user))),
         ],
       ),
@@ -468,63 +383,64 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Widget _buildActionButtons(User user) {
     if (user.isActive ?? false) {
-      return _actionIcon(
-        Icons.delete,
-        const Color(0xFFE53935),
-        const Color(0xFFFFEBEE),
+      return InkWell(
         onTap: () => _showDeleteConfirmation(user),
-        width: 80,
-        height: 36,
-        label: "Delete",
+        borderRadius: BorderRadius.circular(6),
+        child: const Icon(
+          Icons.delete_outline,
+          color: Color(0xFFE53935),
+          size: 22,
+        ),
       );
     } else {
-      return _actionIcon(
-        Icons.restore,
-        Colors.green[800]!,
-        const Color(0xFFE8F5E9),
-        onTap: () async {
-          final provider = Provider.of<UserProvider>(context, listen: false);
-          try {
-            await provider.restore(user.userId!);
-
-            if (mounted) {
-              setState(() {
-                int index = _users.indexWhere((u) => u.userId == user.userId);
-                if (index != -1) {
-                  _users[index] = User(
-                    userId: user.userId,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    role: user.role,
-                    isActive: true,
-                  );
-                }
-              });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("User successfully activated"),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
-          } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Error activating user: $e"),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          }
-        },
-        width: double.infinity,
-        height: 36,
-        label: "Activate",
+      return InkWell(
+        onTap: () => _showRestoreConfirmation(user),
+        borderRadius: BorderRadius.circular(6),
+        child: Icon(Icons.restore, color: Colors.green[700], size: 22),
       );
     }
+  }
+
+  void _showRestoreConfirmation(User user) {
+    String userFullName = "${user.firstName} ${user.lastName}";
+    AlertHelpers.showConfirmationAlert(
+      context,
+      "Restore User",
+      "Are you sure you want to restore $userFullName? This user will be able to login again.",
+      confirmButtonText: "Restore",
+      cancelButtonText: "Cancel",
+      isDelete: false,
+      highlightText: userFullName,
+      onConfirm: () async {
+        final provider = Provider.of<UserProvider>(context, listen: false);
+        try {
+          await provider.restore(user.userId!);
+
+          if (mounted) {
+            AlertHelpers.showSuccess(context, "User successfully restored");
+
+            setState(() {
+              int index = _users.indexWhere((u) => u.userId == user.userId);
+              if (index != -1) {
+                _users[index] = User(
+                  userId: user.userId,
+                  username: user.username,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  email: user.email,
+                  role: user.role,
+                  isActive: true,
+                );
+              }
+            });
+          }
+        } catch (e) {
+          if (mounted) {
+            AlertHelpers.showError(context, "Error restoring user: $e");
+          }
+        }
+      },
+    );
   }
 
   Widget _actionIcon(
@@ -558,7 +474,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 style: TextStyle(
                   color: iconColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 14,
                 ),
               ),
             ],
@@ -573,7 +489,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white,
+          color: Color.fromARGB(249, 8, 18, 70),
           fontWeight: FontWeight.bold,
           fontSize: 13,
         ),
@@ -607,8 +523,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         child: Text(
           text,
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
+            color: Color.fromARGB(248, 0, 0, 1),
+            fontSize: 13,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
           ),
           overflow: TextOverflow.ellipsis,
@@ -628,6 +544,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           onPressed: _hasPrevious ? _goToPreviousPage : null,
           icon: Icon(
             Icons.chevron_left,
+            size: 32,
             color: _hasPrevious ? Colors.white : Colors.white38,
           ),
         ),
@@ -635,6 +552,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           "$_currentPage of $_totalPages",
           style: const TextStyle(
             fontWeight: FontWeight.bold,
+            fontSize: 16,
             color: Colors.white,
           ),
         ),
@@ -642,6 +560,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           onPressed: _hasNext ? _goToNextPage : null,
           icon: Icon(
             Icons.chevron_right,
+            size: 32,
             color: _hasNext ? Colors.white : Colors.white38,
           ),
         ),
@@ -649,25 +568,47 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
   }
 
-  Widget _buildAddNewUserButton() {
+  Widget _buildBottomButtonsRow() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: _showAddUserDialog,
-        icon: const Icon(Icons.person_add_alt_1, size: 20, color: Colors.white),
-        label: const Text(
-          "Add New User",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF5865F2),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            label: const Text(
+              "Back to Dashboard",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              elevation: 5,
+            ),
           ),
-          elevation: 5,
-        ),
+          ElevatedButton.icon(
+            onPressed: _showAddUserDialog,
+            icon: const Icon(Icons.person_add_alt_1, size: 20),
+            label: const Text(
+              "Add New User",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              elevation: 5,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -699,14 +640,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   const Icon(
                     Icons.person_add_rounded,
                     size: 40,
-                    color: Color(0xFF5865F2),
+                    color: Color.fromARGB(255, 29, 35, 93),
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     "Add New Admin",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A237E),
+                      color: Color.fromARGB(255, 29, 35, 93),
                     ),
                   ),
                 ],
@@ -734,14 +675,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               Icon(
                                 Icons.admin_panel_settings,
                                 size: 18,
-                                color: Color(0xFF1A237E),
+                                color: Color.fromARGB(255, 29, 35, 93),
                               ),
                               SizedBox(width: 8),
                               Text(
                                 "User Type: ADMIN",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1A237E),
+                                  color: Color.fromARGB(255, 29, 35, 93),
                                   fontSize: 13,
                                 ),
                               ),
@@ -756,6 +697,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 controller: _firstNameController,
                                 label: "First Name",
                                 icon: Icons.person_outline,
+
                                 validator: (v) =>
                                     v!.isEmpty ? "Required" : null,
                               ),
@@ -773,7 +715,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           ],
                         ),
                         const SizedBox(height: 15),
-
                         _buildTextField(
                           controller: _emailController,
                           label: "Email Address",
@@ -788,7 +729,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           },
                         ),
                         const SizedBox(height: 15),
-
                         _buildTextField(
                           controller: _usernameController,
                           label: "Username",
@@ -797,11 +737,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               v!.length < 3 ? "Minimum 3 characters" : null,
                         ),
                         const SizedBox(height: 15),
-
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          cursorColor: const Color(0xFF1A237E),
+                          cursorColor: const Color.fromARGB(255, 29, 35, 93),
                           cursorWidth: 1.0,
                           style: const TextStyle(
                             fontSize: 14,
@@ -814,7 +753,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             prefixIcon: const Icon(
                               Icons.lock_outline,
                               size: 20,
-                              color: Color(0xFF1A237E),
+                              color: Color.fromARGB(255, 29, 35, 93),
                             ),
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -835,7 +774,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               vertical: 16,
                               horizontal: 16,
                             ),
-
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
@@ -846,7 +784,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: Color(0xFF1A237E),
+                                color: Color.fromARGB(255, 29, 35, 93),
                                 width: 1.0,
                               ),
                             ),
@@ -964,7 +902,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 }
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5865F2),
+                          backgroundColor: Color.fromARGB(255, 29, 35, 93),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           elevation: 0,
@@ -1006,7 +944,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     return TextFormField(
       controller: controller,
       validator: validator,
-      cursorColor: const Color(0xFF1A237E),
+      cursorColor: Color.fromARGB(255, 29, 35, 93),
       cursorWidth: 1.0,
       style: const TextStyle(
         fontSize: 14,
@@ -1024,7 +962,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           vertical: 16,
           horizontal: 16,
         ),
-
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade500, width: 1.0),
@@ -1033,7 +970,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF1A237E), width: 1.0),
         ),
-
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
@@ -1042,7 +978,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
         ),
-
         errorStyle: TextStyle(
           color: Colors.red.shade900,
           fontWeight: FontWeight.w300,
@@ -1061,33 +996,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         _fetchUsers();
       });
     }
-  }
-
-  Widget _buildBackButton() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerLeft,
-      child: TextButton.icon(
-        onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 16,
-          color: Color(0xFF1A237E),
-        ),
-        label: const Text(
-          "Back to Dashboard",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A237E),
-            fontSize: 14,
-          ),
-        ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          foregroundColor: const Color(0xFF1A237E),
-        ),
-      ),
-    );
   }
 
   void _onStatusFilterChanged(String? value) {

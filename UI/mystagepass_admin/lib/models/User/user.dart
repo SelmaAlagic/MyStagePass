@@ -12,6 +12,7 @@ class User {
   String? username;
   bool? isActive;
   String? phoneNumber;
+  String? image;
 
   User({
     this.userId,
@@ -22,6 +23,7 @@ class User {
     this.username,
     this.isActive,
     this.phoneNumber,
+    this.image,
   });
 
   String get fullName => "${firstName ?? ''} ${lastName ?? ''}".trim();

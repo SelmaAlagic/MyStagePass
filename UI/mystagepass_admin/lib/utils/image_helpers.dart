@@ -8,12 +8,23 @@ class ImageHelpers {
     double height = 40,
     double width = 40,
   }) {
-    return image?.isNotEmpty ?? true
-        ? Image.memory(base64Decode(image!), height: height, width: width)
-        : Image.asset(
-            "assets/images/NoImageAvailable.png",
-            height: height,
-            width: height,
-          );
+    if (image == null || image.trim().isEmpty) {
+      return Image.asset(
+        "assets/images/NoProfileImage.png",
+        height: height,
+        width: width,
+      );
+    }
+
+    try {
+      return Image.memory(base64Decode(image), height: height, width: width);
+    } catch (e) {
+      print('Error decoding image: $e');
+      return Image.asset(
+        "assets/images/NoProfileImage.png",
+        height: height,
+        width: width,
+      );
+    }
   }
 }

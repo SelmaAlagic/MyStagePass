@@ -25,7 +25,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   int _totalPages = 1;
   bool _hasPrevious = false;
   bool _hasNext = false;
-  final int _pageSize = 5;
+  final int _pageSize = 6;
 
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -87,9 +87,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
       debugPrint("Error fetching events: $e");
     }
   }
@@ -115,29 +113,35 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DB4FF),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeader(),
-              _buildBackButton(),
-              const SizedBox(height: 10),
-              _buildFilters(),
-              const SizedBox(height: 20),
-              if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
-                _buildSearchHint(),
-              _buildTableStack(),
-              const SizedBox(height: 20),
-              if (_events.isNotEmpty) _buildPagination(),
-              const SizedBox(height: 20),
-              _buildActionButtons(),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 60),
+                _buildFilters(),
+                const SizedBox(height: 30),
+                if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                  _buildSearchHint(),
+                _buildTableStack(),
+                const SizedBox(height: 30),
+                if (_events.isNotEmpty) _buildPagination(),
+                const SizedBox(height: 30),
+                _buildBottomButtonsRow(),
+              ],
+            ),
           ),
         ),
       ),
@@ -147,45 +151,21 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   Widget _buildHeader() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Event Management",
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A237E),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.event_available_rounded, size: 36, color: Colors.white),
+            SizedBox(width: 12),
+            Text(
+              "Event Management",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-          ),
-          const Icon(Icons.event, size: 32, color: Color(0xFF1A237E)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackButton() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerLeft,
-      child: TextButton.icon(
-        onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 16,
-          color: Color(0xFF1A237E),
-        ),
-        label: const Text(
-          "Back to Dashboard",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A237E),
-            fontSize: 14,
-          ),
-        ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          foregroundColor: const Color(0xFF1A237E),
+          ],
         ),
       ),
     );
@@ -207,7 +187,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: _onSearchChanged,
-              cursorColor: const Color(0xFF1A237E),
+              cursorColor: Color.fromARGB(255, 29, 35, 93),
               cursorWidth: 1.0,
               textAlignVertical: TextAlignVertical.center,
               style: const TextStyle(fontSize: 13, color: Colors.black),
@@ -243,7 +223,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             child: Theme(
               data: Theme.of(
                 context,
-              ).copyWith(hoverColor: const Color(0xFFE3F2FD)),
+              ).copyWith(hoverColor: const Color.fromARGB(192, 81, 136, 182)),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _statusFilter,
@@ -319,7 +299,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             children: [
               _buildTableHeader(),
               SizedBox(
-                height: 48.0 * 5,
+                height: 56.0 * _pageSize,
                 child: _events.isEmpty && !_isLoading
                     ? Center(
                         child: Column(
@@ -367,7 +347,9 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF5865F2)),
+                  child: CircularProgressIndicator(
+                    color: Color.fromARGB(255, 29, 35, 93),
+                  ),
                 ),
               ),
             ),
@@ -379,25 +361,25 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   Widget _buildTableHeader() {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF5865F2),
+        color: Color(0xFFE8E8E8),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: IntrinsicHeight(
         child: Row(
           children: [
             _tableHeaderCell('#', width: 40),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Date', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Performer Name', flex: 3),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Location', flex: 3),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Tickets sold', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Status', flex: 2),
-            _verticalDivider(Colors.white30),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Actions', width: 80),
           ],
         ),
@@ -426,7 +408,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     }
 
     return Container(
-      height: 48,
+      height: 56,
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
@@ -434,9 +416,9 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       child: Row(
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(dateStr, flex: 2),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             event.performer?.artistName ?? event.eventName ?? "N/A",
             flex: 3,
@@ -445,21 +427,21 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             isItalic:
                 event.performer?.artistName == null && event.eventName == null,
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             fullLocation,
             flex: 3,
             isGrey: loc == "N/A",
             isItalic: loc == "N/A",
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             "${event.ticketsSold ?? 0}",
             flex: 2,
             center: true,
             isBold: true,
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
             width: 80,
             child: Center(
@@ -469,7 +451,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
               ),
             ),
           ),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
             width: 80,
             child: Center(
@@ -480,8 +462,8 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                     onTap: () {},
                     child: const Icon(
                       Icons.edit_outlined,
-                      size: 18,
-                      color: Color(0xFF1A237E),
+                      size: 22,
+                      color: Color.fromARGB(255, 29, 35, 93),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -489,8 +471,8 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                     onTap: () {},
                     child: const Icon(
                       Icons.delete_outline,
-                      size: 18,
-                      color: Colors.red,
+                      size: 22,
+                      color: Color(0xFFE53935),
                     ),
                   ),
                 ],
@@ -549,7 +531,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white,
+          color: Color.fromARGB(249, 8, 18, 70),
           fontWeight: FontWeight.bold,
           fontSize: 13,
         ),
@@ -594,8 +576,10 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         child: Text(
           text,
           style: TextStyle(
-            color: isGrey ? Colors.grey.shade500 : Colors.black,
-            fontSize: 12,
+            color: isGrey
+                ? Colors.grey.shade500
+                : const Color.fromARGB(248, 0, 0, 1),
+            fontSize: 13,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
           ),
@@ -609,81 +593,63 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       VerticalDivider(color: color, thickness: 1, indent: 6, endIndent: 6);
 
   Widget _buildPagination() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            onPressed: _hasPrevious
-                ? () {
-                    setState(() => _currentPage--);
-                    _fetchEvents();
-                  }
-                : null,
-            icon: Icon(
-              Icons.chevron_left,
-              color: _hasPrevious ? Colors.white : Colors.white38,
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: _hasPrevious
+              ? () {
+                  setState(() => _currentPage--);
+                  _fetchEvents();
+                }
+              : null,
+          icon: Icon(
+            Icons.chevron_left,
+            size: 32,
+            color: _hasPrevious ? Colors.white : Colors.white38,
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              "$_currentPage of $_totalPages",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A237E),
-              ),
-            ),
+        ),
+        Text(
+          "$_currentPage of $_totalPages",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.white,
           ),
-          IconButton(
-            onPressed: _hasNext
-                ? () {
-                    setState(() => _currentPage++);
-                    _fetchEvents();
-                  }
-                : null,
-            icon: Icon(
-              Icons.chevron_right,
-              color: _hasNext ? Colors.white : Colors.white38,
-            ),
+        ),
+        IconButton(
+          onPressed: _hasNext
+              ? () {
+                  setState(() => _currentPage++);
+                  _fetchEvents();
+                }
+              : null,
+          icon: Icon(
+            Icons.chevron_right,
+            size: 32,
+            color: _hasNext ? Colors.white : Colors.white38,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildBottomButtonsRow() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerRight,
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UpcomingEventsScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.upcoming, size: 20, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             label: const Text(
-              "Upcoming Events",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              "Back to Dashboard",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1A237E),
+              backgroundColor: Colors.white,
+              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -691,39 +657,68 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
               elevation: 5,
             ),
           ),
-
-          ElevatedButton.icon(
-            onPressed: () async {
-              final shouldRefresh = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EventRequestsScreen(),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UpcomingEventsScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.upcoming, size: 20),
+                label: const Text(
+                  "Upcoming Events",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 ),
-              );
-              if (shouldRefresh == true) {
-                _fetchEvents();
-              }
-            },
-            icon: const Icon(
-              Icons.pending_actions,
-              size: 20,
-              color: Colors.white,
-            ),
-            label: const Text(
-              "Requests for Approval",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  elevation: 5,
+                ),
               ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5865F2),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final shouldRefresh = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EventRequestsScreen(),
+                    ),
+                  );
+                  if (shouldRefresh == true) {
+                    _fetchEvents();
+                  }
+                },
+                icon: const Icon(Icons.pending_actions, size: 20),
+                label: const Text(
+                  "Requests for Approval",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  elevation: 5,
+                ),
               ),
-              elevation: 5,
-            ),
+            ],
           ),
         ],
       ),
