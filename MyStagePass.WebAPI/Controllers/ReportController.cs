@@ -7,7 +7,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize("Admin")]
+	[Authorize(Roles = "Admin")]
 	public class ReportsController : ControllerBase
 	{
 		private readonly IReportService _reportService;

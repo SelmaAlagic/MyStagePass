@@ -1,17 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'city.dart';
+part of 'chart.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-City _$CityFromJson(Map<String, dynamic> json) => City(
-  cityId: (json['cityID'] as num?)?.toInt(),
+Chart _$ChartFromJson(Map<String, dynamic> json) => Chart(
   name: json['name'] as String?,
+  value: (json['value'] as num?)?.toInt(),
 );
 
-Map<String, dynamic> _$CityToJson(City instance) => <String, dynamic>{
-  'cityID': instance.cityId,
+Map<String, dynamic> _$ChartToJson(Chart instance) => <String, dynamic>{
   'name': instance.name,
+  'value': instance.value,
 };

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:mystagepass_admin/screens/reports_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mystagepass_admin/screens/event_management_screen.dart';
@@ -8,8 +9,8 @@ import 'package:mystagepass_admin/screens/performer_management_screen.dart';
 import 'package:mystagepass_admin/providers/auth_provider.dart';
 import 'package:mystagepass_admin/providers/notification_provider.dart';
 import 'package:mystagepass_admin/widgets/notification_widget.dart';
-import 'package:mystagepass_admin/providers/admin_provider.dart';
-import 'package:mystagepass_admin/models/Admin/admin.dart';
+import 'package:mystagepass_admin/providers/user_provider.dart';
+import 'package:mystagepass_admin/models/User/user.dart';
 import 'package:mystagepass_admin/utils/form_helpers.dart';
 import 'package:mystagepass_admin/utils/image_helpers.dart';
 import 'package:mystagepass_admin/utils/alert_helpers.dart';
@@ -33,8 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _profileImage;
   bool _isLoadingUserData = true;
 
-  Admin? _adminData;
-  final AdminProvider _adminProvider = AdminProvider();
+  User? _userData;
+  final UserProvider _userProvider = UserProvider();
 
   @override
   void initState() {
@@ -51,13 +52,13 @@ class _HomeScreenState extends State<HomeScreen> {
     String? email = await authProvider.getCurrentUserEmail();
 
     try {
-      var admin = await _adminProvider.getById(widget.userId);
+      var user = await _userProvider.getById(widget.userId);
       setState(() {
-        _adminData = admin;
-        _profileImage = admin.user?.image;
+        _userData = user;
+        _profileImage = user.image;
       });
     } catch (e) {
-      print('Error loading admin data: $e');
+      print('Error loading user data: $e');
     }
 
     setState(() {
@@ -86,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showEditProfileDialog() {
-    if (_adminData == null) {
+    if (_userData == null) {
       _showCustomSnackBar('Loading user data...', isSuccess: false);
       return;
     }
@@ -102,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Dialog(
               backgroundColor: Colors.transparent,
               child: EditProfileDialog(
-                admin: _adminData!,
+                user: _userData!,
                 onSaved: () {
                   _loadUserData();
                 },
@@ -288,7 +289,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           _buildIconCard(
                             "Manage users",
-
                             Icons.manage_accounts_rounded,
                             () => Navigator.push(
                               context,
@@ -323,7 +323,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           _buildIconCard(
                             "Reports and stats",
                             Icons.show_chart_rounded,
-                            () {},
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ReportsScreen(),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -370,8 +375,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               if (notificationProvider.unreadCount > 0)
                 Positioned(
-                  top: 6,
-                  right: 6,
+                  bottom: 0,
+                  right: 0,
                   child: Container(
                     constraints: const BoxConstraints(minWidth: 16),
                     height: 16,
@@ -543,50 +548,14 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
-  Widget _modernButton({
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    bool isHovering = false;
-    return StatefulBuilder(
-      builder: (context, setLocalState) {
-        return MouseRegion(
-          onEnter: (_) => setLocalState(() => isHovering = true),
-          onExit: (_) => setLocalState(() => isHovering = false),
-          child: ElevatedButton(
-            onPressed: onTap,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isHovering ? color : Colors.white,
-              foregroundColor: isHovering ? Colors.white : color,
-              elevation: 0,
-              side: BorderSide(color: color, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
 class EditProfileDialog extends StatefulWidget {
-  final Admin admin;
+  final User user;
   final VoidCallback onSaved;
 
-  const EditProfileDialog({
-    Key? key,
-    required this.admin,
-    required this.onSaved,
-  }) : super(key: key);
+  const EditProfileDialog({Key? key, required this.user, required this.onSaved})
+    : super(key: key);
 
   @override
   State<EditProfileDialog> createState() => _EditProfileDialogState();
@@ -594,42 +563,56 @@ class EditProfileDialog extends StatefulWidget {
 
 class _EditProfileDialogState extends State<EditProfileDialog> {
   final _formKey = GlobalKey<FormState>();
-  final AdminProvider _adminProvider = AdminProvider();
+  final UserProvider _userProvider = UserProvider();
 
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   late TextEditingController _usernameController;
   late TextEditingController _phoneController;
-  final TextEditingController _passwordController = TextEditingController();
+
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
   File? _selectedImage;
   String? _base64Image;
   bool _isLoading = false;
-  bool _obscurePassword = true;
+
+  bool _obscureCurrentPassword = true;
+  bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+
+  String? _currentPasswordError;
+  bool _isHoveringRemoveButton = false;
 
   @override
   void initState() {
     super.initState();
     _firstNameController = TextEditingController(
-      text: widget.admin.user?.firstName ?? '',
+      text: widget.user.firstName ?? '',
     );
     _lastNameController = TextEditingController(
-      text: widget.admin.user?.lastName ?? '',
+      text: widget.user.lastName ?? '',
     );
-    _emailController = TextEditingController(
-      text: widget.admin.user?.email ?? '',
-    );
+    _emailController = TextEditingController(text: widget.user.email ?? '');
     _usernameController = TextEditingController(
-      text: widget.admin.user?.username ?? '',
+      text: widget.user.username ?? '',
     );
     _phoneController = TextEditingController(
-      text: widget.admin.user?.phoneNumber ?? '',
+      text: widget.user.phoneNumber ?? '',
     );
-    _base64Image = widget.admin.user?.image;
+    _base64Image = widget.user.image;
+
+    _currentPasswordController.addListener(() {
+      if (_currentPasswordError != null) {
+        setState(() {
+          _currentPasswordError = null;
+        });
+      }
+    });
   }
 
   @override
@@ -639,7 +622,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     _emailController.dispose();
     _usernameController.dispose();
     _phoneController.dispose();
-    _passwordController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
@@ -663,22 +647,49 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     }
   }
 
+  void _removeImage() {
+    setState(() {
+      _selectedImage = null;
+      _base64Image = null;
+    });
+  }
+
   Future<void> _saveChanges() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    if (_passwordController.text.isNotEmpty &&
-        _passwordController.text.length < 6) {
-      _showCustomSnackBar(
-        'Password must be at least 6 characters',
-        isSuccess: false,
-      );
-      return;
-    }
+    setState(() {
+      _currentPasswordError = null;
+    });
 
-    if (_passwordController.text.isNotEmpty &&
-        _passwordController.text != _confirmPasswordController.text) {
-      _showCustomSnackBar('Passwords do not match', isSuccess: false);
-      return;
+    final hasNewPassword = _newPasswordController.text.isNotEmpty;
+    final hasCurrentPassword = _currentPasswordController.text.isNotEmpty;
+    final hasConfirmPassword = _confirmPasswordController.text.isNotEmpty;
+
+    if (hasNewPassword) {
+      if (!hasCurrentPassword) {
+        setState(() {
+          _currentPasswordError = "Please enter your current password";
+        });
+        return;
+      }
+      if (!hasConfirmPassword) {
+        _showCustomSnackBar(
+          'Please confirm your new password',
+          isSuccess: false,
+        );
+        return;
+      }
+      if (_newPasswordController.text.length < 6) {
+        _showCustomSnackBar(
+          'New password must be at least 6 characters',
+          isSuccess: false,
+        );
+        return;
+      }
+      if (_newPasswordController.text != _confirmPasswordController.text) {
+        _showCustomSnackBar('New passwords do not match', isSuccess: false);
+        return;
+      }
     }
 
     setState(() => _isLoading = true);
@@ -694,27 +705,45 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
             : _phoneController.text,
       };
 
-      if (_base64Image != null) {
-        updateRequest['image'] = _base64Image;
-      }
+      updateRequest['image'] = _base64Image;
 
-      if (_passwordController.text.isNotEmpty) {
-        updateRequest['password'] = _passwordController.text;
+      if (_newPasswordController.text.isNotEmpty) {
+        updateRequest['currentPassword'] = _currentPasswordController.text;
+        updateRequest['password'] = _newPasswordController.text;
         updateRequest['passwordConfirm'] = _confirmPasswordController.text;
       }
 
-      await _adminProvider.update(widget.admin.adminID!, updateRequest);
+      await _userProvider.update(widget.user.userId!, updateRequest);
 
       if (!mounted) return;
 
       widget.onSaved();
       Navigator.pop(context);
       _showCustomSnackBar('Profile updated successfully!', isSuccess: true);
+
+      _currentPasswordController.clear();
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
     } catch (e) {
       if (!mounted) return;
-      _showCustomSnackBar('Error: $e', isSuccess: false);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+
+      setState(() => _isLoading = false);
+
+      String errorMessage = e.toString();
+
+      if (errorMessage.contains('Exception: ')) {
+        errorMessage = errorMessage.split('Exception: ').last.trim();
+      }
+
+      if (errorMessage.toLowerCase().contains('password') ||
+          errorMessage.toLowerCase().contains('current') ||
+          errorMessage.toLowerCase().contains('confirmation')) {
+        setState(() {
+          _currentPasswordError = errorMessage;
+        });
+      } else {
+        _showCustomSnackBar(errorMessage, isSuccess: false);
+      }
     }
   }
 
@@ -797,7 +826,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       contentPadding: EdgeInsets.zero,
       content: SizedBox(
         width: 700,
-        height: 520,
+        height: 700,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
           child: Form(
@@ -806,55 +835,111 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               children: [
                 Expanded(
                   child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
+                    physics: const ClampingScrollPhysics(),
                     child: Column(
                       children: [
-                        GestureDetector(
-                          onTap: _pickImage,
-                          child: Stack(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: const Color(0xFF5865F2),
-                                    width: 3,
-                                  ),
-                                ),
-                                child: ClipOval(
-                                  child: _selectedImage != null
-                                      ? Image.file(
-                                          _selectedImage!,
-                                          height: 90,
-                                          width: 90,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : ImageHelpers.getImage(
-                                          _base64Image,
-                                          height: 90,
-                                          width: 90,
-                                        ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF5865F2),
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: _pickImage,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
                                     shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFF5865F2),
+                                      width: 3,
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 18,
+                                  child: ClipOval(
+                                    child: _selectedImage != null
+                                        ? Image.file(
+                                            _selectedImage!,
+                                            height: 90,
+                                            width: 90,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : ImageHelpers.getImage(
+                                            _base64Image,
+                                            height: 90,
+                                            width: 90,
+                                          ),
                                   ),
                                 ),
-                              ),
-                            ],
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF5865F2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+
+                        if (_selectedImage != null ||
+                            (_base64Image != null && _base64Image!.isNotEmpty))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              onEnter: (_) => setState(
+                                () => _isHoveringRemoveButton = true,
+                              ),
+                              onExit: (_) => setState(
+                                () => _isHoveringRemoveButton = false,
+                              ),
+                              child: GestureDetector(
+                                onTap: _removeImage,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _isHoveringRemoveButton
+                                        ? Colors.red.shade50
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.delete_outline,
+                                        size: 16,
+                                        color: _isHoveringRemoveButton
+                                            ? Colors.red.shade900
+                                            : Colors.red.shade700,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Remove Picture',
+                                        style: TextStyle(
+                                          color: _isHoveringRemoveButton
+                                              ? Colors.red.shade900
+                                              : Colors.red.shade700,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
 
                         const SizedBox(height: 20),
                         _buildUserTypeBadge(),
@@ -927,45 +1012,133 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                         ),
                         const SizedBox(height: 16),
 
-                        FormHelpers.drawModernTextField(
-                          controller: _phoneController,
-                          label: "Phone Number",
-                          icon: Icons.phone_outlined,
-                          required: false,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return null;
-                            if (!RegExp(r'^\+?0?\d{8,14}$').hasMatch(value)) {
-                              return "Invalid phone number (8-14 digits)";
-                            }
-                            return null;
-                          },
+                        Center(
+                          child: FormHelpers.drawFormRow(
+                            children: [
+                              FormHelpers.drawModernTextField(
+                                controller: _phoneController,
+                                label: "Phone Number",
+                                icon: Icons.phone_outlined,
+                                required: false,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return null;
+                                  if (!RegExp(
+                                    r'^\+?0?\d{8,14}$',
+                                  ).hasMatch(value)) {
+                                    return "Invalid phone number (8-14 digits)";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              SizedBox.shrink(),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        Container(
+                          height: 1,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.grey[300]!,
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Change Password',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A237E),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Leave empty if you don\'t want to change password',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Center(
+                          child: FormHelpers.drawFormRow(
+                            children: [
+                              FormHelpers.drawModernTextField(
+                                controller: _currentPasswordController,
+                                label: "Current Password",
+                                icon: Icons.lock_outline,
+                                isPassword: true,
+                                obscureText: _obscureCurrentPassword,
+                                onTogglePassword: () {
+                                  setState(
+                                    () => _obscureCurrentPassword =
+                                        !_obscureCurrentPassword,
+                                  );
+                                },
+                                required: false,
+                                validator: (value) {
+                                  if (_newPasswordController.text.isNotEmpty) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter your current password";
+                                    }
+                                  }
+                                  return null;
+                                },
+                                serverError: _currentPasswordError,
+                                onChanged: () {
+                                  if (_currentPasswordError != null) {
+                                    setState(() {
+                                      _currentPasswordError = null;
+                                    });
+                                  }
+                                },
+                              ),
+                              SizedBox.shrink(),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16),
 
                         FormHelpers.drawFormRow(
                           children: [
                             FormHelpers.drawModernTextField(
-                              controller: _passwordController,
+                              controller: _newPasswordController,
                               label: "New Password",
                               icon: Icons.lock_outline,
                               isPassword: true,
-                              obscureText: _obscurePassword,
+                              obscureText: _obscureNewPassword,
                               onTogglePassword: () {
                                 setState(
-                                  () => _obscurePassword = !_obscurePassword,
+                                  () => _obscureNewPassword =
+                                      !_obscureNewPassword,
                                 );
                               },
                               required: false,
                               validator: (value) {
-                                if (value == null || value.isEmpty) return null;
-                                if (value.length < 6)
+                                if (value != null &&
+                                    value.isNotEmpty &&
+                                    value.length < 6) {
                                   return "Minimum 6 characters";
+                                }
                                 return null;
                               },
                             ),
                             FormHelpers.drawModernTextField(
                               controller: _confirmPasswordController,
-                              label: "Confirm Password",
+                              label: "Confirm New Password",
                               icon: Icons.lock_outline,
                               isPassword: true,
                               obscureText: _obscureConfirmPassword,
@@ -977,11 +1150,13 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                               },
                               required: false,
                               validator: (value) {
-                                if (_passwordController.text.isNotEmpty) {
-                                  if (value == null || value.isEmpty)
-                                    return "Please confirm password";
-                                  if (value != _passwordController.text)
+                                if (_newPasswordController.text.isNotEmpty) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please confirm your new password";
+                                  }
+                                  if (value != _newPasswordController.text) {
                                     return "Passwords do not match";
+                                  }
                                 }
                                 return null;
                               },
@@ -1011,58 +1186,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      cursorColor: const Color(0xFF1A237E),
-      cursorWidth: 1.0,
-      style: const TextStyle(
-        fontSize: 14,
-        color: Colors.black87,
-        fontWeight: FontWeight.w400,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade700),
-        prefixIcon: Icon(icon, size: 20, color: const Color(0xFF1A237E)),
-        isDense: true,
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 16,
-          horizontal: 16,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1A237E), width: 1.0),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
-        ),
-        errorStyle: TextStyle(
-          color: Colors.red.shade900,
-          fontWeight: FontWeight.w300,
-          fontSize: 12,
         ),
       ),
     );

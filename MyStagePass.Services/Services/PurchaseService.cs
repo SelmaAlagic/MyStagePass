@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
@@ -45,7 +46,7 @@ namespace MyStagePass.Services.Services
 				.FirstOrDefaultAsync(p => p.PurchaseID == id);
 
 			if (entity == null)
-				throw new Exception("Purchase not found");
+				throw new UserException("Purchase not found");
 
 			entity.IsDeleted = true;
 
@@ -73,12 +74,12 @@ namespace MyStagePass.Services.Services
 				.FirstOrDefaultAsync(c => c.UserID == request.CustomerID);
 
 			if (customer == null)
-				throw new Exception("Kupac nije pronađen za ovog korisnika!");
+				throw new UserException("Kupac nije pronađen za ovog korisnika!");
 
 			request.CustomerID = customer.CustomerID;
 
 			var ev = await _context.Events.FindAsync(request.EventID);
-			if (ev == null) throw new Exception("Event nije pronađen");
+			if (ev == null) throw new UserException("Event nije pronađen");
 
 			int singlePrice = request.TicketType switch
 			{
@@ -128,7 +129,7 @@ namespace MyStagePass.Services.Services
 			catch (Exception ex)
 			{
 				await transaction.RollbackAsync();
-				throw new Exception("Greška prilikom kupovine: " + ex.Message);
+				throw new UserException("Greška prilikom kupovine: " + ex.Message);
 			}
 		}
 	}

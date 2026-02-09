@@ -6,6 +6,7 @@ namespace MyStagePass.Model.SearchObjects
 	{
 		public int? PerformerID { get; set; }
 		public string? searchTerm {  get; set; }
+		public int? LocationID{  get; set; }
 		public string? Status { get; set; }
 		public DateTime? EventDateFrom { get; set; }
 		public DateTime? EventDateTo { get; set; }

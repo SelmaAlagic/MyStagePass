@@ -124,25 +124,33 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DB4FF),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeader(),
-              _buildBackButton(),
-              const SizedBox(height: 10),
-              _buildSearch(),
-              const SizedBox(height: 20),
-              _buildTableStack(),
-              const SizedBox(height: 20),
-              if (_performers.isNotEmpty) _buildPagination(),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 60),
+                _buildSearch(),
+                const SizedBox(height: 30),
+                _buildTableStack(),
+                const SizedBox(height: 30),
+                if (_performers.isNotEmpty) _buildPagination(),
+                const SizedBox(height: 30),
+                _buildBackButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -151,46 +159,46 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   Widget _buildHeader() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Performer Requests",
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A237E),
+      constraints: const BoxConstraints(maxWidth: 900),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.pending_actions, size: 36, color: Colors.white),
+            const SizedBox(width: 12),
+            const Text(
+              "Performer Requests",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-          ),
-          const Icon(Icons.pending_actions, size: 32, color: Color(0xFF1A237E)),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildBackButton() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       alignment: Alignment.centerLeft,
-      child: TextButton.icon(
+      child: ElevatedButton.icon(
         onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 16,
-          color: Color(0xFF1A237E),
-        ),
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
         label: const Text(
           "Back to Performer Management",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A237E),
-            fontSize: 14,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          foregroundColor: const Color(0xFF1A237E),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          elevation: 5,
         ),
       ),
     );
@@ -198,7 +206,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   Widget _buildSearch() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       alignment: Alignment.centerLeft,
       child: Container(
         width: 220,
@@ -229,7 +237,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   Widget _buildTableStack() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
+      constraints: const BoxConstraints(maxWidth: 900),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -249,14 +257,14 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
             children: [
               _buildTableHeader(),
               SizedBox(
-                height: 48.0 * 5,
+                height: 56.0 * _pageSize,
                 child: _performers.isEmpty && !_isLoading
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.check_circle_outline,
+                              Icons.pending_actions,
                               size: 64,
                               color: Colors.grey[300],
                             ),
@@ -307,24 +315,24 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
   Widget _buildTableHeader() {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF5865F2),
+        color: Color(0xFFE8E8E8),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: IntrinsicHeight(
         child: Row(
           children: [
             _tableHeaderCell('#', width: 40),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Name', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Phone', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Email', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Genres', flex: 2),
-            _verticalDivider(Colors.white30),
-            _tableHeaderCell('Actions', width: 180),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Name', width: 140),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Email', width: 200),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Phone', width: 130),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Genres', width: 160),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Actions', width: 110),
           ],
         ),
       ),
@@ -337,10 +345,10 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
     String genresText = performer.genres != null && performer.genres!.isNotEmpty
         ? performer.genres!.join(", ")
-        : "No specific genres";
+        : "No genres";
 
     return Container(
-      height: 48,
+      height: 56,
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
@@ -348,17 +356,20 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
       child: Row(
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(performerName, flex: 2),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(_formatPhoneNumber(performer.user?.phoneNumber), flex: 2),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(performer.user?.email ?? "N/A", flex: 2),
-          _verticalDivider(Colors.grey.shade300),
-          _tableCell(genresText, flex: 2),
-          _verticalDivider(Colors.grey.shade300),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _tableCell(performerName, width: 140),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _tableCell(performer.user?.email ?? "N/A", width: 200),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _tableCell(
+            _formatPhoneNumber(performer.user?.phoneNumber),
+            width: 130,
+          ),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _tableCell(genresText, width: 160),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
-            width: 180,
+            width: 110,
             child: Center(child: _buildActionButtons(performer)),
           ),
         ],
@@ -372,57 +383,27 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
       children: [
         InkWell(
           onTap: () => _handleApproveReject(performer.performerId!, true),
-          borderRadius: BorderRadius.circular(6),
           child: Container(
-            width: 80,
-            height: 30,
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
+              color: Colors.green[50],
               borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.green, width: 1),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.check, color: Colors.green[800], size: 14),
-                const SizedBox(width: 4),
-                Text(
-                  "Approve",
-                  style: TextStyle(
-                    color: Colors.green[800],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
+            child: const Icon(Icons.check, size: 16, color: Colors.green),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         InkWell(
           onTap: () => _handleApproveReject(performer.performerId!, false),
-          borderRadius: BorderRadius.circular(6),
           child: Container(
-            width: 80,
-            height: 30,
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFEBEE),
+              color: Colors.red[50],
               borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.red, width: 1),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.close, color: Colors.red[800], size: 14),
-                const SizedBox(width: 4),
-                Text(
-                  "Reject",
-                  style: TextStyle(
-                    color: Colors.red[800],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
+            child: const Icon(Icons.close, size: 16, color: Colors.red),
           ),
         ),
       ],
@@ -434,9 +415,9 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white,
+          color: Color.fromARGB(249, 8, 18, 70),
           fontWeight: FontWeight.bold,
-          fontSize: 12,
+          fontSize: 13,
         ),
       ),
     );
@@ -459,8 +440,8 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
         child: Text(
           text,
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 11,
+            color: const Color.fromARGB(248, 0, 0, 1),
+            fontSize: 13,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
           ),
           overflow: TextOverflow.ellipsis,
@@ -488,6 +469,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
               : null,
           icon: Icon(
             Icons.chevron_left,
+            size: 32,
             color: _hasPrevious ? Colors.white : Colors.white38,
           ),
         ),
@@ -495,6 +477,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
           "$_currentPage of $_totalPages",
           style: const TextStyle(
             fontWeight: FontWeight.bold,
+            fontSize: 16,
             color: Colors.white,
           ),
         ),
@@ -507,6 +490,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
               : null,
           icon: Icon(
             Icons.chevron_right,
+            size: 32,
             color: _hasNext ? Colors.white : Colors.white38,
           ),
         ),

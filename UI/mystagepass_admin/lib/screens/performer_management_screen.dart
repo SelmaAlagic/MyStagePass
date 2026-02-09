@@ -331,11 +331,11 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           children: [
             _tableHeaderCell('#', width: 40),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Full Name', flex: 2),
+            _tableHeaderCell('Full Name', width: 150),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Artist Name', flex: 2),
+            _tableHeaderCell('Artist Name', width: 150),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Genres', flex: 2),
+            _tableHeaderCell('Genres', width: 180),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Rating', width: 90),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
@@ -366,80 +366,79 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(performer.user?.fullName ?? "N/A", flex: 2),
+          _tableCell(performer.user?.fullName ?? "N/A", width: 150),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(performer.artistName ?? "N/A", flex: 2),
+          _tableCell(performer.artistName ?? "N/A", width: 150),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             genresText,
-            flex: 2,
+            width: 180,
             isGrey: performer.genres == null || performer.genres!.isEmpty,
             isItalic: performer.genres == null || performer.genres!.isEmpty,
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          SizedBox(
+          Container(
             width: 90,
-            child: Center(
-              child: hasRating
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          performer.averageRating!.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.black,
-                          ),
+            alignment: Alignment.center,
+            child: hasRating
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        performer.averageRating!.toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.black,
                         ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.star,
-                          size: 14,
-                          color: Color(0xFFFFA500),
-                        ),
-                      ],
-                    )
-                  : Text(
-                      "No ratings",
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade500,
-                        fontStyle: FontStyle.italic,
                       ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.star,
+                        size: 14,
+                        color: Color(0xFFFFA500),
+                      ),
+                    ],
+                  )
+                : Text(
+                    "No ratings",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade500,
+                      fontStyle: FontStyle.italic,
                     ),
-            ),
+                  ),
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          SizedBox(
+          Container(
             width: 90,
-            child: Center(child: _buildStatusBadge(performer)),
+            alignment: Alignment.center,
+            child: _buildStatusBadge(performer),
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          SizedBox(
+          Container(
             width: 80,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.edit,
-                      size: 22,
-                      color: Color(0xFF1A237E),
-                    ),
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () {},
+                  child: const Icon(
+                    Icons.edit,
+                    size: 22,
+                    color: Color(0xFF1A237E),
                   ),
-                  const SizedBox(width: 16),
-                  InkWell(
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.delete_outline,
-                      size: 22,
-                      color: Color(0xFFE53935),
-                    ),
+                ),
+                const SizedBox(width: 16),
+                InkWell(
+                  onTap: () {},
+                  child: const Icon(
+                    Icons.delete_outline,
+                    size: 22,
+                    color: Color(0xFFE53935),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -471,6 +470,9 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     }
 
     return Container(
+      width: 70,
+      height: 24,
+      alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: bgColor,

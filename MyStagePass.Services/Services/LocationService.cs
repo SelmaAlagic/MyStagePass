@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
@@ -41,17 +42,17 @@ namespace MyStagePass.Services.Services
 		public override async Task BeforeInsert(Database.Location entity, LocationInsertRequest insert)
 		{
 			if (string.IsNullOrWhiteSpace(insert.LocationName))
-				throw new Exception("Location name is required.");
+				throw new UserException("Location name is required.");
 
 			if (string.IsNullOrWhiteSpace(insert.Address))
-				throw new Exception("Address is required.");
+				throw new UserException("Address is required.");
 
 			if (insert.Capacity <= 0)
-				throw new Exception("Capacity must be greater than zero.");
+				throw new UserException("Capacity must be greater than zero.");
 
 			var cityExists = await _context.Cities.AnyAsync(c => c.CityID == insert.CityID);
 			if (!cityExists)
-				throw new Exception("City does not exist.");
+				throw new UserException("City does not exist.");
 		}
 	}
 }

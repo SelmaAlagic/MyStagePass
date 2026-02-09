@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
@@ -16,13 +17,13 @@ namespace MyStagePass.Services.Services
 		public override async Task BeforeInsert(Customer entity, CustomerInsertRequest insert)
 		{
 			if (insert.Password != insert.PasswordConfirm)
-				throw new Exception("Password and confirmation do not match.");
+				throw new UserException("Password and confirmation do not match.");
 
 			if (await _context.Users.AnyAsync(u => u.Username == insert.Username))
-				throw new Exception("Username already exists.");
+				throw new UserException("Username already exists.");
 
 			if (await _context.Users.AnyAsync(u => u.Email == insert.Email))
-				throw new Exception("Email already exists.");
+				throw new UserException("Email already exists.");
 
 			User user = _mapper.Map<User>(insert);
 			entity.User = user;
@@ -55,7 +56,7 @@ namespace MyStagePass.Services.Services
 			if (!string.IsNullOrEmpty(update.Password) || !string.IsNullOrEmpty(update.PasswordConfirm))
 			{
 				if (update.Password != update.PasswordConfirm)
-					throw new Exception("Password and confirmation do not match.");
+					throw new UserException("Password and confirmation do not match.");
 			}
 
 			var set = _context.Set<Customer>();

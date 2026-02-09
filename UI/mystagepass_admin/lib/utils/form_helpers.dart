@@ -112,6 +112,8 @@ class FormHelpers {
     int? maxLines = 1,
     bool enabled = true,
     bool required = false,
+    String? serverError,
+    VoidCallback? onChanged,
   }) {
     return TextFormField(
       controller: controller,
@@ -120,6 +122,9 @@ class FormHelpers {
       keyboardType: keyboardType,
       maxLines: maxLines,
       enabled: enabled,
+      onChanged: (value) {
+        onChanged?.call();
+      },
       cursorColor: const Color(0xFF1A237E),
       cursorWidth: 1.0,
       style: TextStyle(
@@ -158,11 +163,21 @@ class FormHelpers {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.0),
+          borderSide: BorderSide(
+            color: serverError != null
+                ? Colors.red.shade900
+                : Colors.grey.shade500,
+            width: 1.0,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1A237E), width: 1.0),
+          borderSide: BorderSide(
+            color: serverError != null
+                ? Colors.red.shade900
+                : const Color(0xFF1A237E),
+            width: 1.0,
+          ),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -176,6 +191,7 @@ class FormHelpers {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
         ),
+        errorText: serverError ?? null,
         errorStyle: TextStyle(
           color: Colors.red.shade900,
           fontWeight: FontWeight.w300,

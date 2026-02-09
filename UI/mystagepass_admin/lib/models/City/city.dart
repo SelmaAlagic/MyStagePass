@@ -4,6 +4,7 @@ part 'city.g.dart';
 
 @JsonSerializable()
 class City {
+  @JsonKey(name: 'cityID')
   int? cityId;
   String? name;
 

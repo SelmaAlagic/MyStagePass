@@ -75,7 +75,7 @@ class _NotificationDropdownState extends State<NotificationDropdown>
     return GestureDetector(
       onTap: widget.onClose,
       child: Container(
-        color: Colors.transparent,
+        color: Colors.black.withOpacity(0.5),
         child: GestureDetector(
           onTap: () {},
           child: FadeTransition(
@@ -83,20 +83,23 @@ class _NotificationDropdownState extends State<NotificationDropdown>
             child: SlideTransition(
               position: _slideAnimation,
               child: Align(
-                alignment: Alignment.topRight,
+                alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 70, right: 30),
+                  padding: EdgeInsets.zero,
                   child: Material(
                     color: Colors.transparent,
                     child: Container(
-                      width: 420,
-                      constraints: const BoxConstraints(maxHeight: 500),
+                      width: 480,
+                      constraints: const BoxConstraints(
+                        maxHeight: 600,
+                        maxWidth: 400,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black,
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -143,22 +146,38 @@ class _NotificationDropdownState extends State<NotificationDropdown>
               color: Color(0xFF1D2939),
             ),
           ),
-          if (!_isLoading && _notifications.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF5865F2).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${_notifications.length} new',
-                style: const TextStyle(
-                  color: Color(0xFF5865F2),
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              if (!_isLoading && _notifications.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.shade300),
+                  ),
+                  child: Text(
+                    '${_notifications.length} new',
+                    style: TextStyle(
+                      color: Colors.red.shade800,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
+              const SizedBox(width: 12),
+              IconButton(
+                icon: const Icon(Icons.close, size: 22),
+                color: Colors.grey.shade600,
+                onPressed: widget.onClose,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
               ),
-            ),
+            ],
+          ),
         ],
       ),
     );
@@ -167,15 +186,15 @@ class _NotificationDropdownState extends State<NotificationDropdown>
   Widget _buildNotificationsList() {
     if (_isLoading) {
       return Container(
-        height: 200,
+        height: 400,
         alignment: Alignment.center,
-        child: const CircularProgressIndicator(color: Color(0xFF5865F2)),
+        child: const CircularProgressIndicator(color: Colors.red),
       );
     }
 
     if (_notifications.isEmpty) {
       return Container(
-        height: 200,
+        height: 400,
         alignment: Alignment.center,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -248,17 +267,18 @@ class _NotificationDropdownState extends State<NotificationDropdown>
           widget.onClose();
           widget.onViewAll();
         },
+        borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFF5865F2).withOpacity(0.1),
+            color: Colors.green.shade600,
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Center(
             child: Text(
               'View All Notifications',
               style: TextStyle(
-                color: Color(0xFF5865F2),
+                color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -283,8 +303,26 @@ class _NotificationItem extends StatefulWidget {
 class _NotificationItemState extends State<_NotificationItem> {
   bool _isHovered = false;
 
+  String? _getFullName() {
+    final message = widget.notification.message ?? '';
+    final startQuote = message.indexOf("'");
+    final endQuote = message.lastIndexOf("'");
+    if (startQuote != -1 && endQuote != -1 && startQuote < endQuote) {
+      return message.substring(startQuote + 1, endQuote);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final fullName = _getFullName();
+    final message = widget.notification.message ?? 'No message';
+
+    String restOfMessage = message;
+    if (fullName != null) {
+      restOfMessage = message.substring(fullName.length).trim();
+    }
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -292,10 +330,11 @@ class _NotificationItemState extends State<_NotificationItem> {
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: _isHovered
-              ? const Color(0xFF5865F2).withOpacity(0.05)
-              : Colors.transparent,
+          color: _isHovered ? Colors.red.shade50 : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
+          border: _isHovered
+              ? Border.all(color: Colors.red.shade200, width: 1)
+              : null,
         ),
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(
@@ -306,23 +345,37 @@ class _NotificationItemState extends State<_NotificationItem> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: widget.notification.getNotificationColor().withOpacity(
-                0.1,
-              ),
+              color: Colors.red.shade100,
               shape: BoxShape.circle,
             ),
             child: Icon(
               widget.notification.getNotificationIcon(),
-              color: widget.notification.getNotificationColor(),
+              color: Colors.red.shade700,
               size: 20,
             ),
           ),
-          title: Text(
-            widget.notification.message ?? 'No message',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
+          title: RichText(
+            text: TextSpan(
+              children: [
+                if (fullName != null)
+                  TextSpan(
+                    text: fullName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                TextSpan(
+                  text: fullName != null ? ' $restOfMessage' : message,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -342,8 +395,7 @@ class _NotificationItemState extends State<_NotificationItem> {
           ),
           trailing: _isHovered
               ? IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  color: Colors.grey[600],
+                  icon: Icon(Icons.close, size: 18, color: Colors.red.shade700),
                   onPressed: widget.onDelete,
                   tooltip: 'Dismiss',
                 )
@@ -351,7 +403,7 @@ class _NotificationItemState extends State<_NotificationItem> {
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: widget.notification.getNotificationColor(),
+                    color: Colors.red.shade500,
                     shape: BoxShape.circle,
                   ),
                 ),

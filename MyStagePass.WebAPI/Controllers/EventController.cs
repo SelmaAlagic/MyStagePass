@@ -20,7 +20,7 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpGet]
 		public override async Task<PagedResult<Event>> Get([FromQuery] EventSearchObject search)
 		{
-			search.Status = "Approved"; 
+			search.Status = "Approved";
 			return await base.Get(search);
 		}
 
@@ -28,8 +28,12 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpGet("my-events")]
 		public async Task<PagedResult<Event>> GetMyEvents([FromQuery] EventSearchObject search)
 		{
-			int performerId = int.Parse(User.FindFirst("RoleId").Value);
-			search.PerformerID = performerId;											  
+			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
+
+			if (string.IsNullOrEmpty(performerIdClaim) || !int.TryParse(performerIdClaim, out int performerId))
+				throw new UnauthorizedAccessException("Performer not authenticated");
+
+			search.PerformerID = performerId;
 			return await base.Get(search);
 		}
 
@@ -42,11 +46,19 @@ namespace MyStagePass.WebAPI.Controllers
 
 		[Authorize(Roles = "Performer")]
 		[HttpPost]
-		public override Task<Event> Insert([FromBody] EventInsertRequest insert)
+		public override async Task<Event> Insert([FromBody] EventInsertRequest insert)
 		{
-			return base.Insert(insert);
+			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
+
+			if (string.IsNullOrEmpty(performerIdClaim) || !int.TryParse(performerIdClaim, out int performerId))
+				throw new UnauthorizedAccessException("Performer not authenticated");
+
+			insert.PerformerID = performerId;
+
+			return await base.Insert(insert);
 		}
-			
+
+
 		[Authorize(Roles = "Admin")]
 		[HttpPut("{id}/status")]
 		public async Task<IActionResult> ApproveEvent(int id, [FromQuery] string newStatus)
@@ -74,7 +86,11 @@ namespace MyStagePass.WebAPI.Controllers
 			if (existingEvent == null)
 				throw new Exception("Event not found");
 
-			int performerId = int.Parse(User.FindFirst("RoleId").Value);
+			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
+
+			if (string.IsNullOrEmpty(performerIdClaim) || !int.TryParse(performerIdClaim, out int performerId))
+				throw new UnauthorizedAccessException("Performer not authenticated");
+
 			if (existingEvent.PerformerID != performerId)
 				throw new Exception("You can only update your own events");
 

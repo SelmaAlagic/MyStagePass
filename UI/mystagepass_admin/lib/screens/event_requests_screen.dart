@@ -281,7 +281,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             Icon(Icons.pending_actions, size: 36, color: Colors.white),
             SizedBox(width: 12),
             Text(
-              "Event Requests for Approval",
+              "Event Requests",
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w600,
@@ -522,13 +522,13 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           children: [
             _tableHeaderCell('#', width: 40),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Date', flex: 2),
+            _tableHeaderCell('Date', width: 130),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Performer Name', flex: 3),
+            _tableHeaderCell('Performer Name', width: 170),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Location', flex: 3),
+            _tableHeaderCell('Location', width: 240),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Status', flex: 2),
+            _tableHeaderCell('Status', width: 110),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Actions', width: 100),
           ],
@@ -565,108 +565,107 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(dateStr, flex: 2),
+          _tableCell(dateStr, width: 130),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             event.performer?.artistName ?? "N/A",
-            flex: 3,
+            width: 170,
             isGrey: event.performer?.artistName == null,
             isItalic: event.performer?.artistName == null,
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             fullLocation,
-            flex: 3,
+            width: 240,
             isGrey: loc == "N/A",
             isItalic: loc == "N/A",
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          SizedBox(
-            width: 80,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 70),
-                child: _buildStatusBadge(statusLower),
-              ),
+          Container(
+            width: 110,
+            alignment: Alignment.center,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 90),
+              child: _buildStatusBadge(statusLower),
             ),
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          SizedBox(
+          Container(
             width: 100,
-            child: Center(
-              child: isPending
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          onTap: () => _showConfirmDialog(event, true),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.green[50],
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.green, width: 1),
-                            ),
-                            child: const Icon(
-                              Icons.check,
-                              size: 16,
-                              color: Colors.green,
-                            ),
+            alignment: Alignment.center,
+            child: isPending
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InkWell(
+                        onTap: () => _showConfirmDialog(event, true),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.green[50],
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.green, width: 1),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        InkWell(
-                          onTap: () => _showConfirmDialog(event, false),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.red[50],
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.red, width: 1),
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: Colors.red,
-                            ),
+                          child: const Icon(
+                            Icons.check,
+                            size: 16,
+                            color: Colors.green,
                           ),
-                        ),
-                      ],
-                    )
-                  : InkWell(
-                      onTap: () => _showConfirmDialog(event, true),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green[50],
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.green, width: 1),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.restore,
-                              size: 14,
-                              color: Colors.green,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              "Approve",
-                              style: TextStyle(
-                                color: Colors.green[800],
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () => _showConfirmDialog(event, false),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.red, width: 1),
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : InkWell(
+                    onTap: () => _showConfirmDialog(event, true),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.green, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.restore,
+                            size: 14,
+                            color: Colors.green,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "Approve",
+                            style: TextStyle(
+                              color: Colors.green[800],
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-            ),
+                  ),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MyStagePass.Model.Requests
 {
@@ -22,7 +23,7 @@ namespace MyStagePass.Model.Requests
 		[Required]
 		public int PremiumPrice { get; set; }
 
-		[Required]
+		[JsonIgnore]
 		public int PerformerID { get; set; }
 
 		[Required]

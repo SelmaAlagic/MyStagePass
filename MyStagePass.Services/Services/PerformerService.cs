@@ -23,13 +23,13 @@ namespace MyStagePass.Services.Services
 		public override async Task BeforeInsert(Performer entity, PerformerInsertRequest insert)
 		{
 			if (insert.Password != insert.PasswordConfirm)
-				throw new Exception("Password and confirmation do not match.");
+				throw new UserException("Password and confirmation do not match.");
 
 			if (await _context.Users.AnyAsync(u => u.Username == insert.Username))
-				throw new Exception("Username already exists.");
+				throw new UserException("Username already exists.");
 
 			if (await _context.Users.AnyAsync(u => u.Email == insert.Email))
-				throw new Exception("Email already exists.");
+				throw new UserException("Email already exists.");
 
 			User user = _mapper.Map<User>(insert);
 			entity.User = user;
@@ -46,7 +46,7 @@ namespace MyStagePass.Services.Services
 				{
 					var genreEntity = genresFromDb.FirstOrDefault(g => g.GenreID == genreId);
 					if (genreEntity == null)
-						throw new Exception($"Genre with ID {genreId} does not exist.");
+						throw new UserException($"Genre with ID {genreId} does not exist.");
 
 					entity.Genres.Add(new PerformerGenre
 					{
@@ -57,7 +57,7 @@ namespace MyStagePass.Services.Services
 				}
 			}
 
-			await _notificationService.NotifyUser(1, $"New performer '{insert.Username}' is waiting for approval!");
+			await _notificationService.NotifyUser(1, $"New performer '{insert.FirstName} {insert.LastName}' is waiting for approval!");
 		}
 
 		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
@@ -103,7 +103,7 @@ namespace MyStagePass.Services.Services
 				.FirstOrDefaultAsync(p => p.PerformerID == performerId);
 
 			if (entity == null)
-				throw new Exception("Performer not found.");
+				throw new UserException("Performer not found.");
 
 			entity.IsApproved = isApproved;
 
@@ -130,7 +130,7 @@ namespace MyStagePass.Services.Services
 			if (!string.IsNullOrEmpty(update.Password) || !string.IsNullOrEmpty(update.PasswordConfirm))
 			{
 				if (update.Password != update.PasswordConfirm)
-					throw new Exception("Password and confirmation do not match.");
+					throw new UserException("Password and confirmation do not match.");
 			}
 
 			var set = _context.Set<Performer>();

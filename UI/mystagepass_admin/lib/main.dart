@@ -8,6 +8,9 @@ import 'utils/colors.dart';
 import 'providers/user_provider.dart';
 import 'providers/performer_provider.dart';
 import 'providers/event_provider.dart';
+import 'providers/city_provider.dart';
+import 'providers/location_provider.dart';
+import 'providers/report_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +24,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => PerformerProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => CityProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => ReportProvider()),
       ],
 
       child: const MyStagePassAdmin(),

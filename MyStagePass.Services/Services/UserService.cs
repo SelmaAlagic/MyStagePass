@@ -55,12 +55,65 @@ namespace MyStagePass.Services.Services
 
 			return query;
 		}
-				
+		public override async Task<Model.Models.User> GetById(int id)
+		{
+			var entity = await _context.Users
+				.Include(u => u.Admins)
+				.Include(u => u.Performers)
+				.Include(u => u.Customers)
+				.FirstOrDefaultAsync(u => u.UserID == id);
+
+			if (entity == null)
+				return null;
+
+			return _mapper.Map<Model.Models.User>(entity);
+		}
+
+		public override async Task<Model.Models.User> Update(int id, UserUpdateRequest update)
+		{
+			if (!string.IsNullOrEmpty(update.Password))
+			{
+				if (string.IsNullOrEmpty(update.CurrentPassword))
+					throw new UserException("Current password is required to change password.");
+				if (string.IsNullOrEmpty(update.PasswordConfirm))
+					throw new UserException("Password confirmation is required.");
+				if (update.Password != update.PasswordConfirm)
+					throw new UserException("New password and confirmation do not match.");
+			}
+
+			var entity = await _context.Users.FindAsync(id);
+
+			if (entity == null)
+				throw new UserException("User not found");
+
+			if (!string.IsNullOrWhiteSpace(update.Password))
+			{
+				var currentPasswordHash = PasswordHelper.GenerateHash(entity.Salt, update.CurrentPassword);
+
+				if (entity.Password != currentPasswordHash)
+					throw new UserException("Current password is incorrect.");
+
+				entity.Salt = PasswordHelper.GenerateSalt();
+				entity.Password = PasswordHelper.GenerateHash(entity.Salt, update.Password);
+			}
+
+			_mapper.Map(update, entity);
+
+			if (!string.IsNullOrEmpty(update.Image))
+			{
+				entity.Image = Convert.FromBase64String(update.Image);
+			}
+
+			await _context.SaveChangesAsync();
+
+			return _mapper.Map<Model.Models.User>(entity);
+		}
+
 		public override async Task<Model.Models.User> Delete(int id) 
 		{
 			var entity = await _context.Users.FirstOrDefaultAsync(u => u.UserID == id);
 			if (entity == null)
-				throw new Exception("User not found");
+				throw new UserException("User not found");
 
 			entity.IsActive = false;
 			await _context.SaveChangesAsync();
@@ -72,7 +125,7 @@ namespace MyStagePass.Services.Services
 		{
 			var user = await _context.Users.FindAsync(id);
 			if (user == null)
-				throw new Exception("User not found");
+				throw new UserException("User not found");
 
 			user.IsActive = true; 
 			await _context.SaveChangesAsync();
@@ -148,6 +201,12 @@ namespace MyStagePass.Services.Services
 			var key = new SymmetricSecurityKey(
 				Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"])
 			);
+
+			if (userRole == "Performer" && user.Performers != null && user.Performers.Any())
+			{
+				var performerId = user.Performers.First().PerformerID.ToString();
+				claims.Add(new Claim("PerformerID", performerId));
+			}
 
 			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 

@@ -129,8 +129,18 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
     try {
       var body = jsonDecode(response.body);
-      throw Exception(body['title'] ?? "Nepoznata greška");
-    } catch (e) {
+
+      String? errorMessage;
+      if (body is Map) {
+        errorMessage = body['errors']?['error']?[0];
+      }
+
+      if (errorMessage != null && errorMessage.isNotEmpty) {
+        throw Exception(errorMessage);
+      }
+
+      throw Exception("Greška na serveru: Status ${response.statusCode}");
+    } on FormatException {
       throw Exception("Greška status: ${response.statusCode}");
     }
   }

@@ -6,14 +6,18 @@ namespace MyStagePass.Model.Requests
 	{
 		[MinLength(3)]
 		public string? FirstName { get; set; }
-		[MinLength(3)]
 
+		[MinLength(3)]
 		public string? LastName { get; set; }
+
 		[EmailAddress]
 		public string? Email { get; set; }
 
 		[MinLength(5)]
 		public string? Username { get; set; }
+
+		[MinLength(6)]
+		public string? CurrentPassword { get; set; }
 
 		[MinLength(6)]
 		public string? Password { get; set; }

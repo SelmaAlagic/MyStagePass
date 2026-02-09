@@ -100,26 +100,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           if (mounted) {
             AlertHelpers.showSuccess(context, "User successfully deleted");
 
-            if (_statusFilter == true) {
-              setState(() {
-                _users.removeWhere((u) => u.userId == user.userId);
-              });
-            } else if (_statusFilter == null) {
-              setState(() {
-                int index = _users.indexWhere((u) => u.userId == user.userId);
-                if (index != -1) {
-                  _users[index] = User(
-                    userId: user.userId,
-                    username: user.username,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    role: user.role,
-                    isActive: false,
-                  );
-                }
-              });
-            }
+            await _fetchUsers();
           }
         } catch (e) {
           if (mounted) {
@@ -361,6 +342,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   Widget _buildStatusBadge(User user) {
     final bool active = user.isActive ?? false;
     return Container(
+      width: 70,
+      height: 24,
+      alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: active ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE),
@@ -419,20 +403,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           if (mounted) {
             AlertHelpers.showSuccess(context, "User successfully restored");
 
-            setState(() {
-              int index = _users.indexWhere((u) => u.userId == user.userId);
-              if (index != -1) {
-                _users[index] = User(
-                  userId: user.userId,
-                  username: user.username,
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  email: user.email,
-                  role: user.role,
-                  isActive: true,
-                );
-              }
-            });
+            await _fetchUsers();
           }
         } catch (e) {
           if (mounted) {
@@ -620,9 +591,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final _emailController = TextEditingController();
     final _usernameController = TextEditingController();
     final _passwordController = TextEditingController();
+    final _confirmPasswordController = TextEditingController();
 
     bool _obscurePassword = true;
+    bool _obscureConfirmPassword = true;
     bool _isSubmitting = false;
+
+    String? _firstNameError;
+    String? _lastNameError;
+    String? _emailError;
+    String? _usernameError;
+    String? _passwordError;
 
     showDialog(
       context: context,
@@ -654,6 +633,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               ),
               content: SizedBox(
                 width: 500,
+                height: 330,
                 child: Form(
                   key: _formKey,
                   child: SingleChildScrollView(
@@ -693,124 +673,599 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: _buildTextField(
+                              child: TextFormField(
                                 controller: _firstNameController,
-                                label: "First Name",
-                                icon: Icons.person_outline,
-
-                                validator: (v) =>
-                                    v!.isEmpty ? "Required" : null,
+                                validator: (v) {
+                                  if (v!.isEmpty) return "Field is required";
+                                  if (v.length < 3)
+                                    return "Minimum 3 characters";
+                                  return null;
+                                },
+                                onChanged: (_) {
+                                  if (_firstNameError != null) {
+                                    setState(() {
+                                      _firstNameError = null;
+                                    });
+                                  }
+                                },
+                                cursorColor: Color.fromARGB(255, 29, 35, 93),
+                                cursorWidth: 1.0,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "First Name",
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.person_outline,
+                                    size: 20,
+                                    color: Color(0xFF1A237E),
+                                  ),
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _firstNameError != null
+                                          ? Colors.red.shade900
+                                          : Colors.grey.shade500,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _firstNameError != null
+                                          ? Colors.red.shade900
+                                          : const Color(0xFF1A237E),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorText: _firstNameError,
+                                  errorStyle: TextStyle(
+                                    color: Colors.red.shade900,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 15),
                             Expanded(
-                              child: _buildTextField(
+                              child: TextFormField(
                                 controller: _lastNameController,
-                                label: "Last Name",
-                                icon: Icons.person_outline,
-                                validator: (v) =>
-                                    v!.isEmpty ? "Required" : null,
+                                validator: (v) {
+                                  if (v!.isEmpty) return "Field is required";
+                                  if (v.length < 3)
+                                    return "Minimum 3 characters";
+                                  return null;
+                                },
+                                onChanged: (_) {
+                                  if (_lastNameError != null) {
+                                    setState(() {
+                                      _lastNameError = null;
+                                    });
+                                  }
+                                },
+                                cursorColor: Color.fromARGB(255, 29, 35, 93),
+                                cursorWidth: 1.0,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Last Name",
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.person_outline,
+                                    size: 20,
+                                    color: Color(0xFF1A237E),
+                                  ),
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _lastNameError != null
+                                          ? Colors.red.shade900
+                                          : Colors.grey.shade500,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _lastNameError != null
+                                          ? Colors.red.shade900
+                                          : const Color(0xFF1A237E),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorText: _lastNameError,
+                                  errorStyle: TextStyle(
+                                    color: Colors.red.shade900,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 15),
-                        _buildTextField(
-                          controller: _emailController,
-                          label: "Email Address",
-                          icon: Icons.email_outlined,
-                          validator: (v) {
-                            if (v!.isEmpty) return "Email is required";
-                            if (!RegExp(
-                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                            ).hasMatch(v))
-                              return "Enter a valid email";
-                            return null;
-                          },
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _emailController,
+                                onChanged: (_) {
+                                  if (_emailError != null) {
+                                    setState(() {
+                                      _emailError = null;
+                                    });
+                                  }
+                                },
+                                validator: (v) {
+                                  if (v!.isEmpty) return "Email is required";
+                                  if (!RegExp(
+                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                  ).hasMatch(v))
+                                    return "Email format is invalid";
+                                  return null;
+                                },
+                                cursorColor: Color.fromARGB(255, 29, 35, 93),
+                                cursorWidth: 1.0,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Email Address",
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.email_outlined,
+                                    size: 20,
+                                    color: Color(0xFF1A237E),
+                                  ),
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _emailError != null
+                                          ? Colors.red.shade900
+                                          : Colors.grey.shade500,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _emailError != null
+                                          ? Colors.red.shade900
+                                          : const Color(0xFF1A237E),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorText: _emailError,
+                                  errorStyle: TextStyle(
+                                    color: Colors.red.shade900,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _usernameController,
+                                onChanged: (_) {
+                                  if (_usernameError != null) {
+                                    setState(() {
+                                      _usernameError = null;
+                                    });
+                                  }
+                                },
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) {
+                                    return "Username is required";
+                                  }
+                                  if (v.length < 5) {
+                                    return "Minimum 5 characters";
+                                  }
+                                  return null;
+                                },
+                                cursorColor: Color.fromARGB(255, 29, 35, 93),
+                                cursorWidth: 1.0,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Username",
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.alternate_email,
+                                    size: 20,
+                                    color: Color(0xFF1A237E),
+                                  ),
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _usernameError != null
+                                          ? Colors.red.shade900
+                                          : Colors.grey.shade500,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _usernameError != null
+                                          ? Colors.red.shade900
+                                          : const Color(0xFF1A237E),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorText: _usernameError,
+                                  errorStyle: TextStyle(
+                                    color: Colors.red.shade900,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 15),
-                        _buildTextField(
-                          controller: _usernameController,
-                          label: "Username",
-                          icon: Icons.alternate_email,
-                          validator: (v) =>
-                              v!.length < 3 ? "Minimum 3 characters" : null,
+                        const SizedBox(height: 20),
+
+                        Container(
+                          height: 1,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.grey[300]!,
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          cursorColor: const Color.fromARGB(255, 29, 35, 93),
-                          cursorWidth: 1.0,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            labelStyle: TextStyle(color: Colors.grey.shade700),
-                            prefixIcon: const Icon(
-                              Icons.lock_outline,
-                              size: 20,
-                              color: Color.fromARGB(255, 29, 35, 93),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                size: 20,
-                                color: Colors.grey.shade700,
-                              ),
-                              onPressed: () => setState(
-                                () => _obscurePassword = !_obscurePassword,
-                              ),
-                            ),
-                            isDense: true,
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                              horizontal: 16,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade500,
-                                width: 1.0,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 29, 35, 93),
-                                width: 1.0,
-                              ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.red.shade900,
-                                width: 1.0,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.red.shade900,
-                                width: 1.0,
-                              ),
-                            ),
-                            errorStyle: TextStyle(
-                              color: Colors.red.shade900,
-                              fontWeight: FontWeight.w300,
-                              fontSize: 12,
+                        const SizedBox(height: 16),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Password section',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A237E),
                             ),
                           ),
-                          validator: (v) => v!.length < 6
-                              ? "Password is too short. It must contain at least 6 characters for security purposes."
-                              : null,
+                        ),
+                        const SizedBox(height: 6),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Enter password and password confirmation to proceed with admin user creation',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                onChanged: (_) {
+                                  if (_passwordError != null) {
+                                    setState(() {
+                                      _passwordError = null;
+                                    });
+                                  }
+                                },
+                                cursorColor: const Color.fromARGB(
+                                  255,
+                                  29,
+                                  35,
+                                  93,
+                                ),
+                                cursorWidth: 1.0,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Password",
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.lock_outline,
+                                    size: 20,
+                                    color: Color.fromARGB(255, 29, 35, 93),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      size: 20,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                    onPressed: () => setState(
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
+                                    ),
+                                  ),
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _passwordError != null
+                                          ? Colors.red.shade900
+                                          : Colors.grey.shade500,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _passwordError != null
+                                          ? Colors.red.shade900
+                                          : const Color.fromARGB(
+                                              255,
+                                              29,
+                                              35,
+                                              93,
+                                            ),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorText: _passwordError,
+                                  errorStyle: TextStyle(
+                                    color: Colors.red.shade900,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) {
+                                    return "Password is required";
+                                  }
+                                  if (v.length < 6) {
+                                    return "Password must contain at least 6 characters for security purposes.";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _confirmPasswordController,
+                                obscureText: _obscureConfirmPassword,
+                                onChanged: (_) {
+                                  if (_passwordError != null) {
+                                    setState(() {
+                                      _passwordError = null;
+                                    });
+                                  }
+                                },
+                                cursorColor: const Color.fromARGB(
+                                  255,
+                                  29,
+                                  35,
+                                  93,
+                                ),
+                                cursorWidth: 1.0,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Confirm Password",
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.lock_outline,
+                                    size: 20,
+                                    color: Color.fromARGB(255, 29, 35, 93),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureConfirmPassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      size: 20,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                    onPressed: () => setState(
+                                      () => _obscureConfirmPassword =
+                                          !_obscureConfirmPassword,
+                                    ),
+                                  ),
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _passwordError != null
+                                          ? Colors.red.shade900
+                                          : Colors.grey.shade500,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: _passwordError != null
+                                          ? Colors.red.shade900
+                                          : const Color.fromARGB(
+                                              255,
+                                              29,
+                                              35,
+                                              93,
+                                            ),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade900,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  errorText: _passwordError,
+                                  errorStyle: TextStyle(
+                                    color: Colors.red.shade900,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                validator: (v) {
+                                  if (v!.isEmpty) {
+                                    return "Please confirm your password";
+                                  }
+                                  if (v != _passwordController.text) {
+                                    return "Passwords do not match";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -859,6 +1314,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                     "email": _emailController.text,
                                     "username": _usernameController.text,
                                     "password": _passwordController.text,
+                                    "passwordConfirm":
+                                        _confirmPasswordController.text,
                                     "role": "Admin",
                                     "isActive": true,
                                   };
@@ -889,14 +1346,61 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   } catch (e) {
                                     setState(() => _isSubmitting = false);
                                     if (mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text("Error: $e"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
+                                      String errorMessage = e.toString();
+
+                                      if (errorMessage.contains(
+                                        'Exception: ',
+                                      )) {
+                                        errorMessage = errorMessage
+                                            .split('Exception: ')
+                                            .last
+                                            .trim();
+                                      }
+
+                                      final errorLower = errorMessage
+                                          .toLowerCase();
+
+                                      if (errorLower.contains('first name') ||
+                                          errorLower.contains('firstName')) {
+                                        setState(() {
+                                          _firstNameError = errorMessage;
+                                        });
+                                      } else if (errorLower.contains(
+                                            'last name',
+                                          ) ||
+                                          errorLower.contains('lastName')) {
+                                        setState(() {
+                                          _lastNameError = errorMessage;
+                                        });
+                                      } else if (errorLower.contains('email')) {
+                                        setState(() {
+                                          _emailError = errorMessage;
+                                        });
+                                      } else if (errorLower.contains(
+                                        'username',
+                                      )) {
+                                        setState(() {
+                                          _usernameError = errorMessage;
+                                        });
+                                      } else if (errorLower.contains(
+                                            'password',
+                                          ) ||
+                                          errorLower.contains('confirmation')) {
+                                        setState(() {
+                                          _passwordError = errorMessage;
+                                        });
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              "Error: $errorMessage",
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
                                     }
                                   }
                                 }
@@ -932,58 +1436,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           },
         );
       },
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      cursorColor: Color.fromARGB(255, 29, 35, 93),
-      cursorWidth: 1.0,
-      style: const TextStyle(
-        fontSize: 14,
-        color: Colors.black87,
-        fontWeight: FontWeight.w400,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade700),
-        prefixIcon: Icon(icon, size: 20, color: const Color(0xFF1A237E)),
-        isDense: true,
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 16,
-          horizontal: 16,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1A237E), width: 1.0),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
-        ),
-        errorStyle: TextStyle(
-          color: Colors.red.shade900,
-          fontWeight: FontWeight.w300,
-          fontSize: 12,
-        ),
-      ),
     );
   }
 

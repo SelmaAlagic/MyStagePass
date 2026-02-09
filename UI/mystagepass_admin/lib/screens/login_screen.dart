@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Theme(
       data: Theme.of(context).copyWith(
         textSelectionTheme: TextSelectionThemeData(
-          selectionColor: Color.fromARGB(255, 29, 35, 93),
+          selectionColor: const Color(0xFFD7E3FF),
           cursorColor: Color.fromARGB(255, 29, 35, 93),
         ),
       ),
@@ -254,27 +254,22 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () => setState(() => _isObscured = !_isObscured),
             )
           : null,
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE4E7EC), width: 1.0),
+      filled: false,
+      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFFB0B7C3), width: 1.0),
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
           color: Color.fromARGB(255, 29, 35, 93),
           width: 1.5,
         ),
       ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+      errorBorder: UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.red.shade200, width: 1.0),
       ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+      focusedErrorBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.redAccent, width: 1.2),
       ),
     );
   }

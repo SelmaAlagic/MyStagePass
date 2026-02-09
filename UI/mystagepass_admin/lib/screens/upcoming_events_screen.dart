@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:barcode_widget/barcode_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../models/Event/event.dart';
 import '../providers/event_provider.dart';
 import '../models/search_result.dart';
+import '../models/Location/location.dart';
+import '../providers/location_provider.dart';
 import 'dart:async';
 
 class UpcomingEventsScreen extends StatefulWidget {
@@ -17,8 +19,9 @@ class UpcomingEventsScreen extends StatefulWidget {
 class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
   List<Event> _events = [];
   bool _isLoading = false;
+  bool _isLoadingLocations = false;
   String _searchQuery = "";
-  String _locationQuery = "";
+  int? _selectedLocationId;
   DateTime? _dateFrom;
   DateTime? _dateTo;
   double _minPrice = 0;
@@ -30,26 +33,80 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
   bool _hasNext = false;
   final int _pageSize = 6;
 
+  List<Location> _locations = [];
+
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
   Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    _fetchEvents();
+    _initializeData();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _locationController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
 
+  Future<void> _initializeData() async {
+    await _fetchLocations();
+    await _fetchEvents();
+  }
+
+  Future<void> _fetchLocations() async {
+    try {
+      if (mounted) {
+        setState(() {
+          _isLoadingLocations = true;
+        });
+      }
+
+      var locationProvider = Provider.of<LocationProvider>(
+        context,
+        listen: false,
+      );
+
+      var params = {'PageSize': '100'};
+      var locationsData = await locationProvider.get(filter: params);
+
+      if (mounted) {
+        setState(() {
+          _locations = locationsData.result;
+          _isLoadingLocations = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching locations: $e");
+      if (mounted) {
+        setState(() {
+          _isLoadingLocations = false;
+        });
+      }
+    }
+  }
+
   Future<void> _fetchEvents() async {
-    setState(() => _isLoading = true);
+    if (_searchQuery.isNotEmpty && _searchQuery.length < 3) {
+      if (mounted) {
+        setState(() {
+          _events = [];
+          _currentPage = 1;
+          _totalPages = 1;
+          _hasPrevious = false;
+          _hasNext = false;
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
+
     try {
       var provider = Provider.of<EventProvider>(context, listen: false);
 
@@ -64,12 +121,16 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         params['searchTerm'] = _searchQuery;
       }
 
+      if (_selectedLocationId != null) {
+        params['LocationId'] = _selectedLocationId.toString();
+      }
+
       if (_dateFrom != null) {
-        params['EventDateFrom'] = _dateFrom!.toIso8601String();
+        params['EventDateFrom'] = DateFormat('yyyy-MM-dd').format(_dateFrom!);
       }
 
       if (_dateTo != null) {
-        params['EventDateTo'] = _dateTo!.toIso8601String();
+        params['EventDateTo'] = DateFormat('yyyy-MM-dd').format(_dateTo!);
       }
 
       if (_minPrice > 0) {
@@ -82,17 +143,9 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
 
       SearchResult<Event> data = await provider.get(filter: params);
 
-      List<Event> filteredEvents = data.result;
-      if (_locationQuery.length >= 3) {
-        filteredEvents = filteredEvents.where((event) {
-          String cityName = event.location?.city?.name?.toLowerCase() ?? '';
-          return cityName.contains(_locationQuery.toLowerCase());
-        }).toList();
-      }
-
       if (mounted) {
         setState(() {
-          _events = filteredEvents;
+          _events = data.result;
           _totalPages = data.meta.totalPages;
           _currentPage = data.meta.currentPage + 1;
           _hasPrevious = data.meta.hasPrevious;
@@ -101,16 +154,19 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         });
       }
     } catch (e) {
+      debugPrint("Error fetching events: $e");
       if (mounted) {
         setState(() => _isLoading = false);
       }
-      debugPrint("Error fetching events: $e");
     }
   }
 
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _searchQuery = query.trim();
+
+    setState(() {
+      _searchQuery = query.trim();
+    });
 
     _debounce = Timer(const Duration(milliseconds: 500), () {
       setState(() => _currentPage = 1);
@@ -118,318 +174,491 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     });
   }
 
-  void _onLocationChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _locationQuery = query.trim();
+  void _onLocationChanged(int? locationId) {
+    if (!mounted) return;
 
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() => _currentPage = 1);
-      _fetchEvents();
+    setState(() {
+      _selectedLocationId = locationId;
+      _currentPage = 1;
     });
+
+    _fetchEvents();
   }
 
   Future<void> _selectDateFrom() async {
-    final DateTime? picked = await showDatePicker(
-      initialEntryMode: DatePickerEntryMode.calendarOnly,
-      fieldHintText: "",
-      fieldLabelText: "",
+    DateTime? tempDate = _dateFrom ?? DateTime.now();
+
+    await showDialog(
       context: context,
-      initialDate: _dateFrom ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF5865F2),
-              onPrimary: Colors.white,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              width: 300,
+              color: Colors.white,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: Color.fromARGB(255, 29, 35, 93),
+                        onPrimary: Colors.white,
+                        surface: Colors.white,
+                      ),
+                    ),
+                    child: CalendarDatePicker(
+                      initialDate: tempDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      onDateChanged: (date) {
+                        tempDate = date;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color.fromARGB(
+                            255,
+                            29,
+                            35,
+                            93,
+                          ),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            _dateFrom = tempDate;
+                            _currentPage = 1;
+                          });
+                          _fetchEvents();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            29,
+                            35,
+                            93,
+                          ),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          child: child!,
         );
       },
     );
-
-    if (picked != null) {
-      setState(() {
-        _dateFrom = picked;
-      });
-      setState(() => _currentPage = 1);
-      _fetchEvents();
-    }
   }
 
   Future<void> _selectDateTo() async {
-    final DateTime? picked = await showDatePicker(
-      initialEntryMode: DatePickerEntryMode.calendarOnly,
-      fieldHintText: "",
-      fieldLabelText: "",
+    DateTime? tempDate = _dateTo ?? (_dateFrom ?? DateTime.now());
+
+    await showDialog(
       context: context,
-      initialDate: _dateTo ?? (_dateFrom ?? DateTime.now()),
-      firstDate: _dateFrom ?? DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF5865F2),
-              onPrimary: Colors.white,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              width: 300,
+              color: Colors.white,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: Color.fromARGB(255, 29, 35, 93),
+                        onPrimary: Colors.white,
+                        surface: Colors.white,
+                      ),
+                    ),
+                    child: CalendarDatePicker(
+                      initialDate: tempDate,
+                      firstDate: _dateFrom ?? DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      onDateChanged: (date) {
+                        tempDate = date;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color.fromARGB(
+                            255,
+                            29,
+                            35,
+                            93,
+                          ),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            _dateTo = tempDate;
+                            _currentPage = 1;
+                          });
+                          _fetchEvents();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            29,
+                            35,
+                            93,
+                          ),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          child: child!,
         );
       },
     );
-
-    if (picked != null) {
-      setState(() {
-        _dateTo = picked;
-      });
-      setState(() => _currentPage = 1);
-      _fetchEvents();
-    }
   }
 
   void _clearDates() {
+    if (!mounted) return;
+
     setState(() {
       _dateFrom = null;
       _dateTo = null;
+      _currentPage = 1;
     });
-    setState(() => _currentPage = 1);
+    _fetchEvents();
+  }
+
+  void _clearFilters() {
+    if (!mounted) return;
+
+    setState(() {
+      _searchQuery = "";
+      _selectedLocationId = null;
+      _dateFrom = null;
+      _dateTo = null;
+      _minPrice = 0;
+      _maxPrice = 500;
+      _currentPage = 1;
+    });
+    _searchController.clear();
     _fetchEvents();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DB4FF),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              _buildHeader(),
-              _buildFilterBar(),
-              Expanded(
-                child: _events.isEmpty && !_isLoading
-                    ? _buildEmptyState()
-                    : Column(
-                        children: [
-                          Expanded(child: _buildEventsGridWithLoader()),
-                          _buildPagination(),
-                        ],
-                      ),
-              ),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.jpg'),
+            fit: BoxFit.cover,
           ),
-          Positioned(left: 32, bottom: 32, child: _buildBackButton()),
-        ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(40.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 60),
+                  _buildFilters(),
+                ],
+              ),
+            ),
+
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Column(
+                  children: [
+                    if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: _buildSearchHint(),
+                      ),
+
+                    Expanded(child: _buildEventsContent()),
+                  ],
+                ),
+              ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_events.isNotEmpty) _buildPagination(),
+                  const SizedBox(height: 20),
+                  _buildBottomButton(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEventsGridWithLoader() {
-    return Stack(
-      children: [
-        Visibility(visible: !_isLoading, child: _buildEventsGrid()),
-
-        if (_isLoading) ...[
-          Container(color: Colors.white),
-
-          Center(
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black,
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Color.fromARGB(255, 29, 35, 93),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Center(
-                          child: SizedBox(
-                            width: 50,
-                            height: 50,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                Color(0xFF5865F2),
-                              ),
-                              value: null,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Loading events...",
-                    style: TextStyle(
-                      color: Color(0xFF1A237E),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildEventsContent() {
+    if (_isLoading) {
+      return Center(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ],
-    );
+          padding: const EdgeInsets.all(40),
+          child: const CircularProgressIndicator(
+            color: Color.fromARGB(255, 29, 35, 93),
+          ),
+        ),
+      );
+    }
+
+    if (_events.isEmpty) {
+      return Center(child: _buildEmptyState());
+    }
+
+    return _buildEventsGrid();
   }
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(32, 28, 32, 16),
+      constraints: const BoxConstraints(maxWidth: 1200),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.upcoming_rounded, size: 36, color: Colors.white),
+            SizedBox(width: 12),
+            Text(
+              "Upcoming Events",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilters() {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 1200),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Text(
-            "Upcoming events",
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1A237E),
-              letterSpacing: -0.5,
+          Container(
+            width: 220,
+            height: 35,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _onSearchChanged,
+              cursorColor: const Color.fromARGB(255, 29, 35, 93),
+              cursorWidth: 1.0,
+              textAlignVertical: TextAlignVertical.center,
+              style: const TextStyle(fontSize: 13, color: Colors.black),
+              decoration: InputDecoration(
+                hintText: "Search by event name",
+                hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                suffixIcon: _searchQuery.isNotEmpty && _searchQuery.length < 3
+                    ? const Icon(
+                        Icons.info_outline,
+                        size: 14,
+                        color: Colors.orange,
+                      )
+                    : null,
+              ),
             ),
           ),
+          const SizedBox(width: 10),
+
           Container(
+            height: 35,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: _isLoadingLocations
+                ? const Center(
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color.fromARGB(255, 29, 35, 93),
+                      ),
+                    ),
+                  )
+                : Theme(
+                    data: Theme.of(context).copyWith(
+                      scrollbarTheme: ScrollbarThemeData(
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
+                      ),
+                    ),
+                    child: PopupMenuButton<int?>(
+                      offset: const Offset(0, 45),
+                      color: Colors.white,
+                      constraints: const BoxConstraints(
+                        maxWidth: 200,
+                        maxHeight: 220,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.grey,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _selectedLocationId != null
+                                ? _locations
+                                          .firstWhere(
+                                            (loc) =>
+                                                loc.locationId ==
+                                                _selectedLocationId,
+                                            orElse: () => _locations.first,
+                                          )
+                                          .locationName ??
+                                      "Location"
+                                : "Location",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: _selectedLocationId != null
+                                  ? Colors.black
+                                  : Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.grey,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                      itemBuilder: (context) => _locations
+                          .map(
+                            (location) => PopupMenuItem<int?>(
+                              value: location.locationId,
+                              height: 36,
+                              child: InkWell(
+                                onTap: () {
+                                  _onLocationChanged(location.locationId);
+                                },
+                                hoverColor: Colors.grey.shade300,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  child: Text(
+                                    location.locationName ?? "N/A",
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onSelected: (value) {
+                        if (value != null) {
+                          _onLocationChanged(value);
+                        }
+                      },
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 10),
+
+          _buildDateRangeField(),
+          const SizedBox(width: 10),
+
+          _buildPriceField(),
+          const SizedBox(width: 10),
+
+          Container(
+            height: 35,
+            width: 35,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
             child: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.account_circle_outlined),
-              iconSize: 32,
-              color: const Color(0xFF5865F2),
+              onPressed: _clearFilters,
+              icon: const Icon(Icons.filter_alt_off, size: 18),
+              tooltip: "Clear all filters",
+              padding: EdgeInsets.zero,
+              color: const Color.fromARGB(255, 29, 35, 93),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBackButton() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      child: ElevatedButton.icon(
-        onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-        label: const Text(
-          "Back to Event Management",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: const Color.fromARGB(255, 29, 35, 93),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          elevation: 5,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildSearchField(
-                  controller: _searchController,
-                  hint: "Search by name",
-                  icon: Icons.search,
-                  onChanged: _onSearchChanged,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSearchField(
-                  controller: _locationController,
-                  hint: "Location",
-                  icon: Icons.location_on_outlined,
-                  onChanged: _onLocationChanged,
-                ),
-              ),
-              const SizedBox(width: 12),
-              _buildDateRangeField(),
-              const SizedBox(width: 12),
-              _buildPriceField(),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    required Function(String) onChanged,
-  }) {
-    return Container(
-      height: 42,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
-        style: const TextStyle(fontSize: 14),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-          prefixIcon: Icon(icon, color: const Color(0xFF5865F2), size: 20),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-        ),
       ),
     );
   }
@@ -446,61 +675,51 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     } else if (_dateTo != null) {
       dateText = "To ${DateFormat('dd/MM').format(_dateTo!)}";
     } else {
-      dateText = "Date";
+      dateText = "Date Range";
     }
 
     return Container(
-      width: 160,
-      height: 42,
+      height: 35,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
       ),
       child: PopupMenuButton(
-        offset: const Offset(0, 50),
+        offset: const Offset(0, 40),
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.calendar_today_outlined,
-              color: Color(0xFF5865F2),
-              size: 18,
+              color: Colors.grey,
+              size: 16,
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                dateText,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: hasDate ? Colors.black87 : Colors.grey[400],
-                  fontWeight: hasDate ? FontWeight.w500 : FontWeight.normal,
-                ),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
+            Text(
+              dateText,
+              style: TextStyle(
+                fontSize: 13,
+                color: hasDate ? Colors.black : Colors.grey,
+                fontWeight: hasDate ? FontWeight.w500 : FontWeight.normal,
               ),
             ),
-            if (hasDate)
+            if (hasDate) ...[
+              const SizedBox(width: 8),
               InkWell(
                 onTap: _clearDates,
-                child: Icon(Icons.close, size: 16, color: Colors.grey[600]),
+                child: const Icon(Icons.close, size: 14, color: Colors.grey),
               ),
+            ],
           ],
         ),
         itemBuilder: (context) => [
           PopupMenuItem(
             enabled: false,
             child: SizedBox(
-              width: 300,
+              width: 280,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -508,8 +727,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     "Select Date Range",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Color(0xFF1A237E),
+                      fontSize: 14,
+                      color: Color.fromARGB(255, 29, 35, 93),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -521,16 +740,23 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                             Navigator.pop(context);
                             _selectDateFrom();
                           },
-                          icon: const Icon(Icons.event, size: 16),
+                          icon: const Icon(Icons.event, size: 14),
                           label: Text(
                             _dateFrom != null
                                 ? DateFormat('dd/MM/yy').format(_dateFrom!)
                                 : "From",
-                            style: const TextStyle(fontSize: 13),
+                            style: const TextStyle(fontSize: 12),
                           ),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF5865F2),
-                            side: const BorderSide(color: Color(0xFF5865F2)),
+                            foregroundColor: const Color.fromARGB(
+                              255,
+                              29,
+                              35,
+                              93,
+                            ),
+                            side: const BorderSide(
+                              color: Color.fromARGB(255, 29, 35, 93),
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -545,16 +771,23 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                             Navigator.pop(context);
                             _selectDateTo();
                           },
-                          icon: const Icon(Icons.event, size: 16),
+                          icon: const Icon(Icons.event, size: 14),
                           label: Text(
                             _dateTo != null
                                 ? DateFormat('dd/MM/yy').format(_dateTo!)
                                 : "To",
-                            style: const TextStyle(fontSize: 13),
+                            style: const TextStyle(fontSize: 12),
                           ),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF5865F2),
-                            side: const BorderSide(color: Color(0xFF5865F2)),
+                            foregroundColor: const Color.fromARGB(
+                              255,
+                              29,
+                              35,
+                              93,
+                            ),
+                            side: const BorderSide(
+                              color: Color.fromARGB(255, 29, 35, 93),
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -577,41 +810,29 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     bool hasPrice = _minPrice > 0 || _maxPrice < 500;
 
     return Container(
-      width: 140,
-      height: 42,
+      height: 35,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
       ),
       child: PopupMenuButton(
-        offset: const Offset(0, 50),
+        offset: const Offset(0, 40),
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.attach_money, color: Color(0xFF5865F2), size: 20),
+            const Icon(Icons.attach_money, color: Colors.grey, size: 16),
             const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                hasPrice
-                    ? "${_minPrice.toInt()}-${_maxPrice.toInt()} KM"
-                    : "Price",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: hasPrice ? Colors.black87 : Colors.grey[400],
-                  fontWeight: hasPrice ? FontWeight.w500 : FontWeight.normal,
-                ),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
+            Text(
+              hasPrice
+                  ? "${_minPrice.toInt()}-${_maxPrice.toInt()} KM"
+                  : "Price Range",
+              style: TextStyle(
+                fontSize: 13,
+                color: hasPrice ? Colors.black : Colors.grey,
+                fontWeight: hasPrice ? FontWeight.w500 : FontWeight.normal,
               ),
             ),
           ],
@@ -630,8 +851,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                         "Price Range",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Color(0xFF1A237E),
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 29, 35, 93),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -640,8 +861,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                         min: 0,
                         max: 500,
                         divisions: 50,
-                        activeColor: const Color(0xFF5865F2),
-                        inactiveColor: const Color(0xFF9DB4FF),
+                        activeColor: const Color.fromARGB(255, 29, 35, 93),
+                        inactiveColor: Colors.grey.shade300,
                         labels: RangeLabels(
                           "${_minPrice.toInt()} KM",
                           "${_maxPrice.toInt()} KM",
@@ -656,8 +877,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                           setState(() {
                             _minPrice = values.start;
                             _maxPrice = values.end;
+                            _currentPage = 1;
                           });
-                          setState(() => _currentPage = 1);
                           _fetchEvents();
                         },
                       ),
@@ -670,14 +891,14 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                               "${_minPrice.toInt()} KM",
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF5865F2),
+                                color: Color.fromARGB(255, 29, 35, 93),
                               ),
                             ),
                             Text(
                               "${_maxPrice.toInt()} KM",
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF5865F2),
+                                color: Color.fromARGB(255, 29, 35, 93),
                               ),
                             ),
                           ],
@@ -694,28 +915,47 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     );
   }
 
+  Widget _buildSearchHint() {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 1200),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.orange[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange.shade200, width: 1),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, size: 16, color: Colors.orange),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "Enter at least 3 characters to search by event name",
+              style: TextStyle(fontSize: 12, color: Colors.orange[800]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.event_busy_outlined, size: 100, color: Colors.grey[300]),
-          const SizedBox(height: 24),
+          Icon(Icons.event_busy_outlined, size: 80, color: Colors.grey[300]),
+          const SizedBox(height: 16),
           Text(
-            "No upcoming events found",
-            style: TextStyle(
-              fontSize: 20,
-              color: const Color.fromARGB(255, 234, 230, 230),
-              fontWeight: FontWeight.w500,
-            ),
+            _searchQuery.isNotEmpty && _searchQuery.length >= 3
+                ? "No events found for '$_searchQuery'"
+                : "No upcoming events found",
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           Text(
             "Try adjusting your filters",
-            style: TextStyle(
-              fontSize: 15,
-              color: const Color.fromARGB(255, 231, 230, 230),
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
           ),
         ],
       ),
@@ -724,12 +964,13 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
 
   Widget _buildEventsGrid() {
     return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+      shrinkWrap: false,
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 3.5,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 16,
+        childAspectRatio: 3.8,
+        crossAxisSpacing: 24,
+        mainAxisSpacing: 20,
       ),
       itemCount: _events.length,
       itemBuilder: (context, index) {
@@ -740,14 +981,15 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
 
   Widget _buildEventCard(Event event) {
     String dateStr = event.eventDate != null
-        ? DateFormat('dd.MM.yyyy.').format(event.eventDate!)
+        ? DateFormat('dd MMM yyyy').format(event.eventDate!)
         : "N/A";
     String timeStr = event.eventDate != null
-        ? " / " + DateFormat('HH:mm').format(event.eventDate!) + "h"
-        : "";
+        ? DateFormat('HH:mm').format(event.eventDate!)
+        : "N/A";
     String location = event.location?.city?.name ?? "N/A";
     String eventLocation = event.location?.locationName ?? "";
-    String performerName = event.performer?.artistName ?? "N/A";
+    String performerName =
+        event.performer?.artistName ?? event.eventName ?? "N/A";
     double? rating = event.performer?.averageRating;
 
     return Container(
@@ -757,32 +999,31 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         boxShadow: [
           BoxShadow(
             color: Colors.black,
-            blurRadius: 15,
-            offset: const Offset(0, 3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 90,
+            width: 110,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [const Color(0xFF9DB4FF), const Color(0xFF9DB4FF)],
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
+                colors: [
+                  Color.fromARGB(255, 29, 35, 93),
+                  Color.fromARGB(255, 50, 60, 130),
+                ],
               ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
@@ -801,52 +1042,54 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                       errorBuilder: (context, error, stackTrace) {
                         return Icon(
                           Icons.person,
-                          size: 30,
+                          size: 35,
                           color: Colors.grey[400],
                         );
                       },
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 13),
-                      const SizedBox(width: 3),
-                      Text(
-                        rating?.toStringAsFixed(1) ?? "N/A",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Color(0xFF1A237E),
+                const SizedBox(height: 8),
+                if (rating != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 14),
+                        const SizedBox(width: 3),
+                        Text(
+                          rating.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Color.fromARGB(255, 29, 35, 93),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),
+
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -854,27 +1097,37 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                   Text(
                     performerName,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A237E),
+                      color: Color.fromARGB(255, 29, 35, 93),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    dateStr + timeStr,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.w500,
-                    ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 12,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        "$dateStr at $timeStr",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 13, color: Colors.red[600]),
-                      const SizedBox(width: 3),
+                      Icon(Icons.location_on, size: 12, color: Colors.red[600]),
+                      const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           eventLocation.isNotEmpty
@@ -890,22 +1143,65 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 3,
+                    children: [
+                      if (event.regularPrice != null)
+                        _buildPriceChip("Regular", event.regularPrice!),
+                      if (event.vipPrice != null)
+                        _buildPriceChip("VIP", event.vipPrice!),
+                      if (event.premiumPrice != null)
+                        _buildPriceChip("Premium", event.premiumPrice!),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
+
           Container(
-            width: 120,
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+            width: 50,
+            margin: const EdgeInsets.only(right: 5),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
             child: RotatedBox(
               quarterTurns: 1,
-              child: SvgPicture.asset(
-                'assets/svg/barcode.svg',
-                fit: BoxFit.fill,
+              child: SizedBox(
+                height: 85,
+                child: BarcodeWidget(
+                  barcode: Barcode.code128(),
+                  data: 'EVENT${event.eventId ?? 0}',
+                  drawText: false,
+                  color: Colors.black,
+                  backgroundColor: Colors.transparent,
+                ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPriceChip(String label, int price) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 29, 35, 93).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: const Color.fromARGB(255, 29, 35, 93),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        "$label: $price KM",
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: Color.fromARGB(255, 29, 35, 93),
+        ),
       ),
     );
   }
@@ -951,61 +1247,30 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
       ],
     );
   }
-}
 
-class BarcodePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black;
-
-    final patterns = [
-      (1.0, 2.0),
-      (3.0, 1.5),
-      (2.0, 2.5),
-      (1.5, 1.0),
-      (4.0, 3.0),
-      (2.0, 1.5),
-      (1.0, 2.0),
-      (3.0, 1.0),
-      (2.5, 2.0),
-      (1.5, 3.0),
-      (3.0, 1.5),
-      (2.0, 2.5),
-      (4.0, 1.0),
-      (1.0, 2.0),
-      (2.0, 1.5),
-      (3.0, 2.0),
-      (1.5, 1.0),
-      (2.5, 3.0),
-      (1.0, 1.5),
-      (3.0, 2.0),
-      (2.0, 1.0),
-      (4.0, 2.5),
-      (1.5, 2.0),
-      (2.0, 1.5),
-      (3.0, 1.0),
-    ];
-
-    double currentY = size.height * 0.1;
-
-    for (var pattern in patterns) {
-      if (currentY >= size.height * 0.9) break;
-
-      final strokeWidth = pattern.$1;
-      final spacing = pattern.$2 * 1.5;
-
-      paint.strokeWidth = strokeWidth;
-
-      canvas.drawLine(
-        Offset(size.width * 0.1, currentY),
-        Offset(size.width * 0.9, currentY),
-        paint,
-      );
-
-      currentY += spacing;
-    }
+  Widget _buildBottomButton() {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 1200),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          label: const Text(
+            "Back to Event Management",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            elevation: 5,
+          ),
+        ),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

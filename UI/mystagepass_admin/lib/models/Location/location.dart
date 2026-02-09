@@ -5,10 +5,13 @@ part 'location.g.dart';
 
 @JsonSerializable()
 class Location {
+  @JsonKey(name: 'locationID')
   int? locationId;
   String? locationName;
   int? capacity;
   String? address;
+  @JsonKey(name: 'cityID')
+  int? cityId;
 
   City? city;
 
@@ -17,6 +20,7 @@ class Location {
     this.locationName,
     this.capacity,
     this.address,
+    this.cityId,
     this.city,
   });
 

@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MyStagePass.WebAPI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSwaggerGen(c =>
@@ -68,6 +69,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			ValidateIssuer = false,
 			ValidateAudience = false
 		};
+});
+
+builder.Services.AddControllers(x =>
+{
+	x.Filters.Add<ErrorFilter>();
 });
 
 builder.Services.AddAuthorization();

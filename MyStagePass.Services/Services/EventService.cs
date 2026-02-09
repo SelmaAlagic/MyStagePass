@@ -76,13 +76,17 @@ namespace MyStagePass.Services.Services
 			{
 				string lowerQuery = search.searchTerm.ToLower();
 				query = query.Where(e =>
-					e.EventName.ToLower().Contains(lowerQuery) ||
-					e.Location.LocationName.ToLower().Contains(lowerQuery));
+					e.EventName.ToLower().Contains(lowerQuery));
 			};
 
 			if (!string.IsNullOrWhiteSpace(search.Status))
 			{
 				query = query.Where(e => e.Status.StatusName.ToLower() == search.Status.ToLower());
+			}
+
+			if (search?.LocationID.HasValue == true)
+			{
+				query = query.Where(e => e.LocationID == search.LocationID.Value);
 			}
 
 			if (search.EventDateFrom != null)
@@ -113,11 +117,11 @@ namespace MyStagePass.Services.Services
 
 			var entity = await _context.Events.Include(e => e.Status).Include(e => e.Performer).FirstOrDefaultAsync(e => e.EventID == eventId);
 			if (entity == null)
-				throw new Exception("Event not found");
+				throw new UserException("Event not found");
 
 			var status = await _context.Statuses.FirstOrDefaultAsync(s => s.StatusName.ToLower() == newStatus.ToLower());
 			if (status == null)
-				throw new Exception("Status not found");
+				throw new UserException("Status not found");
 			
 			entity.StatusID = status.StatusID;
 			await _context.SaveChangesAsync();

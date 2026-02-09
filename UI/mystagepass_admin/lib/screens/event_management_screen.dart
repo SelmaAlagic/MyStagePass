@@ -370,15 +370,15 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           children: [
             _tableHeaderCell('#', width: 40),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Date', flex: 2),
+            _tableHeaderCell('Date', width: 100),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Performer Name', flex: 3),
+            _tableHeaderCell('Performer Name', width: 150),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Location', flex: 3),
+            _tableHeaderCell('Location', width: 200),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Tickets sold', flex: 2),
+            _tableHeaderCell('Tickets sold', width: 80),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Status', flex: 2),
+            _tableHeaderCell('Status', width: 130),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Actions', width: 80),
           ],
@@ -417,11 +417,11 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(dateStr, flex: 2),
+          _tableCell(dateStr, width: 100),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             event.performer?.artistName ?? event.eventName ?? "N/A",
-            flex: 3,
+            width: 150,
             isGrey:
                 event.performer?.artistName == null && event.eventName == null,
             isItalic:
@@ -430,23 +430,23 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             fullLocation,
-            flex: 3,
+            width: 200,
             isGrey: loc == "N/A",
             isItalic: loc == "N/A",
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             "${event.ticketsSold ?? 0}",
-            flex: 2,
+            width: 80,
             center: true,
             isBold: true,
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           SizedBox(
-            width: 80,
+            width: 130,
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 70),
+                constraints: const BoxConstraints(maxWidth: 80),
                 child: _buildStatusBadge(isUpcoming),
               ),
             ),
@@ -493,6 +493,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     Color textColor = isUpcoming ? Colors.green[800]! : Colors.red[800]!;
 
     return Container(
+      width: 80,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: bgColor,
