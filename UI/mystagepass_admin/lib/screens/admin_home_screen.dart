@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _fullName = "";
   String _email = "";
+
   String? _profileImage;
   bool _isLoadingUserData = true;
 
@@ -586,6 +587,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   bool _obscureConfirmPassword = true;
 
   String? _currentPasswordError;
+  String? _newPasswordError;
+  String? _confirmPasswordError;
+
   bool _isHoveringRemoveButton = false;
 
   @override
@@ -610,6 +614,22 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       if (_currentPasswordError != null) {
         setState(() {
           _currentPasswordError = null;
+        });
+      }
+    });
+
+    _newPasswordController.addListener(() {
+      if (_newPasswordError != null) {
+        setState(() {
+          _newPasswordError = null;
+        });
+      }
+    });
+
+    _confirmPasswordController.addListener(() {
+      if (_confirmPasswordError != null) {
+        setState(() {
+          _confirmPasswordError = null;
         });
       }
     });
@@ -659,11 +679,24 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
     setState(() {
       _currentPasswordError = null;
+      _newPasswordError = null;
+      _confirmPasswordError = null;
     });
 
     final hasNewPassword = _newPasswordController.text.isNotEmpty;
     final hasCurrentPassword = _currentPasswordController.text.isNotEmpty;
     final hasConfirmPassword = _confirmPasswordController.text.isNotEmpty;
+
+    if (hasCurrentPassword && !hasNewPassword) {
+      _newPasswordError = 'Please enter new password';
+      _confirmPasswordError = 'Please enter confirmation password';
+      return;
+    }
+
+    if (hasCurrentPassword && !hasConfirmPassword) {
+      _showCustomSnackBar('Please confirm your new password', isSuccess: false);
+      return;
+    }
 
     if (hasNewPassword) {
       if (!hasCurrentPassword) {
@@ -1127,6 +1160,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                 );
                               },
                               required: false,
+                              serverError: _newPasswordError,
                               validator: (value) {
                                 if (value != null &&
                                     value.isNotEmpty &&
@@ -1140,6 +1174,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                               controller: _confirmPasswordController,
                               label: "Confirm New Password",
                               icon: Icons.lock_outline,
+                              serverError: _confirmPasswordError,
                               isPassword: true,
                               obscureText: _obscureConfirmPassword,
                               onTogglePassword: () {
