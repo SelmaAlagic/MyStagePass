@@ -11,7 +11,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles ="Admin")]
+	[Authorize]
 	public class UserController : BaseCRUDController<User, UserSearchObject, UserInsertRequest, UserUpdateRequest>
 	{
 		private readonly IUserService _userService;
@@ -20,12 +20,14 @@ namespace MyStagePass.WebAPI.Controllers
 			_userService=service;
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpDelete("deactivate/{id}")]
 		public override async Task<User> Delete(int id)
 		{
 			return await _service.Delete(id);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpPut("restore/{id}")]
 		public async Task<ActionResult<User>> Restore(int id)
 		{
@@ -87,7 +89,7 @@ namespace MyStagePass.WebAPI.Controllers
 			}
 		}
 
-		[Authorize]
+		[Authorize(Roles = "Admin, Customer, Performer")]
 		[HttpGet("my-profile")]
 		public async Task<IActionResult> GetMyProfile()
 		{
