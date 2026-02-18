@@ -48,6 +48,8 @@ namespace MyStagePass.WebAPI.Controllers
 					AuthResult.Success => Ok(response),
 					AuthResult.UserNotFound => NotFound(new { message = "User not found or account is inactive" }),
 					AuthResult.InvalidPassword => Unauthorized(new { message = "Invalid username or password" }),
+					AuthResult.PendingApproval => StatusCode(403, new { message = "Your registration is still pending approval. Please wait for an administrator to review your request." }), 
+					AuthResult.Rejected => StatusCode(403, new { message = "Your application for performer account has been declined. Please check your email for more information regarding this decision." }),
 					_ => BadRequest(new { message = "Login failed" })
 				};
 			}

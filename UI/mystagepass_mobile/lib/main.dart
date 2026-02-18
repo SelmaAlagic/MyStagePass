@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_mobile/providers/customer_provider.dart';
+import 'package:mystagepass_mobile/providers/notification_provider.dart';
+import 'package:mystagepass_mobile/providers/performer_provider.dart';
+import 'package:mystagepass_mobile/providers/genre_provider.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
 import 'utils/colors_helpers.dart';
 
 void main() {
@@ -10,7 +13,13 @@ void main() {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
+        ChangeNotifierProvider(create: (_) => PerformerProvider()),
+        ChangeNotifierProvider(create: (_) => GenreProvider()),
+      ],
       child: const MyStagePass(),
     ),
   );
@@ -34,7 +43,6 @@ class MyStagePass extends StatelessWidget {
       routes: {
         '/': (context) => const LoginScreen(),
         '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
       },
     );
   }

@@ -191,7 +191,7 @@ class FormHelpers {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
         ),
-        errorText: serverError ?? null,
+        errorText: serverError,
         errorStyle: TextStyle(
           color: Colors.red.shade900,
           fontWeight: FontWeight.w300,

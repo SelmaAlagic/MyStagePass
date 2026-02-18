@@ -153,7 +153,7 @@ namespace MyStagePass.Services.Services
 					{
 						await _notificationService.NotifyUsers(
 							followerUserIds,
-							$"Your favorite performer '{performer.ArtistName}' has added a new event '{entity.EventName}'!"
+							$"{performer.ArtistName} has added a new event!"
 						);
 					}
 				}

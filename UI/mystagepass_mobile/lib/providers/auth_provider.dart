@@ -8,12 +8,10 @@ import '../utils/authorization.dart';
 
 class AuthProvider with ChangeNotifier {
   static String? _baseUrl;
-  final String _loginEndpoint = "api/User/login";
-  final String _currentEndpoint = "api/User/current";
   final _storage = const FlutterSecureStorage();
 
-  User? _currentUser;
-  User? get currentUser => _currentUser;
+  Map<String, dynamic>? currentUserInfo;
+  User? currentUser;
 
   AuthProvider() {
     _baseUrl = const String.fromEnvironment(
@@ -23,7 +21,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<LoginResponse> login() async {
-    var url = "$_baseUrl$_loginEndpoint";
+    var url = "${_baseUrl}api/User/login";
     var body = {
       "username": Authorization.username,
       "password": Authorization.password,
@@ -35,54 +33,57 @@ class AuthProvider with ChangeNotifier {
       body: jsonEncode(body),
     );
 
-    if (isValidResponse(response)) {
+    if (response.statusCode < 299) {
       var data = LoginResponse.fromJson(jsonDecode(response.body));
-
-      if (data.result == 0 && data.token != null) {
+      if (data.token != null) {
         await _storage.write(key: "jwt", value: data.token);
-        await fetchCurrentUser();
       }
       return data;
     } else {
-      throw Exception("Login failed");
+      try {
+        var errorData = jsonDecode(response.body);
+        String serverMessage = errorData['message'] ?? "Login failed";
+
+        throw Exception(serverMessage);
+      } catch (e) {
+        if (e is Exception) rethrow;
+        throw Exception("Server error (${response.statusCode})");
+      }
     }
   }
 
-  Future<void> fetchCurrentUser() async {
-    var url = "$_baseUrl$_currentEndpoint";
-    var headers = await createHeaders();
+  Future<void> fetchCurrentUserInfo() async {
+    var url = "${_baseUrl}api/User/current";
+    var headers = await _createHeaders();
 
-    try {
-      var response = await http.get(Uri.parse(url), headers: headers);
+    var response = await http.get(Uri.parse(url), headers: headers);
+    if (response.statusCode < 299) {
+      currentUserInfo = jsonDecode(response.body);
+      notifyListeners();
+    }
+  }
 
-      if (isValidResponse(response)) {
-        var data = jsonDecode(response.body);
-        _currentUser = User.fromJson(data);
+  Future<void> fetchMyProfile() async {
+    var url = "${_baseUrl}api/User/my-profile";
+    var headers = await _createHeaders();
 
-        if (_currentUser?.role != null) {
-          await _storage.write(key: "role", value: _currentUser!.role);
-        }
-
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint("Error fetching current user: $e");
+    var response = await http.get(Uri.parse(url), headers: headers);
+    if (response.statusCode < 299) {
+      currentUser = User.fromJson(jsonDecode(response.body));
+      notifyListeners();
     }
   }
 
   Future<void> logout() async {
     await _storage.deleteAll();
-    _currentUser = null;
+    currentUserInfo = null;
+    currentUser = null;
+    Authorization.username = null;
+    Authorization.password = null;
     notifyListeners();
   }
 
-  bool isValidResponse(http.Response response) {
-    if (response.statusCode < 299) return true;
-    if (response.statusCode == 401) throw Exception("Unauthorized");
-    throw Exception("${response.statusCode}: Error occurred.");
-  }
-
-  Future<Map<String, String>> createHeaders() async {
+  Future<Map<String, String>> _createHeaders() async {
     String token = await _storage.read(key: "jwt") ?? "";
     return {
       "Content-Type": "application/json",

@@ -8,7 +8,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles = "Admin, Performer")]
+	[AllowAnonymous]
 	public class GenreController : BaseController<Genre, GenreSearchObject>
 	{
 		public GenreController(ILogger<BaseController<Genre, GenreSearchObject>> logger, IGenreService service) : base(logger, service)

@@ -141,12 +141,7 @@ namespace MyStagePass.Services.Services
 				.Include(u => u.Customers)
 				.FirstOrDefaultAsync(u => u.Username == username);
 
-			if (user == null)
-			{
-				return new AuthResponse { Result = AuthResult.UserNotFound };
-			}
-
-			if (!user.IsActive)
+			if (user == null || !user.IsActive)
 			{
 				return new AuthResponse { Result = AuthResult.UserNotFound };
 			}
@@ -156,7 +151,7 @@ namespace MyStagePass.Services.Services
 				return new AuthResponse { Result = AuthResult.InvalidPassword };
 			}
 
-			string userRole;
+			string userRole = null;
 
 			if (user.Admins != null && user.Admins.Any())
 			{
@@ -170,9 +165,30 @@ namespace MyStagePass.Services.Services
 			{
 				userRole = "Customer";
 			}
-			else
+
+			if (string.IsNullOrEmpty(userRole))
 			{
 				return new AuthResponse { Result = AuthResult.UserNotFound };
+			}
+
+			if (userRole == "Performer")
+			{
+				var performer = user.Performers.FirstOrDefault();
+
+				if (performer == null)
+				{
+					return new AuthResponse { Result = AuthResult.UserNotFound };
+				}
+
+				if (performer.IsApproved == null)
+				{
+					return new AuthResponse { Result = AuthResult.PendingApproval };
+				}
+
+				if (performer.IsApproved == false)
+				{
+					return new AuthResponse { Result = AuthResult.Rejected };
+				}
 			}
 
 			var token = GenerateJwtToken(user, userRole);
@@ -185,7 +201,7 @@ namespace MyStagePass.Services.Services
 				Role = userRole
 			};
 		}
-		
+
 		private string GenerateJwtToken(Database.User user, string userRole)
 		{
 			var claims = new List<Claim>
@@ -206,6 +222,12 @@ namespace MyStagePass.Services.Services
 			{
 				var performerId = user.Performers.First().PerformerID.ToString();
 				claims.Add(new Claim("PerformerID", performerId));
+			}
+
+			if (userRole == "Customer" && user.Customers != null && user.Customers.Any())
+			{
+				var customerId = user.Customers.First().CustomerID.ToString();
+				claims.Add(new Claim("CustomerID", customerId));
 			}
 
 			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);

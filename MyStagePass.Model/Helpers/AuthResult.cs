@@ -4,6 +4,8 @@
 	{
 		Success,
 		UserNotFound,
-		InvalidPassword
+		InvalidPassword,
+		PendingApproval, 
+		Rejected
 	}
 }

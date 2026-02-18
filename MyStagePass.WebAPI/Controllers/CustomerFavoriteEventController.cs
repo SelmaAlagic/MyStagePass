@@ -21,7 +21,11 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpGet]
 		public override async Task<PagedResult<CustomerFavoriteEvent>> Get([FromQuery] CustomerFavoriteEventSearchObject search)
 		{
-			int customerId = int.Parse(User.FindFirst("RoleId").Value);
+			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
+
+			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
+				throw new UnauthorizedAccessException("Customer not authenticated");
+
 			search.CustomerID = customerId;
 
 			return await base.Get(search);

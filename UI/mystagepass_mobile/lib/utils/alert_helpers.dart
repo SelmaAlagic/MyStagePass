@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AlertHelpers {
-  static void showAlert(
+  static Future<void> showAlert(
     BuildContext context,
     String title,
     String text, {
@@ -36,7 +36,7 @@ class AlertHelpers {
       icon = Icons.info;
     }
 
-    showDialog(
+    return showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => Dialog(
@@ -242,23 +242,25 @@ class AlertHelpers {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color.fromARGB(
                             255,
-                            29,
-                            35,
-                            93,
+                            67,
+                            69,
+                            85,
                           ),
                           side: const BorderSide(
-                            color: Color.fromARGB(255, 29, 35, 93),
+                            color: Color.fromARGB(255, 151, 155, 186),
                             width: 1,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          minimumSize: const Size(80, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: Text(
                           cancelButtonText,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -274,16 +276,18 @@ class AlertHelpers {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: confirmButtonColor,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          minimumSize: const Size(80, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           elevation: 2,
                         ),
                         child: Text(
                           confirmButtonText,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -299,15 +303,19 @@ class AlertHelpers {
     );
   }
 
-  static void showSuccess(BuildContext context, String message) {
-    showAlert(context, "Success", message, isSuccess: true);
+  static Future<void> showSuccess(BuildContext context, String message) {
+    return showAlert(context, "Success", message, isSuccess: true);
   }
 
-  static void showError(BuildContext context, String message) {
-    showAlert(context, "Error", message, isError: true);
+  static Future<void> showError(BuildContext context, String message) {
+    return showAlert(context, "Error", message, isError: true);
   }
 
-  static void showInfo(BuildContext context, String title, String message) {
-    showAlert(context, title, message);
+  static Future<void> showInfo(
+    BuildContext context,
+    String title,
+    String message,
+  ) {
+    return showAlert(context, title, message);
   }
 }
