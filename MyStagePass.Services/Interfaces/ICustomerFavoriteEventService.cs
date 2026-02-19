@@ -6,5 +6,6 @@ namespace MyStagePass.Services.Interfaces
 {
 	public interface ICustomerFavoriteEventService : ICRUDService<CustomerFavoriteEvent, CustomerFavoriteEventSearchObject, CustomerFavoriteEventInsertRequest, CustomerFavoriteEventUpdateRequest>
 	{
+		Task<bool> ToggleFavorite(int customerId, int eventId);
 	}
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_mobile/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -25,7 +26,9 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       auth.fetchMyProfile();
-
+      if (auth.currentUserInfo == null) {
+        auth.fetchCurrentUserInfo();
+      }
       final notificationProvider = Provider.of<NotificationProvider>(
         context,
         listen: false,
@@ -43,6 +46,11 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavBar(
+        selected: NavItem.home,
+        userId: widget.userId,
+        onProfileTap: _showProfileMenu,
+      ),
       body: Stack(
         children: [
           Container(
@@ -78,13 +86,13 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                               ),
                               child: ClipOval(
                                 child: profileImage != null
-                                    ? ImageHelpers.getImage(
-                                        profileImage,
-                                        height: 50,
-                                        width: 50,
+                                    ? ImageHelpers.getImageFromBytes(
+                                        auth.profileImageBytes,
+                                        height: 46,
+                                        width: 46,
                                       )
                                     : const CircleAvatar(
-                                        radius: 25,
+                                        radius: 23,
                                         backgroundImage: AssetImage(
                                           'assets/images/NoProfileImage.png',
                                         ),
@@ -92,7 +100,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                               ),
                             ),
                             const SizedBox(width: 12),
-
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +107,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                                   Text(
                                     fullName,
                                     style: const TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
@@ -115,7 +122,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                                 ],
                               ),
                             ),
-
                             Consumer<NotificationProvider>(
                               builder: (context, notificationProvider, _) {
                                 return InkWell(
@@ -180,13 +186,11 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                           ],
                         ),
                       ),
-
                       Expanded(
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
                               const SizedBox(height: 20),
-
                               Text(
                                 "Welcome, ${fullName.split(' ').first}!",
                                 style: const TextStyle(
@@ -195,9 +199,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-
                               const SizedBox(height: 40),
-
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 30,
@@ -224,7 +226,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                                   ],
                                 ),
                               ),
-
                               const SizedBox(height: 80),
                             ],
                           ),
@@ -236,7 +237,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
               ),
             ),
           ),
-
           if (_showNotifications)
             NotificationDropdown(
               userId: widget.userId,
@@ -247,94 +247,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
               },
             ),
         ],
-      ),
-
-      bottomNavigationBar: _buildBottomNavigationBar(),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      height: 55,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(
-              icon: Icons.home_rounded,
-              label: "Home",
-              isSelected: true,
-              onTap: () {},
-            ),
-            _buildNavItem(
-              icon: Icons.favorite_rounded,
-              label: "Favorites",
-              isSelected: false,
-              onTap: () {},
-            ),
-            _buildNavItem(
-              icon: Icons.confirmation_number_rounded,
-              label: "Tickets",
-              isSelected: false,
-              onTap: () {},
-            ),
-            _buildNavItem(
-              icon: Icons.person_rounded,
-              label: "Profile",
-              isSelected: false,
-              onTap: () {
-                _showProfileMenu();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? const Color.fromARGB(241, 29, 35, 93)
-                  : Colors.grey[500],
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected
-                    ? const Color.fromARGB(241, 29, 35, 93)
-                    : Colors.grey[500],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -419,7 +331,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
@@ -474,34 +385,24 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
               Divider(height: 1, color: Colors.grey[200]),
-
               _buildProfileMenuItem(
                 icon: Icons.person_outline_rounded,
                 label: "Edit Profile",
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context),
               ),
               _buildProfileMenuItem(
                 icon: Icons.settings_outlined,
                 label: "Settings",
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context),
               ),
               _buildProfileMenuItem(
                 icon: Icons.help_outline_rounded,
                 label: "Help & Support",
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context),
               ),
-
               Divider(height: 1, color: Colors.grey[200]),
-
               _buildProfileMenuItem(
                 icon: Icons.logout_rounded,
                 label: "Logout",
@@ -511,7 +412,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                   _showLogoutDialog(auth);
                 },
               ),
-
               const SizedBox(height: 16),
             ],
           ),

@@ -10,7 +10,6 @@ class User {
   String? username;
   String? firstName;
   String? lastName;
-  String? fullName;
   String? phoneNumber;
   String? image;
 
@@ -21,10 +20,11 @@ class User {
     this.username,
     this.firstName,
     this.lastName,
-    this.fullName,
     this.phoneNumber,
     this.image,
   );
+
+  String get fullName => "${firstName ?? ''} ${lastName ?? ''}".trim();
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);

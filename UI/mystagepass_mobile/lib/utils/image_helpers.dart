@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class ImageHelpers {
@@ -17,14 +17,41 @@ class ImageHelpers {
     }
 
     try {
-      return Image.memory(base64Decode(image), height: height, width: width);
+      return Image.memory(
+        base64Decode(image),
+        height: height,
+        width: width,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+      );
     } catch (e) {
-      print('Error decoding image: $e');
       return Image.asset(
         "assets/images/NoProfileImage.png",
         height: height,
         width: width,
       );
     }
+  }
+
+  static Widget getImageFromBytes(
+    Uint8List? bytes, {
+    double height = 40,
+    double width = 40,
+  }) {
+    if (bytes == null) {
+      return Image.asset(
+        "assets/images/NoProfileImage.png",
+        height: height,
+        width: width,
+      );
+    }
+
+    return Image.memory(
+      bytes,
+      height: height,
+      width: width,
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+    );
   }
 }

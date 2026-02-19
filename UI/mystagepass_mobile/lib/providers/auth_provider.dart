@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -12,6 +13,7 @@ class AuthProvider with ChangeNotifier {
 
   Map<String, dynamic>? currentUserInfo;
   User? currentUser;
+  Uint8List? profileImageBytes;
 
   AuthProvider() {
     _baseUrl = const String.fromEnvironment(
@@ -43,7 +45,6 @@ class AuthProvider with ChangeNotifier {
       try {
         var errorData = jsonDecode(response.body);
         String serverMessage = errorData['message'] ?? "Login failed";
-
         throw Exception(serverMessage);
       } catch (e) {
         if (e is Exception) rethrow;
@@ -53,6 +54,8 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> fetchCurrentUserInfo() async {
+    if (currentUserInfo != null) return;
+
     var url = "${_baseUrl}api/User/current";
     var headers = await _createHeaders();
 
@@ -64,12 +67,19 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> fetchMyProfile() async {
+    if (currentUser != null) return;
+
     var url = "${_baseUrl}api/User/my-profile";
     var headers = await _createHeaders();
 
     var response = await http.get(Uri.parse(url), headers: headers);
     if (response.statusCode < 299) {
       currentUser = User.fromJson(jsonDecode(response.body));
+      if (currentUser?.image != null && currentUser!.image!.isNotEmpty) {
+        try {
+          profileImageBytes = base64Decode(currentUser!.image!);
+        } catch (_) {}
+      }
       notifyListeners();
     }
   }
@@ -78,6 +88,7 @@ class AuthProvider with ChangeNotifier {
     await _storage.deleteAll();
     currentUserInfo = null;
     currentUser = null;
+    profileImageBytes = null;
     Authorization.username = null;
     Authorization.password = null;
     notifyListeners();
