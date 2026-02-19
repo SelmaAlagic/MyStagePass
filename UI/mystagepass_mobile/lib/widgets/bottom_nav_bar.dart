@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mystagepass_mobile/screens/customer_home_screen.dart';
 import 'package:mystagepass_mobile/screens/favorites_screen.dart';
+import 'package:mystagepass_mobile/screens/update_profile_screen.dart';
 
 enum NavItem { home, favorites, tickets, profile }
 
 class BottomNavBar extends StatelessWidget {
   final NavItem selected;
   final int userId;
-  final VoidCallback? onProfileTap;
 
-  const BottomNavBar({
-    super.key,
-    required this.selected,
-    required this.userId,
-    this.onProfileTap,
-  });
+  const BottomNavBar({super.key, required this.selected, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +79,19 @@ class BottomNavBar extends StatelessWidget {
               icon: Icons.person_rounded,
               label: "Profile",
               item: NavItem.profile,
-              onTap: () => onProfileTap?.call(),
+              onTap: () {
+                if (selected != NavItem.profile) {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) =>
+                          ProfileScreen(userId: userId),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ),
+                  );
+                }
+              },
             ),
           ],
         ),

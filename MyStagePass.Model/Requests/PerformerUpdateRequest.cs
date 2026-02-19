@@ -18,6 +18,9 @@ namespace MyStagePass.Model.Requests
 		public string? Bio { get; set; }
 
 		[MinLength(6)]
+		public string? CurrentPassword { get; set; }
+
+		[MinLength(6)]
 		public string? Password { get; set; }
 
 		[MinLength(6)]
@@ -26,6 +29,6 @@ namespace MyStagePass.Model.Requests
 		[RegularExpression(@"^\+?0?\d{8,14}$", ErrorMessage = "Invalid phone number.")]
 		public string? PhoneNumber { get; set; }
 
-		public byte[]? Image { get; set; }
+		public string? Image { get; set; }
 	}
 }

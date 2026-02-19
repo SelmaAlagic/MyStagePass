@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
+using System.Linq;
 
 namespace MyStagePass.Services.Services
 {
@@ -37,7 +38,24 @@ namespace MyStagePass.Services.Services
 			CreateMap<Database.Customer, Customer>();
 			CreateMap<Model.Requests.CustomerInsertRequest, Database.User>();
 			CreateMap<Model.Requests.CustomerInsertRequest, Database.Customer>();
-			CreateMap<Model.Requests.CustomerUpdateRequest, Database.User>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+			CreateMap<Model.Requests.CustomerUpdateRequest, Database.User>().ForMember(dest => dest.Password, opt => opt.Ignore()).ForMember(dest => dest.Salt, opt => opt.Ignore()).ForMember(dest => dest.Image, opt => opt.MapFrom((src, dest) =>
+			{
+				if (src.Image == null)
+					return null;
+				if (string.IsNullOrWhiteSpace(src.Image))
+					return dest.Image;
+				try
+				{
+					var base64String = src.Image;
+					if (base64String.Contains("base64,"))
+						base64String = base64String.Split("base64,")[1];
+					return Convert.FromBase64String(base64String);
+				}
+				catch
+				{
+					return dest.Image;
+				}
+			})).ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 			CreateMap<Model.Requests.CustomerUpdateRequest, Database.Customer>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 			CreateMap<Database.Performer, Performer>();
@@ -67,7 +85,7 @@ namespace MyStagePass.Services.Services
 				{
 					return dest.Image;
 				}
-			}));
+			})).ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 			CreateMap<Database.Event, Event>();
 			CreateMap<Model.Requests.EventInsertRequest, Database.Event>();

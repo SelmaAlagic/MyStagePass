@@ -94,6 +94,26 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateProfile(int userId, dynamic request) async {
+    var url = "${_baseUrl}api/User/$userId";
+    var headers = await _createHeaders();
+
+    var response = await http.put(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(request),
+    );
+
+    if (response.statusCode < 299) {
+      currentUser = null;
+      profileImageBytes = null;
+      await fetchMyProfile();
+    } else {
+      final body = jsonDecode(response.body);
+      throw Exception(body['errors']?['error']?[0] ?? 'Update failed');
+    }
+  }
+
   Future<Map<String, String>> _createHeaders() async {
     String token = await _storage.read(key: "jwt") ?? "";
     return {

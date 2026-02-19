@@ -53,15 +53,36 @@ namespace MyStagePass.Services.Services
 
 		public override async Task<Model.Models.Customer> Update(int id, CustomerUpdateRequest update)
 		{
-			if (!string.IsNullOrEmpty(update.Password) || !string.IsNullOrEmpty(update.PasswordConfirm))
+			if (!string.IsNullOrEmpty(update.Password))
 			{
+				if (string.IsNullOrEmpty(update.CurrentPassword))
+					throw new UserException("Current password is required to change password.");
+				if (string.IsNullOrEmpty(update.PasswordConfirm))
+					throw new UserException("Password confirmation is required.");
 				if (update.Password != update.PasswordConfirm)
-					throw new UserException("Password and confirmation do not match.");
+					throw new UserException("New password and confirmation do not match.");
 			}
 
 			var set = _context.Set<Customer>();
 			var entity = await set.Include(c => c.User).FirstOrDefaultAsync(c => c.CustomerID == id);
-			_mapper.Map(update, entity?.User);
+
+			if (entity?.User == null)
+				throw new UserException("Customer or User not found.");
+
+			if (!string.IsNullOrWhiteSpace(update.Password))
+			{
+				var currentPasswordHash = PasswordHelper.GenerateHash(
+					entity.User.Salt,
+					update.CurrentPassword
+				);
+				if (entity.User.Password != currentPasswordHash)
+					throw new UserException("Current password is incorrect.");
+
+				entity.User.Salt = PasswordHelper.GenerateSalt();
+				entity.User.Password = PasswordHelper.GenerateHash(entity.User.Salt, update.Password);
+			}
+
+			_mapper.Map(update, entity.User);
 			_mapper.Map(update, entity);
 			await _context.SaveChangesAsync();
 			return _mapper.Map<Model.Models.Customer>(entity);

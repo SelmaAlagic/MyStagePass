@@ -42,7 +42,7 @@ class AlertHelpers {
       builder: (BuildContext context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
+          constraints: const BoxConstraints(maxWidth: 360),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -51,60 +51,72 @@ class AlertHelpers {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
                 ),
-                child: Row(
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    Icon(icon, color: iconColor, size: 32),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: titleColor,
-                        ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Icon(icon, color: iconColor, size: 20),
+                    ),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
                       ),
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
                 child: Text(
                   text,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     color: Colors.grey.shade800,
-                    height: 1.5,
+                    height: 1.4,
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 20),
-                child: SizedBox(
-                  width: double.infinity,
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                child: Center(
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF5865F2),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 24,
                       ),
-                      elevation: 2,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 1,
                     ),
                     child: const Text(
                       "OK",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -154,7 +166,7 @@ class AlertHelpers {
       builder: (BuildContext context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
+          constraints: const BoxConstraints(maxWidth: 360),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -164,7 +176,7 @@ class AlertHelpers {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
+                  horizontal: 16,
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
@@ -173,47 +185,48 @@ class AlertHelpers {
                     top: Radius.circular(16),
                   ),
                 ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(icon, color: iconColor, size: 28),
-                      const SizedBox(width: 8),
-                      Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: titleColor,
-                        ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Icon(icon, color: iconColor, size: 20),
+                    ),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
                 child: highlightText != null
                     ? RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 14,
                             color: Colors.grey.shade800,
-                            height: 1.5,
+                            height: 1.4,
                           ),
                           children: [
                             TextSpan(text: message.split(highlightText)[0]),
                             TextSpan(
                               text: highlightText,
-                              style: TextStyle(
-                                fontSize: 15,
+                              style: const TextStyle(
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 fontStyle: FontStyle.italic,
-                                color: Colors.grey.shade900,
-                                height: 1.5,
+                                color: Colors.black,
                               ),
                             ),
                             if (message.split(highlightText).length > 1)
@@ -225,33 +238,34 @@ class AlertHelpers {
                         message,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 14,
                           color: Colors.grey.shade800,
-                          height: 1.5,
+                          height: 1.4,
                         ),
                       ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 20),
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
+                    Flexible(
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color.fromARGB(
-                            255,
-                            67,
-                            69,
-                            85,
-                          ),
-                          side: const BorderSide(
-                            color: Color.fromARGB(255, 151, 155, 186),
+                          foregroundColor: Colors.grey.shade700,
+                          backgroundColor: Colors.white,
+                          side: BorderSide(
+                            color: Colors.grey.shade300,
                             width: 1,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          minimumSize: const Size(80, 36),
+                          elevation: 2,
+                          shadowColor: Colors.black26,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -260,14 +274,14 @@ class AlertHelpers {
                         child: Text(
                           cancelButtonText,
                           style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
+                    Flexible(
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
@@ -276,8 +290,11 @@ class AlertHelpers {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: confirmButtonColor,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          minimumSize: const Size(80, 36),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -287,7 +304,7 @@ class AlertHelpers {
                         child: Text(
                           confirmButtonText,
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

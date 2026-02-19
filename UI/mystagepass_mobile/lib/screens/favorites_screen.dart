@@ -37,7 +37,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       bottomNavigationBar: BottomNavBar(
         selected: NavItem.favorites,
         userId: widget.userId,
-        onProfileTap: () {},
       ),
       body: Container(
         width: double.infinity,

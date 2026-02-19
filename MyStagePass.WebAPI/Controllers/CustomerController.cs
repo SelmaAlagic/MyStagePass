@@ -29,14 +29,16 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpPut("{id}")]
 		public override async Task<Customer> Update(int id, [FromBody] CustomerUpdateRequest update)
 		{
-			int customerId = int.Parse(User.FindFirst("RoleId").Value);
-			if (customerId == null)
-				throw new UnauthorizedAccessException("Invalid token");
-
 			var isAdmin = User.IsInRole("Admin");
-			if (!isAdmin && customerId != id)
-				throw new UnauthorizedAccessException("You can only update your own profile");
-
+			if (!isAdmin)
+			{
+				var customerIdClaim = User.FindFirst("CustomerID")?.Value;
+				if (string.IsNullOrEmpty(customerIdClaim))
+					throw new UnauthorizedAccessException("Invalid token");
+				int tokenCustomerId = int.Parse(customerIdClaim);
+				if (tokenCustomerId != id)
+					throw new UnauthorizedAccessException("You can only update your own profile");
+			}
 			return await _customerService.Update(id, update);
 		}
 	}

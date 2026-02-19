@@ -5,8 +5,6 @@ import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../widgets/notification_widget.dart';
 import '../utils/image_helpers.dart';
-import '../utils/alert_helpers.dart';
-import 'login_screen.dart';
 
 class CustomerHomeScreen extends StatefulWidget {
   final int userId;
@@ -25,10 +23,8 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      auth.fetchMyProfile();
-      if (auth.currentUserInfo == null) {
-        auth.fetchCurrentUserInfo();
-      }
+      if (auth.currentUser == null) auth.fetchMyProfile();
+      if (auth.currentUserInfo == null) auth.fetchCurrentUserInfo();
       final notificationProvider = Provider.of<NotificationProvider>(
         context,
         listen: false,
@@ -49,7 +45,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
       bottomNavigationBar: BottomNavBar(
         selected: NavItem.home,
         userId: widget.userId,
-        onProfileTap: _showProfileMenu,
       ),
       body: Stack(
         children: [
@@ -68,7 +63,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                 builder: (context, auth, _) {
                   final fullName = auth.currentUserInfo?['fullName'] ?? "User";
                   final email = auth.currentUserInfo?['email'] ?? "";
-                  final profileImage = auth.currentUser?.image;
 
                   return Column(
                     children: [
@@ -85,7 +79,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                                 ),
                               ),
                               child: ClipOval(
-                                child: profileImage != null
+                                child: auth.profileImageBytes != null
                                     ? ImageHelpers.getImageFromBytes(
                                         auth.profileImageBytes,
                                         height: 46,
@@ -297,186 +291,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  void _showProfileMenu() {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    final fullName = auth.currentUserInfo?['fullName'] ?? "User";
-    final email = auth.currentUserInfo?['email'] ?? "";
-    final profileImage = auth.currentUser?.image;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 20),
-                width: 40,
-                height: 2,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color.fromARGB(241, 29, 35, 93),
-                          width: 2,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: profileImage != null
-                            ? ImageHelpers.getImage(
-                                profileImage,
-                                height: 60,
-                                width: 60,
-                              )
-                            : const CircleAvatar(
-                                radius: 30,
-                                backgroundImage: AssetImage(
-                                  'assets/images/NoProfileImage.png',
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            fullName,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1D2939),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            email,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Divider(height: 1, color: Colors.grey[200]),
-              _buildProfileMenuItem(
-                icon: Icons.person_outline_rounded,
-                label: "Edit Profile",
-                onTap: () => Navigator.pop(context),
-              ),
-              _buildProfileMenuItem(
-                icon: Icons.settings_outlined,
-                label: "Settings",
-                onTap: () => Navigator.pop(context),
-              ),
-              _buildProfileMenuItem(
-                icon: Icons.help_outline_rounded,
-                label: "Help & Support",
-                onTap: () => Navigator.pop(context),
-              ),
-              Divider(height: 1, color: Colors.grey[200]),
-              _buildProfileMenuItem(
-                icon: Icons.logout_rounded,
-                label: "Logout",
-                isDestructive: true,
-                onTap: () {
-                  Navigator.pop(context);
-                  _showLogoutDialog(auth);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileMenuItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isDestructive = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isDestructive ? Colors.red : const Color(0xFF1D2939),
-              size: 22,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: isDestructive ? Colors.red : const Color(0xFF1D2939),
-                ),
-              ),
-            ),
-            if (!isDestructive)
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
-                color: Colors.grey[400],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showLogoutDialog(AuthProvider auth) {
-    AlertHelpers.showConfirmationAlert(
-      context,
-      "Logout",
-      "Are you sure you want to logout?",
-      confirmButtonText: "Logout",
-      cancelButtonText: "Cancel",
-      isDelete: true,
-      onConfirm: () async {
-        await auth.logout();
-        if (!mounted) return;
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
-      },
     );
   }
 }
