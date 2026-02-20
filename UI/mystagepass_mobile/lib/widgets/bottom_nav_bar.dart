@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mystagepass_mobile/screens/customer_home_screen.dart';
 import 'package:mystagepass_mobile/screens/favorites_screen.dart';
-import 'package:mystagepass_mobile/screens/update_profile_screen.dart';
+import 'package:mystagepass_mobile/screens/customer_update_profile_screen.dart';
 
 enum NavItem { home, favorites, tickets, profile }
 

@@ -38,14 +38,16 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpPut("{id}")]
 		public override async Task<Performer> Update(int id, [FromBody] PerformerUpdateRequest update)
 		{
-			int performerId = int.Parse(User.FindFirst("RoleId").Value);
-			if (performerId == null)
-				throw new UnauthorizedAccessException("Invalid token");
-
 			var isAdmin = User.IsInRole("Admin");
-			if (!isAdmin && performerId != id)
-				throw new UnauthorizedAccessException("You can only update your own profile!");
-
+			if (!isAdmin)
+			{
+				var performerIdClaim = User.FindFirst("PerformerID")?.Value;
+				if (string.IsNullOrEmpty(performerIdClaim))
+					throw new UnauthorizedAccessException("Invalid token");
+				int tokenPerformerId = int.Parse(performerIdClaim);
+				if (tokenPerformerId != id)
+					throw new UnauthorizedAccessException("You can only update your own profile");
+			}
 			return await _performerService.Update(id, update);
 		}
 

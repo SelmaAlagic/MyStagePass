@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyStagePass.Model.Requests
 {
@@ -30,5 +31,7 @@ namespace MyStagePass.Model.Requests
 		public string? PhoneNumber { get; set; }
 
 		public string? Image { get; set; }
+
+		public List<int>? GenreIds { get; set; }
 	}
 }

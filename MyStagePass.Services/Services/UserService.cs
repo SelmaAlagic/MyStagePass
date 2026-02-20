@@ -58,10 +58,12 @@ namespace MyStagePass.Services.Services
 		public override async Task<Model.Models.User> GetById(int id)
 		{
 			var entity = await _context.Users
-				.Include(u => u.Admins)
-				.Include(u => u.Performers)
-				.Include(u => u.Customers)
-				.FirstOrDefaultAsync(u => u.UserID == id);
+			   .Include(u => u.Admins)
+			   .Include(u => u.Customers)
+			   .Include(u => u.Performers)
+				   .ThenInclude(p => p.Genres)
+					   .ThenInclude(pg => pg.Genre)
+			   .FirstOrDefaultAsync(u => u.UserID == id);
 
 			if (entity == null)
 				return null;

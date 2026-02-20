@@ -7,9 +7,19 @@ part 'performer.g.dart';
 class Performer {
   int? performerID;
   bool? isApproved;
+  String? artistName;
+  String? bio;
+  List<String>? genres;
   User? user;
 
-  Performer(this.performerID, this.isApproved, this.user);
+  Performer(
+    this.performerID,
+    this.isApproved,
+    this.user,
+    this.artistName,
+    this.bio,
+    this.genres,
+  );
 
   factory Performer.fromJson(Map<String, dynamic> json) =>
       _$PerformerFromJson(json);

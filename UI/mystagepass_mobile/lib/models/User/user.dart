@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../Performer/performer.dart';
 
 part 'user.g.dart';
 
@@ -12,6 +13,7 @@ class User {
   String? lastName;
   String? phoneNumber;
   String? image;
+  List<Performer>? performers;
 
   User(
     this.userID,
@@ -22,6 +24,7 @@ class User {
     this.lastName,
     this.phoneNumber,
     this.image,
+    this.performers,
   );
 
   String get fullName => "${firstName ?? ''} ${lastName ?? ''}".trim();

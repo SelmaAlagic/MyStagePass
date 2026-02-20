@@ -15,6 +15,10 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
   json['lastName'] as String?,
   json['phoneNumber'] as String?,
   json['image'] as String?,
+  (json['performers'] as List<dynamic>?)
+      ?.whereType<Map<String, dynamic>>()
+      .map((e) => Performer.fromJson(e))
+      .toList(),
 );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -26,4 +30,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'lastName': instance.lastName,
   'phoneNumber': instance.phoneNumber,
   'image': instance.image,
+  'performers': instance.performers,
 };

@@ -127,18 +127,68 @@ namespace MyStagePass.Services.Services
 
 		public override async Task<Model.Models.Performer> Update(int id, PerformerUpdateRequest update)
 		{
-			if (!string.IsNullOrEmpty(update.Password) || !string.IsNullOrEmpty(update.PasswordConfirm))
+			if (!string.IsNullOrEmpty(update.Password))
 			{
+				if (string.IsNullOrEmpty(update.CurrentPassword))
+					throw new UserException("Current password is required to change password.");
+				if (string.IsNullOrEmpty(update.PasswordConfirm))
+					throw new UserException("Password confirmation is required.");
 				if (update.Password != update.PasswordConfirm)
-					throw new UserException("Password and confirmation do not match.");
+					throw new UserException("New password and confirmation do not match.");
 			}
 
 			var set = _context.Set<Performer>();
-			var entity = await set.Include(c => c.User).FirstOrDefaultAsync(c => c.PerformerID == id);
-			_mapper.Map(update, entity?.User);
+			var entity = await set.Include(p => p.User).Include(p => p.Genres).ThenInclude(pg => pg.Genre).FirstOrDefaultAsync(p => p.PerformerID == id);
+
+			if (entity?.User == null)
+				throw new UserException("Customer or User not found.");
+
+			if (!string.IsNullOrWhiteSpace(update.Password))
+			{
+				var currentPasswordHash = PasswordHelper.GenerateHash(
+					entity.User.Salt,
+					update.CurrentPassword
+				);
+				if (entity.User.Password != currentPasswordHash)
+					throw new UserException("Current password is incorrect.");
+
+				entity.User.Salt = PasswordHelper.GenerateSalt();
+				entity.User.Password = PasswordHelper.GenerateHash(entity.User.Salt, update.Password);
+			}
+
+			if (update.GenreIds != null && update.GenreIds.Count > 0)
+			{
+				entity.Genres.Clear();
+				var distinctGenreIds = update.GenreIds.Distinct().ToList();
+				var genresFromDb = await _context.Genres
+					.Where(g => distinctGenreIds.Contains(g.GenreID))
+					.ToListAsync();
+
+				foreach (var genreId in distinctGenreIds)
+				{
+					var genreEntity = genresFromDb.FirstOrDefault(g => g.GenreID == genreId);
+					if (genreEntity == null)
+						throw new UserException($"Genre with ID {genreId} does not exist.");
+
+					entity.Genres.Add(new PerformerGenre
+					{
+						GenreID = genreId,
+						PerformerID = entity.PerformerID,
+						Genre = genreEntity
+					});
+				}
+			}
+
+			_mapper.Map(update, entity.User);
 			_mapper.Map(update, entity);
 			await _context.SaveChangesAsync();
-			return _mapper.Map<Model.Models.Performer>(entity);
+
+			var result = await _context.Performers
+				.Include(p => p.User)
+				.Include(p => p.Genres).ThenInclude(pg => pg.Genre)
+				.FirstOrDefaultAsync(p => p.PerformerID == id);
+
+			return _mapper.Map<Model.Models.Performer>(result);
 		}
 
 		public async Task<Model.Models.Performer> UpdateBaseUser(int id, PerformerUpdateRequest update)
