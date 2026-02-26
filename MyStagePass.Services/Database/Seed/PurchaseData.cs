@@ -15,7 +15,11 @@ namespace MyStagePass.Services.Database.Seed
 				new Purchase { PurchaseID = 6, CustomerID = 3, PurchaseDate = new DateTime(2025, 2, 11, 16, 20, 0) },
 				new Purchase { PurchaseID = 7, CustomerID = 5, PurchaseDate = new DateTime(2025, 1, 30, 12, 0, 0) },
 				new Purchase { PurchaseID = 8, CustomerID = 5, PurchaseDate = new DateTime(2025, 2, 12, 15, 10, 0) },
-				new Purchase { PurchaseID = 9, CustomerID = 6, PurchaseDate = new DateTime(2025, 2, 14, 18, 0, 0) }
+				new Purchase { PurchaseID = 9, CustomerID = 6, PurchaseDate = new DateTime(2025, 2, 14, 18, 0, 0) },
+				new Purchase { PurchaseID = 20, CustomerID = 1, PurchaseDate = new DateTime(2024, 10, 1, 10, 0, 0) },
+				new Purchase { PurchaseID = 21, CustomerID = 1, PurchaseDate = new DateTime(2024, 11, 1, 10, 0, 0) },
+				new Purchase { PurchaseID = 22, CustomerID = 1, PurchaseDate = new DateTime(2024, 12, 20, 10, 0, 0) },
+				new Purchase { PurchaseID = 23, CustomerID = 1, PurchaseDate = new DateTime(2025, 2, 5, 10, 0, 0) }
 			);
 		}
 	}

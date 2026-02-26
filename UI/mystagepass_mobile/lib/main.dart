@@ -4,6 +4,8 @@ import 'package:mystagepass_mobile/providers/favorite_provider.dart';
 import 'package:mystagepass_mobile/providers/notification_provider.dart';
 import 'package:mystagepass_mobile/providers/performer_provider.dart';
 import 'package:mystagepass_mobile/providers/genre_provider.dart';
+import 'package:mystagepass_mobile/providers/purchase_provider.dart';
+import 'package:mystagepass_mobile/providers/review_provider.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
@@ -21,6 +23,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => PerformerProvider()),
         ChangeNotifierProvider(create: (_) => GenreProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => PurchaseProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: const MyStagePass(),
     ),

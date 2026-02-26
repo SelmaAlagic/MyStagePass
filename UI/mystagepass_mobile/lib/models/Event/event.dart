@@ -14,6 +14,9 @@ class Event {
   int? regularPrice;
   int? vipPrice;
   int? premiumPrice;
+  double? ratingAverage;
+  int? ratingCount;
+  int? userRating;
 
   Performer? performer;
   Location? location;
@@ -29,6 +32,9 @@ class Event {
     this.premiumPrice,
     this.performer,
     this.location,
+    this.ratingAverage,
+    this.ratingCount,
+    this.userRating,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);

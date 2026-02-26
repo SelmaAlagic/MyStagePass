@@ -20,9 +20,16 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpPost("submit")]
 		public async Task<IActionResult> Post([FromBody] ReviewInsertRequest request)
 		{
+			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
+			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
+				return Unauthorized("Customer not authenticated");
+
+			request.CustomerID = customerId; 
+
 			var reviewService = _service as IReviewService;
 			if (reviewService == null)
 				return BadRequest("Service not available");
+
 			await reviewService.Insert(request);
 			return Ok("Review successfully created!");
 		}

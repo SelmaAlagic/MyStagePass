@@ -27,12 +27,15 @@ namespace MyStagePass.Model.Models
 		public virtual Location Location { get; set; } = null!;
 		public int StatusID { get; set; }
 		public virtual Status Status { get; set; } = null!;
-		public int TotalScore { get; set; } //ukupan zbir ocjena iz recenzija
-		public int RatingCount { get; set; } //broj ocjena recenzija
-		public float RatingAverage { get; set; } //prosjecne ocjena svih recenzija
+		public int TotalScore { get; set; } 
+		public int RatingCount { get; set; }
+		public float RatingAverage { get; set; } 
 		public virtual ICollection<CustomerFavoriteEvent> FavoritedByCustomers { get; set; } = new List<CustomerFavoriteEvent>();
 		public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+		[NotMapped]
+		public int? UserRating { get; set; }
 
 		[NotMapped]
 		public int TicketsAvailable => TotalTickets - TicketsSold;

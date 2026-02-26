@@ -1515,6 +1515,34 @@ namespace MyStagePass.Services.Migrations
                             CustomerID = 6,
                             IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 2, 14, 18, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            PurchaseID = 20,
+                            CustomerID = 1,
+                            IsDeleted = false,
+                            PurchaseDate = new DateTime(2024, 10, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            PurchaseID = 21,
+                            CustomerID = 1,
+                            IsDeleted = false,
+                            PurchaseDate = new DateTime(2024, 11, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            PurchaseID = 22,
+                            CustomerID = 1,
+                            IsDeleted = false,
+                            PurchaseDate = new DateTime(2024, 12, 20, 10, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            PurchaseID = 23,
+                            CustomerID = 1,
+                            IsDeleted = false,
+                            PurchaseDate = new DateTime(2025, 2, 5, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -1905,6 +1933,42 @@ namespace MyStagePass.Services.Migrations
                             IsDeleted = false,
                             Price = 40,
                             PurchaseID = 9,
+                            TicketType = 1
+                        },
+                        new
+                        {
+                            TicketID = 18,
+                            EventID = 1,
+                            IsDeleted = false,
+                            Price = 30,
+                            PurchaseID = 20,
+                            TicketType = 1
+                        },
+                        new
+                        {
+                            TicketID = 19,
+                            EventID = 2,
+                            IsDeleted = false,
+                            Price = 35,
+                            PurchaseID = 21,
+                            TicketType = 1
+                        },
+                        new
+                        {
+                            TicketID = 20,
+                            EventID = 5,
+                            IsDeleted = false,
+                            Price = 50,
+                            PurchaseID = 22,
+                            TicketType = 1
+                        },
+                        new
+                        {
+                            TicketID = 21,
+                            EventID = 8,
+                            IsDeleted = false,
+                            Price = 35,
+                            PurchaseID = 23,
                             TicketType = 1
                         });
                 });

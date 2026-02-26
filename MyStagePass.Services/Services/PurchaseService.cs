@@ -132,5 +132,59 @@ namespace MyStagePass.Services.Services
 				throw new UserException("Greška prilikom kupovine: " + ex.Message);
 			}
 		}
+
+		public async Task<PagedResult<Model.Models.Event>> GetCustomerEvents(PurchaseSearchObject search)
+		{
+			var query = _context.Purchases
+				.Where(p => p.CustomerID == search.CustomerID && !p.IsDeleted)
+				.Include(p => p.Tickets)
+					.ThenInclude(t => t.Event)
+						.ThenInclude(e => e.Performer)
+							.ThenInclude(p => p.User)
+				.Include(p => p.Tickets)
+					.ThenInclude(t => t.Event)
+						.ThenInclude(e => e.Location)
+				.AsQueryable();
+
+			var purchases = await query.ToListAsync();
+
+			var eventsFromDb = purchases
+				.SelectMany(p => p.Tickets)
+				.Where(t => !t.IsDeleted && t.Event != null)
+				.GroupBy(t => t.EventID)
+				.Select(g => g.First().Event)
+				.ToList();
+
+			eventsFromDb = eventsFromDb.OrderByDescending(e => e.EventDate).ToList();
+
+			var totalCount = eventsFromDb.Count;
+
+			var page = search.Page ?? 0;
+			var pageSize = search.PageSize ?? 10;
+
+			var customerId = search.CustomerID;
+
+			var reviews = _context.Reviews
+				.Where(r => r.CustomerID == search.CustomerID)
+				.ToList();
+
+			var pagedEvents = eventsFromDb
+				.Skip(page * pageSize)
+				.Take(pageSize)
+				.Select(e =>
+				{
+					var mapped = _mapper.Map<Model.Models.Event>(e);
+					var review = reviews.FirstOrDefault(r => r.EventID == e.EventID);
+
+
+					mapped.UserRating = review?.RatingValue;
+
+
+					return mapped;
+				})
+				.ToList();
+
+			return PagedResult<Model.Models.Event>.Create(pagedEvents, page, pageSize, totalCount);
+		}
 	}
 }

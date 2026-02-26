@@ -12,6 +12,7 @@ namespace MyStagePass.Services.Services
 		public ReviewService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
 		{
 		}
+
 		public async Task Insert(ReviewInsertRequest request)
 		{
 			var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.EventID == request.EventID);
@@ -29,8 +30,7 @@ namespace MyStagePass.Services.Services
 
 			eventEntity.TotalScore += request.RatingValue;
 			eventEntity.RatingCount += 1;
-			eventEntity.RatingAverage =
-				(int)eventEntity.TotalScore / eventEntity.RatingCount;
+			eventEntity.RatingAverage =	(float)eventEntity.TotalScore / eventEntity.RatingCount;
 
 			await _context.SaveChangesAsync();
 		}
