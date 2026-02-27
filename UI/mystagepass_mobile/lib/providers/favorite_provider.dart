@@ -1,5 +1,6 @@
-import '../models/CustomerFavoriteEvents/favorites.dart';
+import 'package:http/http.dart' as http;
 import 'base_provider.dart';
+import '../models/CustomerFavoriteEvents/favorites.dart';
 
 class FavoriteProvider extends BaseProvider<Favorites> {
   FavoriteProvider() : super("api/CustomerFavoriteEvent");
@@ -21,6 +22,19 @@ class FavoriteProvider extends BaseProvider<Favorites> {
 
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> addFavorite(int eventId) async {
+    var url = "${getBaseUrl()}api/CustomerFavoriteEvent/toggle/$eventId";
+    var uri = Uri.parse(url);
+    var headers = await createHeaders();
+
+    var response = await http.post(uri, headers: headers);
+    if (isValidResponse(response)) {
+      await fetchFavorites();
+    } else {
+      throw Exception("Failed to add favorite");
+    }
   }
 
   Future<void> removeFavorite(int favoriteId) async {

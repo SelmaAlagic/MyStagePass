@@ -6,6 +6,7 @@ import '../providers/notification_provider.dart';
 import '../widgets/notification_widget.dart';
 import '../utils/image_helpers.dart';
 import 'customer_my_events_screen.dart';
+import 'upcoming_events_screen.dart';
 
 class CustomerHomeScreen extends StatefulWidget {
   final int userId;
@@ -246,7 +247,17 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                                     _buildMenuCard(
                                       "Upcoming Events",
                                       Icons.schedule_rounded,
-                                      () {},
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                UpcomingEventsScreen(
+                                                  userId: widget.userId,
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

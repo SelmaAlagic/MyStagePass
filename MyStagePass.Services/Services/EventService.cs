@@ -76,8 +76,10 @@ namespace MyStagePass.Services.Services
 			{
 				string lowerQuery = search.searchTerm.ToLower();
 				query = query.Where(e =>
-					e.EventName.ToLower().Contains(lowerQuery));
-			};
+					e.EventName.ToLower().Contains(lowerQuery) ||
+					e.Location.LocationName.ToLower().Contains(lowerQuery) ||
+					(e.Location.City != null && e.Location.City.Name.ToLower().Contains(lowerQuery)));
+			}
 
 			if (!string.IsNullOrWhiteSpace(search.Status))
 			{
