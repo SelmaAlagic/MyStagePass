@@ -321,135 +321,142 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavBar(
         selected: NavItem.home,
         userId: widget.userId,
       ),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Container(
-              color: const Color(0xFFF5F6F8),
-              padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8EAF2),
-                        borderRadius: BorderRadius.circular(9),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset('assets/images/pozadina.jpg', fit: BoxFit.cover),
+          ),
+          Column(
+            children: [
+              Container(
+                color: const Color(0xFFF5F6F8),
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 8,
+                  left: 12,
+                  right: 16,
+                  bottom: 12,
+                ),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8EAF2),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Color(0xFF1D235D),
+                          size: 15,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFF1D235D),
-                        size: 15,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      "My Events",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D3142),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    "My Events",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D3142),
-                    ),
-                  ),
-                  if (_totalCount > 0) ...[
-                    const SizedBox(width: 6),
-                    Text(
-                      "· $_totalCount ${_totalCount == 1 ? 'event' : 'events'}",
-                      style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                    ),
+                    if (_totalCount > 0) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        "· $_totalCount ${_totalCount == 1 ? 'event' : 'events'}",
+                        style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-
-            Expanded(
-              child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF1D235D),
-                      ),
-                    )
-                  : _errorMessage != null
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 60,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _errorMessage!,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _loadMyEvents,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1D235D),
-                            ),
-                            child: const Text("Retry"),
-                          ),
-                        ],
-                      ),
-                    )
-                  : _events.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.event_busy,
-                            size: 80,
-                            color: Colors.grey[300],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "No events yet",
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Your purchased event tickets will appear here",
-                            style: TextStyle(
+              Expanded(
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF1D235D),
+                        ),
+                      )
+                    : _errorMessage != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 60,
                               color: Colors.grey[400],
-                              fontSize: 14,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              _errorMessage!,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _loadMyEvents,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1D235D),
+                              ),
+                              child: const Text("Retry"),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _events.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.event_busy,
+                              size: 80,
+                              color: Colors.grey[300],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              "No events yet",
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Your purchased event tickets will appear here",
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : RefreshIndicator(
+                        onRefresh: _loadMyEvents,
+                        color: const Color(0xFF1D235D),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(25, 14, 25, 24),
+                          itemCount: _events.length,
+                          itemBuilder: (context, index) =>
+                              _buildEventCard(_events[index]),
+                        ),
                       ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _loadMyEvents,
-                      color: const Color(0xFF1D235D),
-                      child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(25, 14, 25, 24),
-                        itemCount: _events.length,
-                        itemBuilder: (context, index) =>
-                            _buildEventCard(_events[index]),
-                      ),
-                    ),
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

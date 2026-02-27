@@ -43,155 +43,175 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavBar(
         selected: NavItem.home,
         userId: widget.userId,
       ),
       body: Stack(
         children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Consumer<AuthProvider>(
-                builder: (context, auth, _) {
+          Column(
+            children: [
+              Consumer2<AuthProvider, NotificationProvider>(
+                builder: (context, auth, notifProvider, _) {
                   final fullName = auth.currentUserInfo?['fullName'] ?? "User";
                   final email = auth.currentUserInfo?['email'] ?? "";
 
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
+                  return Container(
+                    color: const Color(0xFFF5F6F8),
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 8,
+                      left: 16,
+                      right: 16,
+                      bottom: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF1D235D),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: ClipOval(
+                            child: auth.profileImageBytes != null
+                                ? ImageHelpers.getImageFromBytes(
+                                    auth.profileImageBytes,
+                                    height: 40,
+                                    width: 40,
+                                  )
+                                : const CircleAvatar(
+                                    radius: 20,
+                                    backgroundImage: AssetImage(
+                                      'assets/images/NoProfileImage.png',
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                fullName,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2D3142),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                email,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: _toggleNotifications,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
                                   color: Colors.white,
-                                  width: 2,
+                                  border: Border.all(
+                                    color: const Color(0xFF1D235D),
+                                    width: 0.8,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.08),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.notifications_outlined,
+                                  color: Color(0xFF1D235D),
+                                  size: 22,
                                 ),
                               ),
-                              child: ClipOval(
-                                child: auth.profileImageBytes != null
-                                    ? ImageHelpers.getImageFromBytes(
-                                        auth.profileImageBytes,
-                                        height: 46,
-                                        width: 46,
-                                      )
-                                    : const CircleAvatar(
-                                        radius: 23,
-                                        backgroundImage: AssetImage(
-                                          'assets/images/NoProfileImage.png',
-                                        ),
-                                      ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    fullName,
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                              if (notifProvider.unreadCount > 0)
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Container(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 18,
                                     ),
-                                  ),
-                                  Text(
-                                    email,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white70,
+                                    height: 18,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Consumer<NotificationProvider>(
-                              builder: (context, notificationProvider, _) {
-                                return InkWell(
-                                  onTap: _toggleNotifications,
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: const BoxDecoration(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(9),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        notifProvider.unreadCount > 9
+                                            ? '9+'
+                                            : '${notifProvider.unreadCount}',
+                                        style: const TextStyle(
                                           color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.notifications_outlined,
-                                          color: Color.fromARGB(
-                                            255,
-                                            29,
-                                            35,
-                                            93,
-                                          ),
-                                          size: 22,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      if (notificationProvider.unreadCount > 0)
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Container(
-                                            constraints: const BoxConstraints(
-                                              minWidth: 18,
-                                            ),
-                                            height: 18,
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              borderRadius:
-                                                  BorderRadius.circular(9),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                notificationProvider
-                                                            .unreadCount >
-                                                        9
-                                                    ? '9+'
-                                                    : '${notificationProvider.unreadCount}',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
+                                    ),
                                   ),
-                                );
-                              },
-                            ),
-                          ],
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
+                      ],
+                    ),
+                  );
+                },
+              ),
+              Expanded(
+                child: Consumer<AuthProvider>(
+                  builder: (context, auth, _) {
+                    final fullName =
+                        auth.currentUserInfo?['fullName'] ?? "User";
+
+                    return Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Image.asset(
+                            'assets/images/pozadina.jpg',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+
+                        SingleChildScrollView(
                           child: Column(
                             children: [
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 36),
                               Text(
                                 "Welcome, ${fullName.split(' ').first}!",
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: Color(0xFF1D235D),
                                   fontSize: 24,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.white54,
+                                      blurRadius: 6,
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 40),
@@ -235,12 +255,12 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                             ],
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ),
           if (_showNotifications)
             NotificationDropdown(
@@ -263,11 +283,12 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white.withOpacity(0.45),
           borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFF1D235D), width: 0.8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -276,12 +297,16 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(14),
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(241, 29, 35, 93),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1D235D),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.4),
+                  width: 1,
+                ),
               ),
-              child: Icon(icon, size: 28, color: Colors.white),
+              child: Icon(icon, size: 24, color: Colors.white),
             ),
             const SizedBox(width: 18),
             Expanded(
@@ -290,14 +315,15 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3142),
+                  color: Color(0xFF1D235D),
+                  letterSpacing: 0.3,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios_rounded,
-              color: Color(0xFF667085),
-              size: 18,
+              color: const Color(0xFF1D235D).withOpacity(0.6),
+              size: 16,
             ),
           ],
         ),

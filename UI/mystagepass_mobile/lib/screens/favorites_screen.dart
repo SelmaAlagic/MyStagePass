@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/alert_helpers.dart';
-import '../utils/image_helpers.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -21,12 +21,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      if (auth.currentUser == null) {
-        auth.fetchMyProfile();
-      }
-      if (auth.currentUserInfo == null) {
-        auth.fetchCurrentUserInfo();
-      }
+      if (auth.currentUser == null) auth.fetchMyProfile();
+      if (auth.currentUserInfo == null) auth.fetchCurrentUserInfo();
       Provider.of<FavoriteProvider>(context, listen: false).fetchFavorites();
     });
   }
@@ -34,307 +30,395 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavBar(
         selected: NavItem.favorites,
         userId: widget.userId,
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              Consumer<AuthProvider>(
-                builder: (context, auth, _) {
-                  final fullName = auth.currentUserInfo?['fullName'] ?? "User";
-                  final email = auth.currentUserInfo?['email'] ?? "";
-                  final profileImage = auth.currentUser?.image;
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Consumer2<FavoriteProvider, AuthProvider>(
+              builder: (context, favoriteProvider, authProvider, _) {
+                final count = favoriteProvider.favorites.length;
 
-                  return Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: ClipOval(
-                            child: profileImage != null
-                                ? ImageHelpers.getImageFromBytes(
-                                    auth.profileImageBytes,
-                                    height: 46,
-                                    width: 46,
-                                  )
-                                : const CircleAvatar(
-                                    radius: 23,
-                                    backgroundImage: AssetImage(
-                                      'assets/images/NoProfileImage.png',
-                                    ),
-                                  ),
+                return Container(
+                  color: const Color(0xFFF5F6F8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF1D235D),
+                            width: 1.2,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                fullName,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                        child: ClipOval(
+                          child: authProvider.profileImageBytes != null
+                              ? Image.memory(
+                                  authProvider.profileImageBytes!,
+                                  height: 40,
+                                  width: 40,
+                                  fit: BoxFit.cover,
+                                )
+                              : const CircleAvatar(
+                                  radius: 20,
+                                  backgroundImage: AssetImage(
+                                    'assets/images/NoProfileImage.png',
+                                  ),
                                 ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Favorites",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D3142),
                               ),
+                            ),
+                            if (count > 0) ...[
+                              const SizedBox(width: 6),
                               Text(
-                                email,
+                                "· $count ${count == 1 ? 'event' : 'events'}",
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white70,
+                                  fontSize: 13,
+                                  color: Colors.grey,
                                 ),
                               ),
                             ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-
-              Expanded(
-                child: Consumer<FavoriteProvider>(
-                  builder: (context, provider, _) {
-                    if (provider.isLoading) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      );
-                    }
-
-                    if (provider.favorites.isEmpty) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.favorite_border_rounded,
-                              color: Colors.white54,
-                              size: 64,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              "No favorite events yet",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 18,
-                              ),
-                            ),
                           ],
                         ),
-                      );
-                    }
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            Expanded(
+              child: Consumer<FavoriteProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF1D235D),
+                      ),
+                    );
+                  }
 
-                    return ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                  if (provider.favorites.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.favorite_border_rounded,
+                            color: Colors.grey[300],
+                            size: 72,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "No favorite events yet",
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Events you like will appear here",
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await provider.fetchFavorites();
+                    },
+                    color: const Color(0xFF1D235D),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(25, 14, 25, 24),
                       itemCount: provider.favorites.length,
                       itemBuilder: (context, index) {
                         final fav = provider.favorites[index];
                         final event = fav.event;
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Stack(
-                              children: [
-                                Image.asset(
-                                  'assets/images/concert.jpg',
-                                  width: double.infinity,
-                                  height: 230,
-                                  fit: BoxFit.cover,
-                                ),
-                                Container(
-                                  width: double.infinity,
-                                  height: 230,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Colors.black.withOpacity(0.25),
-                                        Colors.black.withOpacity(0.82),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              event?.eventName ??
-                                                  "Unknown Event",
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () => _confirmRemove(
-                                              context,
-                                              provider,
-                                              fav.customerFavoriteEventID!,
-                                              event?.eventName ?? "this event",
-                                            ),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black.withOpacity(
-                                                  0.35,
-                                                ),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(
-                                                Icons.favorite_rounded,
-                                                color: Colors.red,
-                                                size: 22,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
-                                      _buildInfoRow(
-                                        Icons.person_rounded,
-                                        event?.performer?.user?.fullName ?? "-",
-                                      ),
-                                      const SizedBox(height: 5),
-                                      _buildInfoRow(
-                                        Icons.calendar_today_rounded,
-                                        event?.eventDate != null
-                                            ? _formatDate(event!.eventDate!)
-                                            : "-",
-                                      ),
-                                      const SizedBox(height: 5),
-                                      _buildInfoRow(
-                                        Icons.location_on_rounded,
-                                        event?.location?.locationName ?? "-",
-                                      ),
-                                      const SizedBox(height: 14),
-                                      Row(
-                                        children: [
-                                          _buildPriceChip(
-                                            "Regular",
-                                            "\$${event?.regularPrice ?? '-'}",
-                                          ),
-                                          const SizedBox(width: 8),
-                                          _buildPriceChip(
-                                            "VIP",
-                                            "\$${event?.vipPrice ?? '-'}",
-                                          ),
-                                          const SizedBox(width: 8),
-                                          _buildPriceChip(
-                                            "Premium",
-                                            "\$${event?.premiumPrice ?? '-'}",
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        return _buildFavoriteCard(
+                          context,
+                          provider,
+                          fav,
+                          event,
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildFavoriteCard(
+    BuildContext context,
+    FavoriteProvider provider,
+    dynamic fav,
+    dynamic event,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/favorites.jpg',
+                fit: BoxFit.cover,
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.25),
+                      Colors.black.withOpacity(0.75),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              event?.eventName ?? "Unknown Event",
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                event?.performer?.user?.fullName ?? "",
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => _confirmRemove(
+                          context,
+                          provider,
+                          fav.customerFavoriteEventID!,
+                          event?.eventName ?? "this event",
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.favorite_rounded,
+                            color: Colors.red,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildInfoRow(
+                              Icons.calendar_today_rounded,
+                              Colors.grey[400]!,
+                              event?.eventDate != null
+                                  ? DateFormat(
+                                      'dd MMM yyyy',
+                                    ).format(event.eventDate!)
+                                  : "Date TBA",
+                            ),
+                            const SizedBox(height: 6),
+                            _buildInfoRow(
+                              Icons.access_time_rounded,
+                              Colors.grey[400]!,
+                              event?.eventDate != null
+                                  ? DateFormat('HH:mm').format(event.eventDate!)
+                                  : "Time TBA",
+                            ),
+                            if (event?.location?.locationName != null) ...[
+                              const SizedBox(height: 6),
+                              _buildInfoRow(
+                                Icons.location_on_rounded,
+                                const Color(0xFFE53935),
+                                event.location.locationName,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Table(
+                            defaultColumnWidth: const IntrinsicColumnWidth(),
+                            children: [
+                              _buildPriceRow("Premium", event?.premiumPrice),
+                              _buildPriceRow("VIP", event?.vipPrice),
+                              _buildPriceRow("Regular", event?.regularPrice),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.white.withOpacity(0.4),
+                          width: 0.8,
+                        ),
+                      ),
+                    ),
+                    padding: const EdgeInsets.only(top: 8),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.touch_app_outlined,
+                          size: 13,
+                          color: Colors.white54,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          "Tap heart to remove from favorites",
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color.fromARGB(196, 255, 255, 255),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, Color iconColor, String text) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: Colors.white70),
+        Icon(icon, size: 13, color: iconColor),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 13, color: Colors.white70),
-            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPriceChip(String label, String price) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.white.withOpacity(0.4), width: 1),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
+  TableRow _buildPriceRow(String label, dynamic price) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 6, bottom: 4),
+          child: Text(
+            "$label:",
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 10,
+              fontSize: 11,
               color: Colors.white70,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            price,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+        ),
+        Text(
+          price != null ? "$price KM" : "—",
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.right,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-        ],
-      ),
+        ),
+      ],
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return "${date.day}.${date.month}.${date.year}  ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
   }
 
   void _confirmRemove(
