@@ -8,21 +8,21 @@ class Ticket {
   int? ticketID;
   int? price;
   int? eventID;
-  Event? event;
   int? purchaseID;
   int? ticketType;
   String? qrCodeData;
   bool? isDeleted;
+  Event? event;
 
   Ticket({
     this.ticketID,
     this.price,
     this.eventID,
-    this.event,
     this.purchaseID,
     this.ticketType,
     this.qrCodeData,
     this.isDeleted,
+    this.event,
   });
 
   factory Ticket.fromJson(Map<String, dynamic> json) => _$TicketFromJson(json);

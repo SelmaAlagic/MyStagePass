@@ -10,6 +10,7 @@ Event _$EventFromJson(Map<String, dynamic> json) => Event(
   eventID: (json['eventID'] as num?)?.toInt(),
   eventName: json['eventName'] as String?,
   ticketsSold: (json['ticketsSold'] as num?)?.toInt(),
+  totalTickets: (json['totalTickets'] as num?)?.toInt(),
   eventDate: json['eventDate'] == null
       ? null
       : DateTime.parse(json['eventDate'] as String),
@@ -32,6 +33,7 @@ Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
   'eventID': instance.eventID,
   'eventName': instance.eventName,
   'ticketsSold': instance.ticketsSold,
+  'totalTickets': instance.totalTickets,
   'eventDate': instance.eventDate?.toIso8601String(),
   'timeStatus': instance.timeStatus,
   'regularPrice': instance.regularPrice,

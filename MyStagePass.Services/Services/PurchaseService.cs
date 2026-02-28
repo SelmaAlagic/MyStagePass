@@ -13,10 +13,10 @@ namespace MyStagePass.Services.Services
 		public PurchaseService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
 		{
 		}
+
 		public override IQueryable<Database.Purchase> AddInclude(IQueryable<Database.Purchase> query, PurchaseSearchObject? search = null)
 		{
 			query = query.Include(c => c.Tickets);
-
 			return base.AddInclude(query, search);
 		}
 
@@ -74,12 +74,13 @@ namespace MyStagePass.Services.Services
 				.FirstOrDefaultAsync(c => c.UserID == request.CustomerID);
 
 			if (customer == null)
-				throw new UserException("Kupac nije pronađen za ovog korisnika!");
+				throw new UserException("Customer not found for the given user.");
 
 			request.CustomerID = customer.CustomerID;
 
 			var ev = await _context.Events.FindAsync(request.EventID);
-			if (ev == null) throw new UserException("Event nije pronađen");
+			if (ev == null)
+				throw new UserException("Event not found");
 
 			int singlePrice = request.TicketType switch
 			{
@@ -112,24 +113,27 @@ namespace MyStagePass.Services.Services
 						IsDeleted = false
 					};
 					_context.Tickets.Add(ticket);
+					await _context.SaveChangesAsync();
+
+					ticket.GenerateQRCode($"{ticket.TicketID}");
 				}
 
 				ev.TicketsSold += request.NumberOfTickets;
-
 				await _context.SaveChangesAsync();
 				await transaction.CommitAsync();
 
+				var purchaseId = purchaseEntity.PurchaseID;
 				var result = await _context.Purchases
 					.Include(p => p.Tickets)
 					.ThenInclude(t => t.Event)
-					.FirstOrDefaultAsync(p => p.PurchaseID == purchaseEntity.PurchaseID);
+					.FirstOrDefaultAsync(p => p.PurchaseID == purchaseId);
 
 				return _mapper.Map<Model.Models.Purchase>(result);
 			}
 			catch (Exception ex)
 			{
 				await transaction.RollbackAsync();
-				throw new UserException("Greška prilikom kupovine: " + ex.Message);
+				throw new UserException("Error during purchase: " + ex.Message);
 			}
 		}
 
@@ -163,7 +167,6 @@ namespace MyStagePass.Services.Services
 			var pageSize = search.PageSize ?? 10;
 
 			var customerId = search.CustomerID;
-
 			var reviews = _context.Reviews
 				.Where(r => r.CustomerID == search.CustomerID)
 				.ToList();
@@ -175,11 +178,7 @@ namespace MyStagePass.Services.Services
 				{
 					var mapped = _mapper.Map<Model.Models.Event>(e);
 					var review = reviews.FirstOrDefault(r => r.EventID == e.EventID);
-
-
 					mapped.UserRating = review?.RatingValue;
-
-
 					return mapped;
 				})
 				.ToList();

@@ -1,6 +1,4 @@
 ﻿using QRCoder;
-using System.Drawing;
-using System.IO;
 
 namespace MyStagePass.Model.Models
 {
@@ -13,32 +11,19 @@ namespace MyStagePass.Model.Models
 		public int PurchaseID { get; set; }
 		public virtual Purchase Purchase { get; set; } = null!;
 		public Event.TicketType TicketType { get; set; }
-		public byte[]? QRCodeData { get; set; } //QR kao slika
+		public byte[]? QRCodeData { get; set; } 
 		public bool IsDeleted { get; set; } = false;
 		public void GenerateQRCode(string text)
 		{
 			using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
 			{
-				QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
-				using (QRCode qrCode = new QRCode(qrCodeData))
-				using (Bitmap qrBitmap = qrCode.GetGraphic(20))
-				using (MemoryStream ms = new MemoryStream())
+				QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.L);
+				using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
 				{
-					qrBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-					QRCodeData=ms.ToArray();
+					QRCodeData = qrCode.GetGraphic(20);
 				}
 			}
 		}
-
-		public Bitmap GetQRCodeBitmap()
-		{
-			if (QRCodeData == null) return null;
-			using (var ms = new MemoryStream(QRCodeData))
-			{
-				return new Bitmap(ms);
-			}
-		}
-
 		public string GetTicketTypeName()
 		{
 			return TicketType switch

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
-using System.Linq;
 
 namespace MyStagePass.Services.Services
 {

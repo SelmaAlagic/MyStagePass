@@ -9,33 +9,38 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize]
+	[Authorize(Roles = "Customer")]
 	public class TicketController : BaseController<Ticket, TicketSearchObject>
 	{
 		public TicketController(ILogger<BaseController<Ticket, TicketSearchObject>> logger, ITicketService service) : base(logger, service)
 		{
 		}
 
-		[Authorize(Roles = "Admin")]
 		[HttpGet]
 		public override async Task<PagedResult<Ticket>> Get([FromQuery] TicketSearchObject search)
 		{
+			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
+			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
+				throw new UnauthorizedAccessException("Customer not authenticated");
+
+			search.CustomerID = customerId;
 			return await base.Get(search);
 		}
 
-		[Authorize(Roles = "Customer")]
 		[HttpGet("{id}")]
 		public override async Task<Ticket> GetById(int id)
 		{
-			int customerID = int.Parse(User.FindFirst("RoleId").Value);
+			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
+			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerID))
+				throw new UnauthorizedAccessException("Customer not authenticated");
 
 			var ticket = await base.GetById(id);
 
 			if (ticket == null)
-				throw new Exception("Ticket not found");
+				throw new UserException("Ticket not found");
 
 			if (ticket.Purchase == null)
-				throw new Exception("Ticket purchase information is missing");
+				throw new UserException("Ticket purchase information is missing");
 
 			if (ticket.Purchase.CustomerID != customerID)
 				throw new UnauthorizedAccessException("You don't have permission to view this ticket");

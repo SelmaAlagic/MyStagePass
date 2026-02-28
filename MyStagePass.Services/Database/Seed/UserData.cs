@@ -58,7 +58,7 @@ namespace MyStagePass.Services.Database.Seed
 					LastName = "Rozga",
 					Username = "jelena",
 					Email = "jelena@example.com",
-					Password = "TL7rkXHBNDNC3NPpuVp+h5+SnysyzvjZuqnmmJHcFjM=", //jelena13
+					Password = "TL7rkXHBNDNC3NPpuVp+h5+SnysyzvjZuqnmmJHcFjM=", //jelena123
 					Salt = "I4Pn06A7oNUVQ/kUYqo237If6DFHywUzqb6P5HiHbIU=",
 					PhoneNumber = "333444555",
 					IsActive = true,

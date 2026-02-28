@@ -35,144 +35,157 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         selected: NavItem.favorites,
         userId: widget.userId,
       ),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Consumer2<FavoriteProvider, AuthProvider>(
-              builder: (context, favoriteProvider, authProvider, _) {
-                final count = favoriteProvider.favorites.length;
-
-                return Container(
-                  color: const Color(0xFFF5F6F8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF1D235D),
-                            width: 1.2,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset('assets/images/pozadina.jpg', fit: BoxFit.cover),
+          ),
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                Consumer2<FavoriteProvider, AuthProvider>(
+                  builder: (context, favoriteProvider, authProvider, _) {
+                    final count = favoriteProvider.favorites.length;
+                    return Container(
+                      color: const Color(0xFFF5F6F8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFF1D235D),
+                                width: 1.2,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: authProvider.profileImageBytes != null
+                                  ? Image.memory(
+                                      authProvider.profileImageBytes!,
+                                      height: 40,
+                                      width: 40,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage: AssetImage(
+                                        'assets/images/NoProfileImage.png',
+                                      ),
+                                    ),
+                            ),
                           ),
-                        ),
-                        child: ClipOval(
-                          child: authProvider.profileImageBytes != null
-                              ? Image.memory(
-                                  authProvider.profileImageBytes!,
-                                  height: 40,
-                                  width: 40,
-                                  fit: BoxFit.cover,
-                                )
-                              : const CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: AssetImage(
-                                    'assets/images/NoProfileImage.png',
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const Text(
+                                  "Favorites",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2D3142),
                                   ),
                                 ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const Text(
-                              "Favorites",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2D3142),
-                              ),
-                            ),
-                            if (count > 0) ...[
-                              const SizedBox(width: 6),
-                              Text(
-                                "· $count ${count == 1 ? 'event' : 'events'}",
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            Expanded(
-              child: Consumer<FavoriteProvider>(
-                builder: (context, provider, _) {
-                  if (provider.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF1D235D),
-                      ),
-                    );
-                  }
-
-                  if (provider.favorites.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.favorite_border_rounded,
-                            color: Colors.grey[300],
-                            size: 72,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "No favorite events yet",
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Events you like will appear here",
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 14,
+                                if (count > 0) ...[
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "· $count ${count == 1 ? 'event' : 'events'}",
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
                       ),
                     );
-                  }
-
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      await provider.fetchFavorites();
-                    },
-                    color: const Color(0xFF1D235D),
-                    child: ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(25, 14, 25, 24),
-                      itemCount: provider.favorites.length,
-                      itemBuilder: (context, index) {
-                        final fav = provider.favorites[index];
-                        final event = fav.event;
-                        return _buildFavoriteCard(
-                          context,
-                          provider,
-                          fav,
-                          event,
+                  },
+                ),
+                Expanded(
+                  child: Consumer<FavoriteProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF1D235D),
+                          ),
                         );
-                      },
-                    ),
-                  );
-                },
-              ),
+                      }
+
+                      if (provider.favorites.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF1D235D,
+                                  ).withOpacity(0.08),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.favorite_border_rounded,
+                                  size: 48,
+                                  color: Color(0xFF1D235D),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                "No favorites yet",
+                                style: TextStyle(
+                                  color: Color(0xFF1D235D),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                "Events you like will appear here",
+                                style: TextStyle(
+                                  color: Color(0xFF1D235D),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return RefreshIndicator(
+                        onRefresh: () async => await provider.fetchFavorites(),
+                        color: const Color(0xFF1D235D),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(25, 14, 25, 24),
+                          itemCount: provider.favorites.length,
+                          itemBuilder: (context, index) {
+                            final fav = provider.favorites[index];
+                            final event = fav.event;
+                            return _buildFavoriteCard(
+                              context,
+                              provider,
+                              fav,
+                              event,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -434,9 +447,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       confirmButtonText: "Remove",
       cancelButtonText: "Cancel",
       isDelete: true,
-      onConfirm: () async {
-        await provider.removeFavorite(favoriteId);
-      },
+      onConfirm: () async => await provider.removeFavorite(favoriteId),
     );
   }
 }

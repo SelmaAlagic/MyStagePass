@@ -9,6 +9,7 @@ class Event {
   int? eventID;
   String? eventName;
   int? ticketsSold;
+  int? totalTickets;
   DateTime? eventDate;
   String? timeStatus;
   int? regularPrice;
@@ -25,6 +26,7 @@ class Event {
     this.eventID,
     this.eventName,
     this.ticketsSold,
+    this.totalTickets,
     this.eventDate,
     this.timeStatus,
     this.regularPrice,

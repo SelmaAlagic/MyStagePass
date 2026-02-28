@@ -6,7 +6,7 @@ import '../providers/notification_provider.dart';
 import '../widgets/notification_widget.dart';
 import '../utils/image_helpers.dart';
 import 'customer_my_events_screen.dart';
-import 'upcoming_events_screen.dart';
+import 'customer_upcoming_events_screen.dart';
 
 class CustomerHomeScreen extends StatefulWidget {
   final int userId;

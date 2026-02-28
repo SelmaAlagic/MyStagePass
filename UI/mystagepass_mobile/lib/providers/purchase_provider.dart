@@ -42,4 +42,17 @@ class PurchaseProvider extends BaseProvider<Purchase> {
       throw Exception("Failed to load events");
     }
   }
+
+  Future<Purchase> buyTickets({
+    required int eventId,
+    required int ticketType,
+    required int numberOfTickets,
+  }) async {
+    return await insert({
+      'eventID': eventId,
+      'customerID': 0,
+      'numberOfTickets': numberOfTickets,
+      'ticketType': ticketType,
+    });
+  }
 }

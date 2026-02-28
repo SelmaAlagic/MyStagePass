@@ -56,9 +56,33 @@ namespace MyStagePass.WebAPI.Controllers
 			return await base.Insert(request);
 		}
 
+		[HttpGet("{id}")]
+		public override async Task<Purchase> GetById(int id)
+		{
+			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
+			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
+				throw new UnauthorizedAccessException("Customer not authenticated");
+
+			var purchase = await base.GetById(id);
+
+			if (purchase.CustomerID != customerId)
+				throw new UnauthorizedAccessException("You are not allowed to view this purchase");
+
+			return purchase;
+		}
+
 		[HttpDelete("{id}")]
 		public override async Task<Purchase> Delete(int id)
 		{
+			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
+			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
+				throw new UnauthorizedAccessException("Customer not authenticated");
+
+			var purchase = await base.GetById(id);
+
+			if (purchase.CustomerID != customerId)
+				throw new UnauthorizedAccessException("You are not allowed to delete this purchase");
+
 			return await base.Delete(id);
 		}
 	}

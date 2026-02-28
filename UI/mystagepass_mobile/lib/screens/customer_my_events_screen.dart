@@ -28,6 +28,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
   }
 
   Future<void> _loadMyEvents() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -40,12 +41,14 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
       );
       final result = await purchaseProvider.getMyEvents();
 
+      if (!mounted) return;
       setState(() {
         _events = result.result;
         _totalCount = result.meta.count;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = "Failed to load your events";
         _isLoading = false;
@@ -177,17 +180,19 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                                         rating: selectedRating,
                                       );
 
-                                      setState(() {
-                                        event.userRating = selectedRating;
-                                        event.ratingCount =
-                                            (event.ratingCount ?? 0) + 1;
-                                        double totalScore =
-                                            (event.ratingAverage ?? 0) *
-                                            ((event.ratingCount ?? 1) - 1);
-                                        totalScore += selectedRating;
-                                        event.ratingAverage =
-                                            totalScore / event.ratingCount!;
-                                      });
+                                      if (mounted) {
+                                        setState(() {
+                                          event.userRating = selectedRating;
+                                          event.ratingCount =
+                                              (event.ratingCount ?? 0) + 1;
+                                          double totalScore =
+                                              (event.ratingAverage ?? 0) *
+                                              ((event.ratingCount ?? 1) - 1);
+                                          totalScore += selectedRating;
+                                          event.ratingAverage =
+                                              totalScore / event.ratingCount!;
+                                        });
+                                      }
                                       Navigator.pop(context);
 
                                       if (mounted) {
@@ -321,6 +326,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavBar(
         selected: NavItem.home,
         userId: widget.userId,
@@ -418,26 +424,35 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.event_busy,
-                              size: 80,
-                              color: Colors.grey[300],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              "No events yet",
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFF1D235D,
+                                ).withOpacity(0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.event_note_rounded,
+                                size: 48,
+                                color: Color(0xFF1D235D),
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
+                            const SizedBox(height: 16),
+                            const Text(
+                              "No events yet",
+                              style: TextStyle(
+                                color: Color(0xFF1D235D),
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
                               "Your purchased event tickets will appear here",
                               style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 14,
+                                color: Color(0xFF1D235D),
+                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -484,7 +499,6 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
           fit: StackFit.expand,
           children: [
             Image.asset('assets/images/my-events.jpg', fit: BoxFit.cover),
-
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -497,7 +511,6 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
               child: Column(
@@ -595,9 +608,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                       ),
                     ],
                   ),
-
                   const Spacer(),
-
                   _buildInfoRow(
                     Icons.calendar_today_rounded,
                     Colors.grey[400]!,
@@ -621,39 +632,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                       event.location!.locationName!,
                     ),
                   ],
-
                   const SizedBox(height: 10),
-
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(
-                            Icons.qr_code_2_rounded,
-                            size: 14,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            "Show Tickets",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                              decorationColor: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-
                   Container(
                     decoration: BoxDecoration(
                       border: Border(
@@ -667,42 +646,49 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                     child: Row(
                       children: [
                         const Spacer(),
-                        if (isPastEvent) ...[
-                          event.userRating != null
-                              ? _buildRatedBadge(event.userRating!)
-                              : ElevatedButton.icon(
-                                  onPressed: () => _showReviewModal(event),
-                                  icon: const Icon(
-                                    Icons.star_outline,
-                                    size: 13,
-                                  ),
-                                  label: const Text(
-                                    "Rate Event",
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white.withOpacity(
-                                      0.2,
-                                    ),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 6,
-                                      horizontal: 8,
-                                    ),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      side: BorderSide(
-                                        color: Colors.white.withOpacity(0.5),
-                                        width: 1,
-                                      ),
-                                    ),
+                        event.userRating != null
+                            ? _buildRatedBadge(event.userRating!)
+                            : ElevatedButton.icon(
+                                onPressed: isPastEvent
+                                    ? () => _showReviewModal(event)
+                                    : null,
+                                icon: Icon(
+                                  Icons.star_rounded,
+                                  size: 13,
+                                  color: isPastEvent
+                                      ? Colors.white
+                                      : Colors.white38,
+                                ),
+                                label: Text(
+                                  "Rate Event",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isPastEvent
+                                        ? Colors.white
+                                        : Colors.white38,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                        ],
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isPastEvent
+                                      ? const Color.fromARGB(255, 235, 207, 64)
+                                      : Colors.grey.withOpacity(0.35),
+                                  disabledBackgroundColor: Colors.grey
+                                      .withOpacity(0.35),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                    horizontal: 10,
+                                  ),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
                       ],
                     ),
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mystagepass_mobile/screens/customer_home_screen.dart';
 import 'package:mystagepass_mobile/screens/favorites_screen.dart';
 import 'package:mystagepass_mobile/screens/customer_update_profile_screen.dart';
+import 'package:mystagepass_mobile/screens/customer_tickets_screen.dart';
 
 enum NavItem { home, favorites, tickets, profile }
 
@@ -72,7 +73,19 @@ class BottomNavBar extends StatelessWidget {
               icon: Icons.confirmation_number_rounded,
               label: "Tickets",
               item: NavItem.tickets,
-              onTap: () {},
+              onTap: () {
+                if (selected != NavItem.tickets) {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) =>
+                          TicketsScreen(userId: userId),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ),
+                  );
+                }
+              },
             ),
             _buildNavItem(
               context,
