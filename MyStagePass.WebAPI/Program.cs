@@ -119,6 +119,7 @@ builder.Services.AddCors(options =>
 		});
 });
 
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -136,6 +137,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFlutter");
+app.Use(async (context, next) =>
+{
+	if (context.Request.Path.StartsWithSegments("/api/Payment/webhook"))
+	{
+		context.Request.EnableBuffering();
+	}
+	await next();
+});
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

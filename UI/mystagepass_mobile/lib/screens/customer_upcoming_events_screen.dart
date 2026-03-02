@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:intl/intl.dart';
+import 'package:mystagepass_mobile/providers/purchase_provider.dart';
 import 'package:provider/provider.dart';
 import '../models/Event/event.dart';
 import '../providers/event_provider.dart';
 import '../providers/favorite_provider.dart';
-import '../providers/purchase_provider.dart';
+import '../providers/payment_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 
@@ -130,6 +132,70 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
       _currentMax = _maxPrice;
     });
     _loadEvents();
+  }
+
+  void _showSuccessSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFFE8F5E9),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xFF2E7D32), width: 1),
+        ),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+        content: Row(
+          children: [
+            const Icon(
+              Icons.check_circle_rounded,
+              color: Color(0xFF2E7D32),
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF1B5E20),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.redAccent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showPurchaseModal(BuildContext context, Event event) {
@@ -418,87 +484,62 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
+                              // Sačuvaj reference PRIJE Navigator.pop
+                              final purchaseProvider =
+                                  Provider.of<PurchaseProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                              final paymentProvider =
+                                  Provider.of<PaymentProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+
+                              Navigator.pop(context); // zatvori modal
+
                               try {
-                                final purchaseProvider =
-                                    Provider.of<PurchaseProvider>(
-                                      context,
-                                      listen: false,
+                                final amountInCents = (totalPrice * 51).round();
+
+                                final clientSecret = await paymentProvider
+                                    .createPaymentIntent(
+                                      eventId: event.eventID!,
+                                      numberOfTickets: numberOfTickets,
+                                      ticketType: selectedTicketType,
+                                      amountInCents: amountInCents,
                                     );
+
+                                await Stripe.instance.initPaymentSheet(
+                                  paymentSheetParameters:
+                                      SetupPaymentSheetParameters(
+                                        paymentIntentClientSecret: clientSecret,
+                                        merchantDisplayName: "MyStagePass",
+                                        style: ThemeMode.light,
+                                      ),
+                                );
+
+                                await Stripe.instance.presentPaymentSheet();
+
                                 await purchaseProvider.insert({
                                   'eventID': event.eventID,
                                   'customerID': 0,
                                   'numberOfTickets': numberOfTickets,
                                   'ticketType': selectedTicketType,
                                 });
-                                Navigator.pop(context);
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      behavior: SnackBarBehavior.floating,
-                                      backgroundColor: const Color(0xFFE8F5E9),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        side: const BorderSide(
-                                          color: Color(0xFF2E7D32),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      margin: const EdgeInsets.all(16),
-                                      duration: const Duration(seconds: 3),
-                                      content: Row(
-                                        children: const [
-                                          Icon(
-                                            Icons.check_circle_rounded,
-                                            color: Color(0xFF2E7D32),
-                                            size: 20,
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              "Tickets purchased successfully!",
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Color(0xFF1B5E20),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }
+
+                                _showSuccessSnackBar(
+                                  "Payment successful! Tickets will appear shortly.",
+                                );
+                              } on StripeException catch (e) {
+                                if (e.error.code == FailureCode.Canceled)
+                                  return;
+                                _showErrorSnackBar(
+                                  e.error.localizedMessage ?? "Payment failed.",
+                                );
                               } catch (e) {
-                                Navigator.pop(context);
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      behavior: SnackBarBehavior.floating,
-                                      backgroundColor: Colors.redAccent,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      content: Row(
-                                        children: const [
-                                          Icon(
-                                            Icons.error,
-                                            color: Colors.white,
-                                          ),
-                                          SizedBox(width: 12),
-                                          Expanded(
-                                            child: Text(
-                                              "Purchase failed. Please try again.",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }
+                                _showErrorSnackBar(
+                                  "Something went wrong. Please try again.",
+                                );
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -509,7 +550,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                               ),
                             ),
                             child: const Text(
-                              "Confirm",
+                              "Confirm & Pay",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
@@ -1100,10 +1141,6 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     bool isFavorited,
     FavoriteProvider favProvider,
   ) {
-    final isSoldOut =
-        (event.totalTickets ?? 0) > 0 &&
-        (event.ticketsSold ?? 0) >= (event.totalTickets ?? 0);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
@@ -1140,36 +1177,6 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                 ),
               ),
             ),
-            if (isSoldOut)
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.block_rounded, size: 12, color: Colors.white),
-                      SizedBox(width: 4),
-                      Text(
-                        "Sold Out",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: Column(
@@ -1261,15 +1268,26 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () async {
-                          if (isFavorited) {
-                            final fav = favProvider.favorites.firstWhere(
-                              (f) => f.event?.eventID == event.eventID,
-                            );
-                            await favProvider.removeFavorite(
-                              fav.customerFavoriteEventID!,
-                            );
-                          } else {
-                            await favProvider.addFavorite(event.eventID!);
+                          try {
+                            if (isFavorited) {
+                              final fav = favProvider.favorites.firstWhere(
+                                (f) => f.event?.eventID == event.eventID,
+                              );
+                              await favProvider.removeFavorite(
+                                fav.customerFavoriteEventID!,
+                              );
+                              if (context.mounted)
+                                _showSuccessSnackBar("Removed from favorites.");
+                            } else {
+                              await favProvider.addFavorite(event.eventID!);
+                              if (context.mounted)
+                                _showSuccessSnackBar("Added to favorites!");
+                            }
+                          } catch (e) {
+                            if (context.mounted)
+                              _showErrorSnackBar(
+                                "Something went wrong. Please try again.",
+                              );
                           }
                         },
                         child: Container(
@@ -1323,33 +1341,6 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                                 event.location!.locationName!,
                               ),
                             ],
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.confirmation_number_rounded,
-                                  size: 13,
-                                  color: isSoldOut
-                                      ? Colors.redAccent
-                                      : Colors.white70,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  isSoldOut
-                                      ? "Sold out"
-                                      : "${event.ticketsSold ?? 0} / ${event.totalTickets ?? 0} sold",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: isSoldOut
-                                        ? Colors.redAccent
-                                        : Colors.white70,
-                                    fontWeight: isSoldOut
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
                           ],
                         ),
                       ),
@@ -1381,74 +1372,43 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        if (isSoldOut)
-                          Container(
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final authProvider = Provider.of<AuthProvider>(
+                              context,
+                              listen: false,
+                            );
+                            if (authProvider.currentUser == null)
+                              await authProvider.fetchMyProfile();
+                            _showPurchaseModal(context, event);
+                          },
+                          icon: const Icon(
+                            Icons.shopping_cart_rounded,
+                            size: 15,
+                          ),
+                          label: const Text(
+                            "Buy Tickets",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2E7D32),
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
                               vertical: 8,
                               horizontal: 14,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.block_rounded,
-                                  size: 15,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 6),
-                                Text(
-                                  "Sold Out",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              final authProvider = Provider.of<AuthProvider>(
-                                context,
-                                listen: false,
-                              );
-                              if (authProvider.currentUser == null)
-                                await authProvider.fetchMyProfile();
-                              _showPurchaseModal(context, event);
-                            },
-                            icon: const Icon(
-                              Icons.shopping_cart_rounded,
-                              size: 15,
-                            ),
-                            label: const Text(
-                              "Buy Tickets",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2E7D32),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 14,
-                              ),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
                           ),
+                        ),
                       ],
                     ),
                   ),

@@ -9,8 +9,9 @@ import '../widgets/bottom_nav_bar.dart';
 
 class TicketsScreen extends StatefulWidget {
   final int userId;
+  final List<Ticket>? preloadedTickets;
 
-  const TicketsScreen({super.key, required this.userId});
+  const TicketsScreen({super.key, required this.userId, this.preloadedTickets});
 
   @override
   State<TicketsScreen> createState() => _TicketsScreenState();
@@ -21,15 +22,24 @@ class _TicketsScreenState extends State<TicketsScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  bool get _isPreloaded => widget.preloadedTickets != null;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      if (auth.currentUser == null) await auth.fetchMyProfile();
-      if (auth.profileImageBytes == null) await auth.fetchMyProfile();
-      _loadTickets();
-    });
+    if (_isPreloaded) {
+      _tickets = widget.preloadedTickets!
+          .where((t) => t.isDeleted != true)
+          .toList();
+      _isLoading = false;
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final auth = Provider.of<AuthProvider>(context, listen: false);
+        if (auth.currentUser == null) await auth.fetchMyProfile();
+        if (auth.profileImageBytes == null) await auth.fetchMyProfile();
+        _loadTickets();
+      });
+    }
   }
 
   Future<void> _loadTickets() async {
@@ -110,7 +120,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
                     ],
                   ),
                   const SizedBox(height: 14),
-
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -133,7 +142,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
                     ),
                   ],
                   const SizedBox(height: 14),
-
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -178,10 +186,10 @@ class _TicketsScreenState extends State<TicketsScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.payments_rounded,
                               size: 14,
-                              color: const Color(0xFF1D235D),
+                              color: Color(0xFF1D235D),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -240,9 +248,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 14),
-
                   if (ticket.qrCodeData != null &&
                       ticket.qrCodeData!.isNotEmpty) ...[
                     const Align(
@@ -310,7 +316,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
                     ),
                     const SizedBox(height: 14),
                   ],
-
                   Row(
                     children: [
                       Expanded(
@@ -447,10 +452,9 @@ class _TicketsScreenState extends State<TicketsScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: BottomNavBar(
-        selected: NavItem.tickets,
-        userId: widget.userId,
-      ),
+      bottomNavigationBar: _isPreloaded
+          ? null
+          : BottomNavBar(selected: NavItem.purchases, userId: widget.userId),
       body: Stack(
         children: [
           Positioned.fill(
@@ -470,30 +474,48 @@ class _TicketsScreenState extends State<TicketsScreen> {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFF1D235D),
-                              width: 1.2,
+                        if (_isPreloaded)
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8EAF2),
+                                borderRadius: BorderRadius.circular(9),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                color: Color(0xFF1D235D),
+                                size: 15,
+                              ),
+                            ),
+                          )
+                        else
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFF1D235D),
+                                width: 1.2,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: authProvider.profileImageBytes != null
+                                  ? Image.memory(
+                                      authProvider.profileImageBytes!,
+                                      height: 40,
+                                      width: 40,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage: AssetImage(
+                                        'assets/images/NoProfileImage.png',
+                                      ),
+                                    ),
                             ),
                           ),
-                          child: ClipOval(
-                            child: authProvider.profileImageBytes != null
-                                ? Image.memory(
-                                    authProvider.profileImageBytes!,
-                                    height: 40,
-                                    width: 40,
-                                    fit: BoxFit.cover,
-                                  )
-                                : const CircleAvatar(
-                                    radius: 20,
-                                    backgroundImage: AssetImage(
-                                      'assets/images/NoProfileImage.png',
-                                    ),
-                                  ),
-                          ),
-                        ),
                         const SizedBox(width: 12),
                         Row(
                           children: [
@@ -598,7 +620,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
                         ),
                       )
                     : RefreshIndicator(
-                        onRefresh: _loadTickets,
+                        onRefresh: _isPreloaded ? () async {} : _loadTickets,
                         color: const Color(0xFF1D235D),
                         child: ListView.builder(
                           padding: const EdgeInsets.fromLTRB(25, 14, 25, 24),

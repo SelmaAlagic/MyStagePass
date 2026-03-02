@@ -447,7 +447,80 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       confirmButtonText: "Remove",
       cancelButtonText: "Cancel",
       isDelete: true,
-      onConfirm: () async => await provider.removeFavorite(favoriteId),
+      onConfirm: () async {
+        try {
+          await provider.removeFavorite(favoriteId);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: const Color(0xFFE8F5E9),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFF2E7D32), width: 1),
+                ),
+                margin: const EdgeInsets.all(16),
+                duration: const Duration(seconds: 3),
+                content: Row(
+                  children: const [
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF2E7D32),
+                      size: 20,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Removed from favorites.",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF1B5E20),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: const Color(0xFFFFEBEE),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFFB71C1C), width: 1),
+                ),
+                margin: const EdgeInsets.all(16),
+                duration: const Duration(seconds: 3),
+                content: Row(
+                  children: const [
+                    Icon(
+                      Icons.error_rounded,
+                      color: Color(0xFFB71C1C),
+                      size: 20,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Failed to remove from favorites.",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF7F0000),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+        }
+      },
     );
   }
 }

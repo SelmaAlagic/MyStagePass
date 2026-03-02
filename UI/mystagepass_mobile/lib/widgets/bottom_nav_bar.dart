@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mystagepass_mobile/screens/customer_home_screen.dart';
 import 'package:mystagepass_mobile/screens/favorites_screen.dart';
 import 'package:mystagepass_mobile/screens/customer_update_profile_screen.dart';
-import 'package:mystagepass_mobile/screens/customer_tickets_screen.dart';
+import 'package:mystagepass_mobile/screens/customer_purchases_screen.dart';
 
-enum NavItem { home, favorites, tickets, profile }
+enum NavItem { home, favorites, purchases, profile }
 
 class BottomNavBar extends StatelessWidget {
   final NavItem selected;
@@ -32,7 +32,8 @@ class BottomNavBar extends StatelessWidget {
           children: [
             _buildNavItem(
               context,
-              icon: Icons.home_rounded,
+              activeIcon: Icons.home_rounded,
+              inactiveIcon: Icons.home_outlined,
               label: "Home",
               item: NavItem.home,
               onTap: () {
@@ -51,7 +52,8 @@ class BottomNavBar extends StatelessWidget {
             ),
             _buildNavItem(
               context,
-              icon: Icons.favorite_rounded,
+              activeIcon: Icons.favorite_rounded,
+              inactiveIcon: Icons.favorite_border_rounded,
               label: "Favorites",
               item: NavItem.favorites,
               onTap: () {
@@ -70,16 +72,17 @@ class BottomNavBar extends StatelessWidget {
             ),
             _buildNavItem(
               context,
-              icon: Icons.confirmation_number_rounded,
-              label: "Tickets",
-              item: NavItem.tickets,
+              activeIcon: Icons.shopping_cart_rounded,
+              inactiveIcon: Icons.shopping_cart_outlined,
+              label: "Purchases",
+              item: NavItem.purchases,
               onTap: () {
-                if (selected != NavItem.tickets) {
+                if (selected != NavItem.purchases) {
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(
                       pageBuilder: (_, __, ___) =>
-                          TicketsScreen(userId: userId),
+                          PurchasesScreen(userId: userId),
                       transitionDuration: Duration.zero,
                       reverseTransitionDuration: Duration.zero,
                     ),
@@ -89,7 +92,8 @@ class BottomNavBar extends StatelessWidget {
             ),
             _buildNavItem(
               context,
-              icon: Icons.person_rounded,
+              activeIcon: Icons.person_rounded,
+              inactiveIcon: Icons.person_outline_rounded,
               label: "Profile",
               item: NavItem.profile,
               onTap: () {
@@ -114,12 +118,15 @@ class BottomNavBar extends StatelessWidget {
 
   Widget _buildNavItem(
     BuildContext context, {
-    required IconData icon,
+    required IconData activeIcon,
+    required IconData inactiveIcon,
     required String label,
     required NavItem item,
     required VoidCallback onTap,
   }) {
     final isSelected = selected == item;
+    const primaryColor = Color.fromARGB(241, 29, 35, 93);
+
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -134,15 +141,13 @@ class BottomNavBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color.fromARGB(241, 29, 35, 93).withOpacity(0.1)
+                    ? primaryColor.withOpacity(0.1)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
-                icon,
-                color: isSelected
-                    ? const Color.fromARGB(241, 29, 35, 93)
-                    : Colors.grey[500],
+                isSelected ? activeIcon : inactiveIcon,
+                color: isSelected ? primaryColor : primaryColor,
                 size: isSelected ? 26 : 24,
               ),
             ),
@@ -153,8 +158,8 @@ class BottomNavBar extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 color: isSelected
-                    ? const Color.fromARGB(241, 29, 35, 93)
-                    : Colors.grey[500],
+                    ? primaryColor
+                    : primaryColor.withOpacity(0.45),
               ),
             ),
           ],

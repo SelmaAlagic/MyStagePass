@@ -8,13 +8,19 @@ import 'package:mystagepass_mobile/providers/purchase_provider.dart';
 import 'package:mystagepass_mobile/providers/review_provider.dart';
 import 'package:mystagepass_mobile/providers/event_provider.dart';
 import 'package:mystagepass_mobile/providers/ticket_provider.dart';
+import 'package:mystagepass_mobile/providers/payment_provider.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
 import 'utils/colors_helpers.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  Stripe.publishableKey =
+      "pk_test_51T6FAZHVJUmB5QSKvJPO6LojCq0SIr2Lpj1AtlY5tTtjboQeXoWzxifNBJDNI2H3PJYMA0b0FqVXBmt5B9uwOujP001QV1Py32";
+  await Stripe.instance.applySettings();
 
   runApp(
     MultiProvider(
@@ -29,6 +35,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => TicketProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
       ],
       child: const MyStagePass(),
     ),

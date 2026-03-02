@@ -16,7 +16,15 @@ namespace MyStagePass.Services.Services
 
 		public override IQueryable<Database.Purchase> AddInclude(IQueryable<Database.Purchase> query, PurchaseSearchObject? search = null)
 		{
-			query = query.Include(c => c.Tickets);
+			query = query
+				.Include(p => p.Tickets)
+					.ThenInclude(t => t.Event)
+						.ThenInclude(e => e.Performer)
+							.ThenInclude(p => p.User)
+				.Include(p => p.Tickets)
+					.ThenInclude(t => t.Event)
+						.ThenInclude(e => e.Location)
+							.ThenInclude(l => l.City);
 			return base.AddInclude(query, search);
 		}
 
@@ -125,7 +133,13 @@ namespace MyStagePass.Services.Services
 				var purchaseId = purchaseEntity.PurchaseID;
 				var result = await _context.Purchases
 					.Include(p => p.Tickets)
-					.ThenInclude(t => t.Event)
+						.ThenInclude(t => t.Event)
+							.ThenInclude(e => e.Performer)
+								.ThenInclude(p => p.User)
+					.Include(p => p.Tickets)
+						.ThenInclude(t => t.Event)
+							.ThenInclude(e => e.Location)
+								.ThenInclude(l => l.City)
 					.FirstOrDefaultAsync(p => p.PurchaseID == purchaseId);
 
 				return _mapper.Map<Model.Models.Purchase>(result);
