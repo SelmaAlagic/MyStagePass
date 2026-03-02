@@ -5,6 +5,7 @@ import 'package:mystagepass_mobile/providers/notification_provider.dart';
 import 'package:mystagepass_mobile/providers/performer_provider.dart';
 import 'package:mystagepass_mobile/providers/genre_provider.dart';
 import 'package:mystagepass_mobile/providers/purchase_provider.dart';
+import 'package:mystagepass_mobile/providers/recommendation_provider.dart';
 import 'package:mystagepass_mobile/providers/review_provider.dart';
 import 'package:mystagepass_mobile/providers/event_provider.dart';
 import 'package:mystagepass_mobile/providers/ticket_provider.dart';
@@ -36,6 +37,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => TicketProvider()),
         ChangeNotifierProvider(create: (_) => PaymentProvider()),
+        ChangeNotifierProvider(create: (_) => RecommendationProvider()),
       ],
       child: const MyStagePass(),
     ),

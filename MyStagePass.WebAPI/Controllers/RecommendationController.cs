@@ -21,7 +21,7 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<EventRecommendation>>> GetRecommendations([FromQuery] int topN = 10)
 		{
-			var customerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
 
 			if (string.IsNullOrEmpty(customerIdClaim))
 				return Unauthorized("User is not logged in!");

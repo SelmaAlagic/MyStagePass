@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_mobile/screens/customer_event_recommendation.dart';
 import 'package:mystagepass_mobile/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -241,7 +242,17 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                                     _buildMenuCard(
                                       "Recommended",
                                       Icons.recommend_rounded,
-                                      () {},
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                RecommendedEventsScreen(
+                                                  userId: widget.userId,
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                     const SizedBox(height: 20),
                                     _buildMenuCard(
