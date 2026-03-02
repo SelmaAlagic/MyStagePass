@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mystagepass_mobile/models/Status/status.dart';
 import '../Performer/performer.dart';
 import '../Location/location.dart';
 
@@ -18,9 +19,11 @@ class Event {
   double? ratingAverage;
   int? ratingCount;
   int? userRating;
+  String? description;
 
   Performer? performer;
   Location? location;
+  Status? status;
 
   Event({
     this.eventID,
@@ -37,6 +40,8 @@ class Event {
     this.ratingAverage,
     this.ratingCount,
     this.userRating,
+    this.status,
+    this.description,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);

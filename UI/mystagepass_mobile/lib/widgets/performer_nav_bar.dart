@@ -21,7 +21,7 @@ class PerformerBottomNavBar extends StatelessWidget {
     return Container(
       height: 65,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withOpacity(0.85),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -36,7 +36,8 @@ class PerformerBottomNavBar extends StatelessWidget {
           children: [
             _buildNavItem(
               context,
-              icon: Icons.home_rounded,
+              activeIcon: Icons.home_rounded,
+              inactiveIcon: Icons.home_outlined,
               label: "Home",
               item: PerformerNavItem.home,
               onTap: () {
@@ -47,6 +48,7 @@ class PerformerBottomNavBar extends StatelessWidget {
                       pageBuilder: (_, __, ___) =>
                           PerformerHomeScreen(userId: userId),
                       transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
                     ),
                   );
                 }
@@ -54,7 +56,8 @@ class PerformerBottomNavBar extends StatelessWidget {
             ),
             _buildNavItem(
               context,
-              icon: Icons.person_rounded,
+              activeIcon: Icons.person_rounded,
+              inactiveIcon: Icons.person_outline_rounded,
               label: "Profile",
               item: PerformerNavItem.profile,
               onTap: () async {
@@ -63,14 +66,11 @@ class PerformerBottomNavBar extends StatelessWidget {
                     context,
                     listen: false,
                   );
-
                   if (auth.currentUser?.performers == null) {
                     await auth.fetchMyProfile();
                   }
-
                   final int? pId =
                       auth.currentUser?.performers?.firstOrNull?.performerID;
-
                   if (pId != null) {
                     Navigator.pushReplacement(
                       context,
@@ -80,6 +80,7 @@ class PerformerBottomNavBar extends StatelessWidget {
                           performerId: pId,
                         ),
                         transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
                       ),
                     );
                   } else {
@@ -98,13 +99,14 @@ class PerformerBottomNavBar extends StatelessWidget {
 
   Widget _buildNavItem(
     BuildContext context, {
-    required IconData icon,
+    required IconData activeIcon,
+    required IconData inactiveIcon,
     required String label,
     required PerformerNavItem item,
     required VoidCallback onTap,
   }) {
     final isSelected = selected == item;
-    final themeColor = const Color(0xFF1D235D);
+    const primaryColor = Color(0xFF1D235D);
 
     return Expanded(
       child: InkWell(
@@ -117,26 +119,28 @@ class PerformerBottomNavBar extends StatelessWidget {
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? themeColor.withOpacity(0.1)
+                    ? primaryColor.withOpacity(0.1)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
-                icon,
-                color: isSelected ? themeColor : Colors.grey[500],
-                size: isSelected ? 28 : 26,
+                isSelected ? activeIcon : inactiveIcon,
+                color: primaryColor,
+                size: isSelected ? 26 : 24,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? themeColor : Colors.grey[500],
+                color: isSelected
+                    ? primaryColor
+                    : primaryColor.withOpacity(0.45),
               ),
             ),
           ],

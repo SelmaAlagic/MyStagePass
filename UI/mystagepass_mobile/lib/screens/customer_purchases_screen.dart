@@ -131,7 +131,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                         if (_purchases.isNotEmpty) ...[
                           const SizedBox(width: 6),
                           Text(
-                            "· ${_purchases.length}",
+                            "· ${_purchases.length} ${_purchases.length == 1 ? 'purchase' : 'purchases'}",
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey[500],
@@ -274,33 +274,55 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEEEEEE),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Purchase Details",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1D235D),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.access_time_rounded,
                         size: 12,
-                        color: Colors.grey[400],
+                        color: Color(0xFF1D235D),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         _formatDateTime(purchase.purchaseDate),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF616161),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.confirmation_number_outlined,
                         size: 12,
-                        color: Colors.grey[400],
+                        color: Color(0xFF1D235D),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         "$ticketCount ${ticketCount == 1 ? 'ticket' : 'tickets'}",
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF616161),
+                        ),
                       ),
                     ],
                   ),

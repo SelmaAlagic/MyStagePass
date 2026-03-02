@@ -27,6 +27,10 @@ Event _$EventFromJson(Map<String, dynamic> json) => Event(
   ratingAverage: (json['ratingAverage'] as num?)?.toDouble(),
   ratingCount: (json['ratingCount'] as num?)?.toInt(),
   userRating: (json['userRating'] as num?)?.toInt(),
+  status: json['status'] == null
+      ? null
+      : Status.fromJson(json['status'] as Map<String, dynamic>),
+  description: json['description'] as String?,
 );
 
 Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
@@ -42,6 +46,8 @@ Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
   'ratingAverage': instance.ratingAverage,
   'ratingCount': instance.ratingCount,
   'userRating': instance.userRating,
+  'description': instance.description,
   'performer': instance.performer,
   'location': instance.location,
+  'status': instance.status,
 };

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mystagepass_mobile/providers/customer_provider.dart';
 import 'package:mystagepass_mobile/providers/favorite_provider.dart';
+import 'package:mystagepass_mobile/providers/location_provider.dart';
 import 'package:mystagepass_mobile/providers/notification_provider.dart';
 import 'package:mystagepass_mobile/providers/performer_provider.dart';
 import 'package:mystagepass_mobile/providers/genre_provider.dart';
@@ -38,6 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TicketProvider()),
         ChangeNotifierProvider(create: (_) => PaymentProvider()),
         ChangeNotifierProvider(create: (_) => RecommendationProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
       ],
       child: const MyStagePass(),
     ),

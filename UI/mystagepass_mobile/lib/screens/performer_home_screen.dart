@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_mobile/screens/performer_add_event_screen.dart';
+import 'package:mystagepass_mobile/screens/performer_events_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -45,61 +47,174 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       bottomNavigationBar: PerformerBottomNavBar(
         selected: PerformerNavItem.home,
         userId: widget.userId,
       ),
       body: Stack(
         children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Consumer<AuthProvider>(
-                builder: (context, auth, _) {
+          Column(
+            children: [
+              Consumer2<AuthProvider, NotificationProvider>(
+                builder: (context, auth, notifProvider, _) {
                   final fullName = auth.currentUserInfo?['fullName'] ?? "User";
                   final email = auth.currentUserInfo?['email'] ?? "";
 
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Row(
-                          children: [
-                            _buildAvatar(auth),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(fullName, style: _nameStyle),
-                                  Text(email, style: _emailStyle),
-                                ],
-                              ),
+                  return Container(
+                    color: const Color(0xFFF5F6F8),
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 8,
+                      left: 16,
+                      right: 16,
+                      bottom: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF1D235D),
+                              width: 0.8,
                             ),
-                            _buildNotificationIcon(),
-                          ],
+                          ),
+                          child: ClipOval(
+                            child: auth.profileImageBytes != null
+                                ? ImageHelpers.getImageFromBytes(
+                                    auth.profileImageBytes,
+                                    height: 40,
+                                    width: 40,
+                                  )
+                                : const CircleAvatar(
+                                    radius: 20,
+                                    backgroundImage: AssetImage(
+                                      'assets/images/NoProfileImage.png',
+                                    ),
+                                  ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                fullName,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2D3142),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                email,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: _toggleNotifications,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: const Color(0xFF1D235D),
+                                    width: 0.8,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.08),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.notifications_outlined,
+                                  color: Color(0xFF1D235D),
+                                  size: 22,
+                                ),
+                              ),
+                              if (notifProvider.unreadCount > 0)
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Container(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 18,
+                                    ),
+                                    height: 18,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(9),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        notifProvider.unreadCount > 9
+                                            ? '9+'
+                                            : '${notifProvider.unreadCount}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              Expanded(
+                child: Consumer<AuthProvider>(
+                  builder: (context, auth, _) {
+                    final fullName =
+                        auth.currentUserInfo?['fullName'] ?? "User";
 
-                      Expanded(
-                        child: SingleChildScrollView(
+                    return Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Image.asset(
+                            'assets/images/pozadina.jpg',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        SingleChildScrollView(
                           child: Column(
                             children: [
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 36),
                               Text(
                                 "Welcome, ${fullName.split(' ').first}!",
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: Color(0xFF1D235D),
                                   fontSize: 24,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.white54,
+                                      blurRadius: 6,
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 40),
@@ -112,7 +227,17 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
                                     _buildMenuCard(
                                       "My Events",
                                       Icons.event_rounded,
-                                      () {},
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                PerformerEventsScreen(
+                                                  userId: widget.userId,
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                     const SizedBox(height: 20),
                                     _buildMenuCard(
@@ -124,20 +249,31 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
                                     _buildMenuCard(
                                       "Add New Event",
                                       Icons.add_circle_rounded,
-                                      () {},
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                AddEventScreen(
+                                                  userId: widget.userId,
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
                               ),
+                              const SizedBox(height: 80),
                             ],
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ),
           if (_showNotifications)
             NotificationDropdown(
@@ -149,66 +285,6 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
     );
   }
 
-  Widget _buildAvatar(AuthProvider auth) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
-      ),
-      child: ClipOval(
-        child: auth.profileImageBytes != null
-            ? ImageHelpers.getImageFromBytes(
-                auth.profileImageBytes,
-                height: 46,
-                width: 46,
-              )
-            : const CircleAvatar(
-                radius: 23,
-                backgroundImage: AssetImage('assets/images/NoProfileImage.png'),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildNotificationIcon() {
-    return Consumer<NotificationProvider>(
-      builder: (context, provider, _) {
-        return InkWell(
-          onTap: _toggleNotifications,
-          child: Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.notifications_outlined,
-                  color: Color(0xFF1D235D),
-                  size: 22,
-                ),
-              ),
-              if (provider.unreadCount > 0)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: CircleAvatar(
-                    radius: 9,
-                    backgroundColor: Colors.red,
-                    child: Text(
-                      '${provider.unreadCount > 9 ? '9+' : provider.unreadCount}',
-                      style: const TextStyle(fontSize: 10, color: Colors.white),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildMenuCard(String title, IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -216,11 +292,12 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white.withOpacity(0.45),
           borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFF1D235D), width: 0.8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -229,12 +306,16 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(14),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1D235D),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1D235D),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.4),
+                  width: 1,
+                ),
               ),
-              child: Icon(icon, size: 28, color: Colors.white),
+              child: Icon(icon, size: 24, color: Colors.white),
             ),
             const SizedBox(width: 18),
             Expanded(
@@ -243,25 +324,19 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3142),
+                  color: Color(0xFF1D235D),
+                  letterSpacing: 0.3,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios_rounded,
-              color: Color(0xFF667085),
-              size: 18,
+              color: const Color(0xFF1D235D).withOpacity(0.6),
+              size: 16,
             ),
           ],
         ),
       ),
     );
   }
-
-  final _nameStyle = const TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.bold,
-    color: Colors.white,
-  );
-  final _emailStyle = const TextStyle(fontSize: 12, color: Colors.white70);
 }
