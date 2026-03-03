@@ -15,6 +15,7 @@ namespace MyStagePass.Model.Models
 		public int EventID { get; set; }
 		public string? EventName { get; set; }
 		public string? Description { get; set; }
+		public DateTime CreatedAt { get; set; }
 		public int TotalTickets { get; set; }
 		public int TicketsSold { get; set; }
 		public int RegularPrice { get; set; }

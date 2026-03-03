@@ -31,6 +31,8 @@ namespace MyStagePass.Services.Services
 			if (pendingStatus != null)
 				entity.StatusID = pendingStatus.StatusID;
 
+			entity.CreatedAt = DateTime.UtcNow;
+
 			entity.TicketsSold = 0; 
 		}
 		public override async Task<Model.Models.Event> Insert(EventInsertRequest insert)
@@ -114,6 +116,7 @@ namespace MyStagePass.Services.Services
 			if (search.MinPrice != null)
 				query = query.Where(e => e.RegularPrice >= search.MinPrice || e.VipPrice >= search.MinPrice || e.PremiumPrice >= search.MinPrice);
 
+			query = query.OrderByDescending(e => e.CreatedAt);
 			return query;
 		}
 

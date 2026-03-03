@@ -23,12 +23,5 @@ namespace MyStagePass.WebAPI.Controllers
 			return await _reportService.GetMonthlyReportData(month, year);
 		}
 
-		[HttpGet("export-pdf")]
-		public async Task<IActionResult> ExportPdf([FromQuery] int month, [FromQuery] int year)
-		{
-			var data = await _reportService.GetMonthlyReportData(month, year);
-			var pdfBytes = _reportService.GeneratePdfReport(data, month, year);
-			return File(pdfBytes, "application/pdf", $"Izvjestaj_{month}_{year}.pdf");
-		}
 	}
 }

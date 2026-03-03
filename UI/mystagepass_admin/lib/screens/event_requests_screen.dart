@@ -8,9 +8,11 @@ import '../models/search_result.dart';
 import '../utils/alert_helpers.dart';
 import 'package:mystagepass_admin/screens/upcoming_events_screen.dart';
 import 'dart:async';
+import 'package:mystagepass_admin/widgets/base_layout.dart';
 
 class EventRequestsScreen extends StatefulWidget {
-  const EventRequestsScreen({super.key});
+  const EventRequestsScreen({super.key, required this.userId});
+  final int userId;
 
   @override
   State<EventRequestsScreen> createState() => _EventRequestsScreenState();
@@ -63,14 +65,14 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
       if (_statusFilter == "All") {
         var pendingParams = {
-          'Page': (_currentPage - 1).toString(),
-          'PageSize': _pageSize.toString(),
+          'Page': _currentPage - 1,
+          'PageSize': _pageSize,
           'Status': 'pending',
         };
 
         var rejectedParams = {
-          'Page': (_currentPage - 1).toString(),
-          'PageSize': _pageSize.toString(),
+          'Page': _currentPage - 1,
+          'PageSize': _pageSize,
           'Status': 'rejected',
         };
 
@@ -83,6 +85,12 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         var rejectedData = await provider.get(filter: rejectedParams);
 
         List<Event> allEvents = [...pendingData.result, ...rejectedData.result];
+        allEvents.sort((a, b) {
+          if (a.createdAt == null && b.createdAt == null) return 0;
+          if (a.createdAt == null) return 1;
+          if (b.createdAt == null) return -1;
+          return b.createdAt!.compareTo(a.createdAt!);
+        });
 
         if (mounted) {
           setState(() {
@@ -96,8 +104,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         }
       } else {
         var params = {
-          'Page': (_currentPage - 1).toString(),
-          'PageSize': _pageSize.toString(),
+          'Page': _currentPage - 1,
+          'PageSize': _pageSize,
           'Status': _statusFilter!.toLowerCase(),
         };
 
@@ -153,11 +161,9 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       );
       return;
     }
-
     try {
       var provider = Provider.of<EventProvider>(context, listen: false);
       await provider.updateStatus(event.eventId!, "approved");
-
       if (mounted) {
         AlertHelpers.showSuccess(
           context,
@@ -166,9 +172,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         _fetchEvents();
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted)
         AlertHelpers.showError(context, "Failed to approve event: $e");
-      }
       debugPrint("Error approving event: $e");
     }
   }
@@ -181,11 +186,9 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       );
       return;
     }
-
     try {
       var provider = Provider.of<EventProvider>(context, listen: false);
       await provider.updateStatus(event.eventId!, "rejected");
-
       if (mounted) {
         AlertHelpers.showSuccess(
           context,
@@ -194,9 +197,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         _fetchEvents();
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted)
         AlertHelpers.showError(context, "Failed to reject event: $e");
-      }
       debugPrint("Error rejecting event: $e");
     }
   }
@@ -223,57 +225,59 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           : "Reject",
       cancelButtonText: "Cancel",
       isDelete: !isApprove,
-      onConfirm: () {
-        if (isApprove) {
-          _handleApprove(event);
-        } else {
-          _handleReject(event);
-        }
-      },
+      onConfirm: () => isApprove ? _handleApprove(event) : _handleReject(event),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.jpg'),
-            fit: BoxFit.cover,
+    return BaseLayout(
+      userId: widget.userId,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 5, 40, 0),
+            child: _buildHeader(),
           ),
-        ),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(40.0),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildHeader(),
-                const SizedBox(height: 60),
                 _buildFilters(),
-                const SizedBox(height: 30),
-                if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                if (_searchQuery.isNotEmpty && _searchQuery.length < 3) ...[
+                  const SizedBox(height: 10),
                   _buildSearchHint(),
-                _buildTableStack(),
-                const SizedBox(height: 30),
+                ],
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(40, 24, 40, 24),
+              child: _buildTableStack(),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 8, 40, 50),
+            child: Column(
+              children: [
                 if (_events.isNotEmpty) _buildPagination(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 12),
                 _buildBottomButtonsRow(),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1200),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -294,40 +298,10 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     );
   }
 
-  Widget _buildBackButton() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      alignment: Alignment.centerLeft,
-      child: TextButton.icon(
-        onPressed: () {
-          Navigator.of(context).pop(true);
-        },
-        icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 16,
-          color: Color.fromARGB(255, 29, 35, 93),
-        ),
-        label: const Text(
-          "Back to Event Management",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color.fromARGB(255, 29, 35, 93),
-            fontSize: 14,
-          ),
-        ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          foregroundColor: const Color.fromARGB(255, 29, 35, 93),
-        ),
-      ),
-    );
-  }
-
   Widget _buildFilters() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1200),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
             width: 220,
@@ -339,7 +313,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: _onSearchChanged,
-              cursorColor: Color.fromARGB(255, 29, 35, 93),
+              cursorColor: const Color.fromARGB(255, 29, 35, 93),
               cursorWidth: 1.0,
               textAlignVertical: TextAlignVertical.center,
               style: const TextStyle(fontSize: 13, color: Colors.black),
@@ -406,7 +380,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Widget _buildSearchHint() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1200),
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
@@ -431,7 +405,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Widget _buildTableStack() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1200),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -522,13 +496,17 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           children: [
             _tableHeaderCell('#', width: 40),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Date', width: 130),
+            _tableHeaderCell('Event Name', width: 200),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Performer Name', width: 170),
+            _tableHeaderCell('Event Date', width: 120),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Location', width: 240),
+            _tableHeaderCell('Performer', width: 140),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Status', width: 110),
+            _tableHeaderCell('Location', width: 200),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Status', width: 90),
+            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+            _tableHeaderCell('Requested', width: 160),
             _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
             _tableHeaderCell('Actions', width: 100),
           ],
@@ -538,22 +516,21 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   }
 
   Widget _buildEventRow(int number, Event event) {
-    String dateStr = event.eventDate != null
-        ? DateFormat('dd MMM yyyy').format(event.eventDate!)
-        : "N/A";
-
     String loc = event.location?.locationName ?? event.locationName ?? "N/A";
     String city = event.location?.city?.name ?? "";
-    String fullLocation;
-
-    if (city.isNotEmpty && city != "N/A") {
-      fullLocation = "$loc, $city";
-    } else {
-      fullLocation = loc;
-    }
+    String fullLocation = city.isNotEmpty && city != "N/A"
+        ? "$loc, $city"
+        : loc;
 
     String statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
     bool isPending = statusLower == 'pending';
+    bool isPastEvent =
+        event.eventDate != null && event.eventDate!.isBefore(DateTime.now());
+
+    String createdAtStr = "N/A";
+    if (event.createdAt != null) {
+      createdAtStr = DateFormat('dd MMM yyyy - HH:mm').format(event.createdAt!);
+    }
 
     return Container(
       height: 56,
@@ -565,28 +542,58 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         children: [
           _tableCell(number.toString(), width: 40, isBold: true, center: true),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(dateStr, width: 130),
+          _tableCell(
+            event.eventName ?? "N/A",
+            width: 200,
+            isGrey: event.eventName == null,
+            isItalic: event.eventName == null,
+          ),
+
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _tableCell(
+            event.eventDate != null
+                ? DateFormat('dd MMM yyyy').format(event.eventDate!)
+                : "N/A",
+            width: 120,
+            isGrey: event.eventDate == null,
+            isItalic: event.eventDate == null,
+          ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             event.performer?.artistName ?? "N/A",
-            width: 170,
+            width: 140,
             isGrey: event.performer?.artistName == null,
             isItalic: event.performer?.artistName == null,
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           _tableCell(
             fullLocation,
-            width: 240,
+            width: 200,
             isGrey: loc == "N/A",
             isItalic: loc == "N/A",
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
           Container(
-            width: 110,
+            width: 90,
             alignment: Alignment.center,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 90),
+              constraints: const BoxConstraints(maxWidth: 85),
               child: _buildStatusBadge(statusLower),
+            ),
+          ),
+          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          Container(
+            width: 160,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+              createdAtStr,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey[400],
+                height: 1.4,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
           _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
@@ -598,71 +605,86 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      InkWell(
-                        onTap: () => _showConfirmDialog(event, true),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.green[50],
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.green, width: 1),
-                          ),
-                          child: const Icon(
-                            Icons.check,
-                            size: 16,
-                            color: Colors.green,
+                      Opacity(
+                        opacity: isPastEvent ? 0.35 : 1.0,
+                        child: InkWell(
+                          onTap: isPastEvent
+                              ? null
+                              : () => _showConfirmDialog(event, true),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.green, width: 1),
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.green,
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () => _showConfirmDialog(event, false),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.red[50],
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.red, width: 1),
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Colors.red,
+                      Opacity(
+                        opacity: isPastEvent ? 0.35 : 1.0,
+                        child: InkWell(
+                          onTap: isPastEvent
+                              ? null
+                              : () => _showConfirmDialog(event, false),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.red[50],
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.red, width: 1),
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Colors.red,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   )
-                : InkWell(
-                    onTap: () => _showConfirmDialog(event, true),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green[50],
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.green, width: 1),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.restore,
-                            size: 14,
-                            color: Colors.green,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            "Approve",
-                            style: TextStyle(
-                              color: Colors.green[800],
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                : Opacity(
+                    opacity: isPastEvent ? 0.35 : 1.0,
+                    child: InkWell(
+                      onTap: isPastEvent
+                          ? null
+                          : () => _showConfirmDialog(event, true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green[50],
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.green, width: 1),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.restore,
+                              size: 14,
+                              color: Colors.green,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Text(
+                              "Approve",
+                              style: TextStyle(
+                                color: Colors.green[800],
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -835,7 +857,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Widget _buildBottomButtonsRow() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1200),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -843,7 +865,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             label: const Text(
-              "Back to Dashboard",
+              "Back",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
             style: ElevatedButton.styleFrom(
@@ -856,38 +878,30 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               elevation: 5,
             ),
           ),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const UpcomingEventsScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.upcoming, size: 20),
-                label: const Text(
-                  "Upcoming Events",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      UpcomingEventsScreen(userId: widget.userId),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color.fromARGB(255, 29, 35, 93),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  elevation: 5,
-                ),
+              );
+            },
+            icon: const Icon(Icons.upcoming, size: 20),
+            label: const Text(
+              "Upcoming Events",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
               ),
-            ],
+              elevation: 5,
+            ),
           ),
         ],
       ),

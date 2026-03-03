@@ -45,26 +45,4 @@ class ReportProvider extends BaseProvider<Report> {
       notifyListeners();
     }
   }
-
-  Future<List<int>?> downloadPdfBytes(int month, int year) async {
-    try {
-      final uri = Uri.parse(
-        '${getBaseUrl()}$_endpoint/export-pdf?month=$month&year=$year',
-      );
-      final headers = await createHeaders();
-      final response = await http.get(uri, headers: headers);
-
-      if (isValidResponse(response)) {
-        return response.bodyBytes;
-      } else {
-        _error = "Greška pri preuzimanju PDF-a (${response.statusCode})";
-        notifyListeners();
-        return null;
-      }
-    } catch (e) {
-      _error = "Greška: $e";
-      notifyListeners();
-      return null;
-    }
-  }
 }

@@ -5,9 +5,11 @@ import '../models/User/user.dart';
 import '../providers/user_provider.dart';
 import '../utils/alert_helpers.dart';
 import 'dart:async';
+import 'package:mystagepass_admin/widgets/base_layout.dart';
 
 class UserManagementScreen extends StatefulWidget {
-  const UserManagementScreen({super.key});
+  final int userId;
+  const UserManagementScreen({super.key, required this.userId});
 
   @override
   State<UserManagementScreen> createState() => _UserManagementScreenState();
@@ -113,73 +115,91 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.jpg'),
-            fit: BoxFit.cover,
+    return BaseLayout(
+      userId: widget.userId,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 5, 40, 0),
+            child: _buildHeader(),
           ),
-        ),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(40.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 60),
-                _buildFilters(),
-                const SizedBox(height: 30),
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 900),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        blurRadius: 20,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildTableHeader(),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _users.length,
-                        itemBuilder: (context, index) {
-                          int rowNumber =
-                              ((_currentPage - 1) * _pageSize) + index + 1;
-                          return _buildUserRow(rowNumber, _users[index]);
-                        },
-                      ),
-                      if (_users.isEmpty && !_isLoading)
-                        const Padding(
-                          padding: EdgeInsets.all(30.0),
-                          child: Text(
-                            "No users found",
-                            style: TextStyle(color: Colors.grey),
-                          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
+            child: _buildFilters(),
+          ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(40, 24, 40, 24),
+              child: Column(
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black,
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
                         ),
-                    ],
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildTableHeader(),
+                        _isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.all(30),
+                                child: CircularProgressIndicator(
+                                  color: Color.fromARGB(255, 29, 35, 93),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: _users.length,
+                                itemBuilder: (context, index) {
+                                  int rowNumber =
+                                      ((_currentPage - 1) * _pageSize) +
+                                      index +
+                                      1;
+                                  return _buildUserRow(
+                                    rowNumber,
+                                    _users[index],
+                                  );
+                                },
+                              ),
+                        if (_users.isEmpty && !_isLoading)
+                          const Padding(
+                            padding: EdgeInsets.all(30.0),
+                            child: Text(
+                              "No users found",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 8, 40, 50),
+            child: Column(
+              children: [
                 if (_users.isNotEmpty) _buildPagination(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 12),
                 _buildBottomButtonsRow(),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -411,47 +431,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           }
         }
       },
-    );
-  }
-
-  Widget _actionIcon(
-    IconData icon,
-    Color iconColor,
-    Color bg, {
-    VoidCallback? onTap,
-    double? width,
-    double? height,
-    String? label,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        width: width ?? 26,
-        height: height ?? 26,
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: iconColor, size: 16),
-            if (label != null) ...[
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: iconColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
     );
   }
 

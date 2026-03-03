@@ -7,9 +7,11 @@ import '../models/Event/event.dart';
 import '../providers/event_provider.dart';
 import '../models/search_result.dart';
 import 'dart:async';
+import 'package:mystagepass_admin/widgets/base_layout.dart';
 
 class EventManagementScreen extends StatefulWidget {
-  const EventManagementScreen({super.key});
+  final int userId;
+  const EventManagementScreen({super.key, required this.userId});
 
   @override
   State<EventManagementScreen> createState() => _EventManagementScreenState();
@@ -66,10 +68,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         'Status': 'approved',
       };
 
-      if (_searchQuery.length >= 3) {
-        params['searchTerm'] = _searchQuery;
-      }
-
+      if (_searchQuery.length >= 3) params['searchTerm'] = _searchQuery;
       if (_statusFilter != "All") {
         params['IsUpcoming'] = (_statusFilter == "Upcoming").toString();
       }
@@ -95,7 +94,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _searchQuery = query.trim();
-
     _debounce = Timer(const Duration(milliseconds: 500), () {
       setState(() => _currentPage = 1);
       _fetchEvents();
@@ -112,38 +110,46 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.jpg'),
-            fit: BoxFit.cover,
+    return BaseLayout(
+      userId: widget.userId,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 30, 40, 0),
+            child: _buildHeader(),
           ),
-        ),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(40.0),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 28, 40, 0),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildHeader(),
-                const SizedBox(height: 60),
                 _buildFilters(),
-                const SizedBox(height: 30),
-                if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                if (_searchQuery.isNotEmpty && _searchQuery.length < 3) ...[
+                  const SizedBox(height: 10),
                   _buildSearchHint(),
-                _buildTableStack(),
-                const SizedBox(height: 30),
+                ],
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(40, 24, 40, 24),
+              child: _buildTableStack(),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 8, 40, 50),
+            child: Column(
+              children: [
                 if (_events.isNotEmpty) _buildPagination(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 12),
                 _buildBottomButtonsRow(),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -155,7 +161,11 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(Icons.event_available_rounded, size: 36, color: Colors.white),
+            Icon(
+              Icons.confirmation_number_outlined,
+              size: 36,
+              color: Colors.white,
+            ),
             SizedBox(width: 12),
             Text(
               "Event Management",
@@ -187,7 +197,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: _onSearchChanged,
-              cursorColor: Color.fromARGB(255, 29, 35, 93),
+              cursorColor: const Color.fromARGB(255, 29, 35, 93),
               cursorWidth: 1.0,
               textAlignVertical: TextAlignVertical.center,
               style: const TextStyle(fontSize: 13, color: Colors.black),
@@ -255,7 +265,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   Widget _buildSearchHint() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
-      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.orange[50],
@@ -392,20 +401,13 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         ? DateFormat('dd MMM yyyy').format(event.eventDate!)
         : "N/A";
 
-    bool isUpcoming = false;
-    if (event.eventDate != null) {
-      isUpcoming = event.eventDate!.isAfter(DateTime.now());
-    }
+    bool isUpcoming = event.eventDate?.isAfter(DateTime.now()) ?? false;
 
     String loc = event.location?.locationName ?? event.locationName ?? "N/A";
     String city = event.location?.city?.name ?? "";
-    String fullLocation;
-
-    if (city.isNotEmpty && city != "N/A") {
-      fullLocation = "$loc, $city";
-    } else {
-      fullLocation = loc;
-    }
+    String fullLocation = city.isNotEmpty && city != "N/A"
+        ? "$loc, $city"
+        : loc;
 
     return Container(
       height: 56,
@@ -485,20 +487,16 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   }
 
   Widget _buildStatusBadge(bool isUpcoming) {
-    String statusText = isUpcoming ? "Upcoming" : "Ended";
-    Color bgColor = isUpcoming
-        ? const Color(0xFFE8F5E9)
-        : const Color(0xFFFFEBEE);
-    Color borderColor = isUpcoming ? Colors.green : Colors.red;
-    Color textColor = isUpcoming ? Colors.green[800]! : Colors.red[800]!;
-
     return Container(
       width: 80,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: isUpcoming ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor, width: 0.5),
+        border: Border.all(
+          color: isUpcoming ? Colors.green : Colors.red,
+          width: 0.5,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -507,19 +505,18 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           Icon(
             isUpcoming ? Icons.check : Icons.close,
             size: 10,
-            color: textColor,
+            color: isUpcoming ? Colors.green[800]! : Colors.red[800]!,
           ),
           const SizedBox(width: 3),
           Flexible(
             child: Text(
-              statusText,
+              isUpcoming ? "Upcoming" : "Ended",
               style: TextStyle(
-                color: textColor,
+                color: isUpcoming ? Colors.green[800]! : Colors.red[800]!,
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
               ),
               overflow: TextOverflow.ellipsis,
-              maxLines: 1,
             ),
           ),
         ],
@@ -667,7 +664,8 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UpcomingEventsScreen(),
+                      builder: (context) =>
+                          UpcomingEventsScreen(userId: widget.userId),
                     ),
                   );
                 },
@@ -694,12 +692,11 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                   final shouldRefresh = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const EventRequestsScreen(),
+                      builder: (context) =>
+                          EventRequestsScreen(userId: widget.userId),
                     ),
                   );
-                  if (shouldRefresh == true) {
-                    _fetchEvents();
-                  }
+                  if (shouldRefresh == true) _fetchEvents();
                 },
                 icon: const Icon(Icons.pending_actions, size: 20),
                 label: const Text(

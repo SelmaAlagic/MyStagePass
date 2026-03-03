@@ -190,7 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: const Icon(
                                           Icons.edit,
                                           size: 12,
-                                          color: Color(0xFF5865F2),
+                                          color: Color.fromARGB(
+                                            255,
+                                            29,
+                                            35,
+                                            93,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -295,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    const UserManagementScreen(),
+                                    UserManagementScreen(userId: widget.userId),
                               ),
                             ),
                           ),
@@ -305,8 +310,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const EventManagementScreen(),
+                                builder: (context) => EventManagementScreen(
+                                  userId: widget.userId,
+                                ),
                               ),
                             ),
                           ),
@@ -316,8 +322,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const PerformerManagementScreen(),
+                                builder: (context) => PerformerManagementScreen(
+                                  userId: widget.userId,
+                                ),
                               ),
                             ),
                           ),
@@ -327,7 +334,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ReportsScreen(),
+                                builder: (context) =>
+                                    ReportsScreen(userId: widget.userId),
                               ),
                             ),
                           ),
@@ -881,7 +889,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: const Color(0xFF5865F2),
+                                      color: const Color.fromARGB(
+                                        255,
+                                        29,
+                                        35,
+                                        93,
+                                      ),
                                       width: 3,
                                     ),
                                   ),
@@ -906,7 +919,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF5865F2),
+                                      color: const Color.fromARGB(
+                                        255,
+                                        29,
+                                        35,
+                                        93,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -1215,6 +1233,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                       label: "Save Changes",
                       onPressed: _saveChanges,
                       isLoading: _isLoading,
+                      backgroundColor: const Color.fromARGB(255, 29, 35, 93),
                     ),
                   ],
                 ),

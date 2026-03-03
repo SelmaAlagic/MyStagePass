@@ -24,7 +24,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 480,
 					RatingCount = 100,
-					RatingAverage = 4.8f
+					RatingAverage = 4.8f,
+					CreatedAt = new DateTime(2024, 10, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -42,7 +43,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 490,
 					RatingCount = 100,
-					RatingAverage = 4.9f
+					RatingAverage = 4.9f,
+					CreatedAt = new DateTime(2024, 10, 20, 9, 0, 0)
 				},
 				new Event
 				{
@@ -60,7 +62,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 450,
 					RatingCount = 100,
-					RatingAverage = 4.5f
+					RatingAverage = 4.5f,
+					CreatedAt = new DateTime(2024, 11, 1, 11, 0, 0)
 				},
 				new Event
 				{
@@ -78,7 +81,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 420,
 					RatingCount = 100,
-					RatingAverage = 4.2f
+					RatingAverage = 4.2f,
+					CreatedAt = new DateTime(2024, 11, 15, 14, 0, 0)
 				},
 				new Event
 				{
@@ -96,7 +100,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 470,
 					RatingCount = 100,
-					RatingAverage = 4.7f
+					RatingAverage = 4.7f,
+					CreatedAt = new DateTime(2024, 12, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -114,7 +119,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 460,
 					RatingCount = 100,
-					RatingAverage = 4.6f
+					RatingAverage = 4.6f,
+					CreatedAt = new DateTime(2024, 12, 15, 9, 0, 0)
 				},
 				new Event
 				{
@@ -132,7 +138,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 480,
 					RatingCount = 100,
-					RatingAverage = 4.8f
+					RatingAverage = 4.8f,
+					CreatedAt = new DateTime(2025, 1, 5, 10, 0, 0)
 				},
 				new Event
 				{
@@ -150,7 +157,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 500,
 					RatingCount = 100,
-					RatingAverage = 5.0f
+					RatingAverage = 5.0f,
+					CreatedAt = new DateTime(2025, 1, 10, 11, 0, 0)
 				},
 				new Event
 				{
@@ -168,7 +176,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 1, 20, 9, 0, 0)
 				},
 				new Event
 				{
@@ -186,7 +195,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 3,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 1, 25, 14, 0, 0)
 				},
 				new Event
 				{
@@ -204,7 +214,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 1,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 2, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -222,7 +233,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 2, 10, 9, 0, 0)
 				},
 				new Event
 				{
@@ -240,7 +252,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 1,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 2, 20, 11, 0, 0)
 				},
 				new Event
 				{
@@ -258,7 +271,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 3, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -276,7 +290,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 1,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 3, 10, 9, 0, 0)
 				},
 				new Event
 				{
@@ -294,7 +309,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 3,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 3, 15, 14, 0, 0)
 				},
 				new Event
 				{
@@ -312,7 +328,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 3, 20, 10, 0, 0)
 				},
 				new Event
 				{
@@ -330,7 +347,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 1,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 4, 1, 9, 0, 0)
 				},
 				new Event
 				{
@@ -348,7 +366,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 2,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 4, 10, 11, 0, 0)
 				},
 				new Event
 				{
@@ -366,7 +385,8 @@ namespace MyStagePass.Services.Database.Seed
 					StatusID = 1,
 					TotalScore = 0,
 					RatingCount = 0,
-					RatingAverage = 0f
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 4, 20, 10, 0, 0)
 				}
 			);
 		}

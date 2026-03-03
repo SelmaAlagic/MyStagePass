@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_admin/widgets/base_layout.dart';
 import 'package:provider/provider.dart';
 import '../models/Performer/performer.dart';
 import '../providers/performer_provider.dart';
 import 'dart:async';
 
 class PerformerRequestsScreen extends StatefulWidget {
-  const PerformerRequestsScreen({super.key});
+  const PerformerRequestsScreen({super.key, required this.userId});
+  final int userId;
 
   @override
   State<PerformerRequestsScreen> createState() =>
@@ -123,36 +125,100 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.jpg'),
-            fit: BoxFit.cover,
+    return BaseLayout(
+      userId: widget.userId,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 5, 40, 0),
+            child: _buildHeader(),
           ),
-        ),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(40.0),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
+            child: _buildSearch(),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(40, 24, 40, 24),
+              child: Column(
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black,
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildTableHeader(),
+                        if (_isLoading)
+                          const Padding(
+                            padding: EdgeInsets.all(30),
+                            child: CircularProgressIndicator(
+                              color: Color.fromARGB(255, 29, 35, 93),
+                            ),
+                          )
+                        else
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _performers.length,
+                            itemBuilder: (context, index) {
+                              int rowNumber =
+                                  ((_currentPage - 1) * _pageSize) + index + 1;
+                              return _buildPerformerRow(
+                                rowNumber,
+                                _performers[index],
+                              );
+                            },
+                          ),
+                        if (_performers.isEmpty && !_isLoading)
+                          Padding(
+                            padding: const EdgeInsets.all(30.0),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.pending_actions,
+                                  size: 64,
+                                  color: Colors.grey[300],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  "No pending requests",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 8, 40, 50),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildHeader(),
-                const SizedBox(height: 60),
-                _buildSearch(),
-                const SizedBox(height: 30),
-                _buildTableStack(),
-                const SizedBox(height: 30),
                 if (_performers.isNotEmpty) _buildPagination(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 12),
                 _buildBackButton(),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -188,7 +254,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
         onPressed: () => Navigator.of(context).pop(),
         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
         label: const Text(
-          "Back to Performer Management",
+          "Back",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
         style: ElevatedButton.styleFrom(
@@ -231,83 +297,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
             contentPadding: EdgeInsets.symmetric(vertical: 10),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTableStack() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildTableHeader(),
-              SizedBox(
-                height: 56.0 * _pageSize,
-                child: _performers.isEmpty && !_isLoading
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.pending_actions,
-                              size: 64,
-                              color: Colors.grey[300],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              "No pending requests",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _performers.length,
-                        itemBuilder: (context, index) {
-                          int rowNumber =
-                              ((_currentPage - 1) * _pageSize) + index + 1;
-                          return _buildPerformerRow(
-                            rowNumber,
-                            _performers[index],
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-          if (_isLoading)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF5865F2)),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
