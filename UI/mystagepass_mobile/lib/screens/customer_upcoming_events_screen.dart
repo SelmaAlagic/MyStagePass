@@ -484,7 +484,6 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                              // Sačuvaj reference PRIJE Navigator.pop
                               final purchaseProvider =
                                   Provider.of<PurchaseProvider>(
                                     context,
@@ -496,7 +495,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                                     listen: false,
                                   );
 
-                              Navigator.pop(context); // zatvori modal
+                              Navigator.pop(context);
 
                               try {
                                 final amountInCents = (totalPrice * 51).round();
@@ -671,7 +670,10 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset('assets/images/pozadina.jpg', fit: BoxFit.cover),
+            child: Image.asset(
+              'assets/images/background.jpg',
+              fit: BoxFit.cover,
+            ),
           ),
           Column(
             children: [
@@ -1017,7 +1019,10 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                               ),
                               child: const Text(
                                 "Apply Filters",
-                                style: TextStyle(fontSize: 12),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),

@@ -290,6 +290,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -334,7 +335,10 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset('assets/images/pozadina.jpg', fit: BoxFit.cover),
+            child: Image.asset(
+              'assets/images/background.jpg',
+              fit: BoxFit.cover,
+            ),
           ),
           Column(
             children: [
@@ -545,7 +549,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                                 ),
                                 const SizedBox(width: 6),
                                 const Icon(
-                                  Icons.star_rounded,
+                                  Icons.star,
                                   color: Colors.amber,
                                   size: 13,
                                 ),
@@ -653,10 +657,10 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                                     ? () => _showReviewModal(event)
                                     : null,
                                 icon: Icon(
-                                  Icons.star_rounded,
+                                  Icons.star,
                                   size: 13,
                                   color: isPastEvent
-                                      ? Colors.white
+                                      ? Colors.amber
                                       : Colors.white38,
                                 ),
                                 label: Text(
@@ -671,7 +675,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: isPastEvent
-                                      ? const Color.fromARGB(255, 235, 207, 64)
+                                      ? const Color.fromARGB(159, 60, 73, 190)
                                       : Colors.grey.withOpacity(0.35),
                                   disabledBackgroundColor: Colors.grey
                                       .withOpacity(0.35),
@@ -716,7 +720,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
         ...List.generate(
           5,
           (index) => Icon(
-            index < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+            index < rating ? Icons.star : Icons.star_outline,
             size: 13,
             color: index < rating ? Colors.amber : Colors.white38,
           ),

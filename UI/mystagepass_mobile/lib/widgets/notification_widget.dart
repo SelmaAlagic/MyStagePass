@@ -201,24 +201,31 @@ class _NotificationDropdownState extends State<NotificationDropdown>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.notifications_off_outlined,
-              size: 64,
-              color: Colors.grey[400],
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1D235D).withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.notifications_off_outlined,
+                size: 36,
+                color: Color(0xFF1D235D),
+              ),
             ),
-            const SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 14),
+            const Text(
               'No new notifications',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1D235D),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'You\'re all caught up!',
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            const SizedBox(height: 4),
+            const Text(
+              "You're all caught up!",
+              style: TextStyle(fontSize: 12, color: Color(0xFF1D235D)),
             ),
           ],
         ),

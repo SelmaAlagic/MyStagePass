@@ -193,7 +193,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                       children: [
                         Positioned.fill(
                           child: Image.asset(
-                            'assets/images/pozadina.jpg',
+                            'assets/images/background.jpg',
                             fit: BoxFit.cover,
                           ),
                         ),

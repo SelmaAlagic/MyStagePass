@@ -92,10 +92,13 @@ namespace MyStagePass.Services.Services
 			}
 
 			if (search.EventDateFrom != null)
-				query = query.Where(e => e.EventDate >= search.EventDateFrom);
+				query = query.Where(e => e.EventDate >= search.EventDateFrom.Value.Date);
 
 			if (search.EventDateTo != null)
-				query = query.Where(e => e.EventDate <= search.EventDateTo);
+			{
+				var endDate = search.EventDateTo.Value.Date.AddDays(1);
+				query = query.Where(e => e.EventDate < endDate);
+			}
 
 			if (search.IsUpcoming != null)
 			{

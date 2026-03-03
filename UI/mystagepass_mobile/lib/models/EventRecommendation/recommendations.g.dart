@@ -10,7 +10,9 @@ Recommendations _$RecommendationsFromJson(Map<String, dynamic> json) =>
     Recommendations(
       eventName: json['eventName'] as String?,
       performerName: json['performerName'] as String?,
-      eventDate: json['eventDate'] as String?,
+      eventDate: json['eventDate'] == null
+          ? null
+          : DateTime.parse(json['eventDate'] as String),
       cityName: json['cityName'] as String?,
       ticketPrices: (json['ticketPrices'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, (e as num).toInt()),
@@ -22,7 +24,7 @@ Map<String, dynamic> _$RecommendationsToJson(Recommendations instance) =>
     <String, dynamic>{
       'eventName': instance.eventName,
       'performerName': instance.performerName,
-      'eventDate': instance.eventDate,
+      'eventDate': instance.eventDate?.toIso8601String(),
       'cityName': instance.cityName,
       'ticketPrices': instance.ticketPrices,
       'similarityScore': instance.similarityScore,

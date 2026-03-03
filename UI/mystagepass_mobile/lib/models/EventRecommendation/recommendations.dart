@@ -6,7 +6,7 @@ part 'recommendations.g.dart';
 class Recommendations {
   String? eventName;
   String? performerName;
-  String? eventDate;
+  DateTime? eventDate;
   String? cityName;
   Map<String, int>? ticketPrices;
   double? similarityScore;

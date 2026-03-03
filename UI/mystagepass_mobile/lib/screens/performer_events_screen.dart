@@ -109,41 +109,6 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
     });
   }
 
-  void _showInfoSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(
-              Icons.info_outline_rounded,
-              color: Color(0xFF1565C0),
-              size: 20,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF0D47A1),
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFFE3F2FD),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFF1565C0), width: 1),
-        ),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
   void _showSuccessSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -854,7 +819,10 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset('assets/images/pozadina.jpg', fit: BoxFit.cover),
+            child: Image.asset(
+              'assets/images/background.jpg',
+              fit: BoxFit.cover,
+            ),
           ),
           Column(
             children: [

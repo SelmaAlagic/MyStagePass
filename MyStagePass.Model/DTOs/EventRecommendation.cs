@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MyStagePass.Model.DTOs
 {
@@ -6,7 +7,7 @@ namespace MyStagePass.Model.DTOs
 	{
 		public string EventName { get; set; }
 		public string PerformerName { get; set; }
-		public string EventDate { get; set; }
+		public DateTime EventDate { get; set; }
 		public string CityName {  get; set; }
 		public Dictionary<string, int> TicketPrices { get; set; } = new Dictionary<string, int>();
 		public double SimilarityScore { get; set; }

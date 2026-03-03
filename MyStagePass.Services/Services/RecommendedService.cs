@@ -60,7 +60,7 @@ namespace MyStagePass.Services.Services
 				{
 					EventName = ev.EventName,
 					PerformerName = ev.Performer?.ArtistName ?? "",
-					EventDate = ev.EventDate.ToString("dd.MM.yyyy. HH:mm"),
+					EventDate = ev.EventDate,
 					CityName = ev.Location?.City?.Name ?? "Unknown",
 
 					TicketPrices = new Dictionary<string, int>
@@ -177,7 +177,7 @@ namespace MyStagePass.Services.Services
 			{
 				EventName = e.EventName,
 				PerformerName = e.Performer?.ArtistName ?? "",
-				EventDate = e.EventDate.ToString("dd.MM.yyyy. HH:mm"),
+				EventDate = e.EventDate,
 				CityName = e.Location?.City?.Name ?? "Unknonwn",
 
 				TicketPrices = new Dictionary<string, int>
