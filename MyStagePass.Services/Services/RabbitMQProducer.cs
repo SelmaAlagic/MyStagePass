@@ -1,4 +1,5 @@
-﻿using MyStagePass.Services.Interfaces;
+﻿using Microsoft.Extensions.Configuration;
+using MyStagePass.Services.Interfaces;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System.Text;
@@ -7,17 +8,24 @@ namespace MyStagePass.Services.Services
 {
 	public class RabbitMQProducer : IRabbitMQProducer
 	{
+		private readonly IConfiguration _configuration;
+
+		public RabbitMQProducer(IConfiguration configuration)
+		{
+			_configuration = configuration;
+		}
+
 		public void SendMessage<T>(T message)
 		{
 			var factory = new ConnectionFactory
 			{
-				HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
-				Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-				UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
-				Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
+				HostName = _configuration["RabbitMQ:Host"],
+				Port = int.Parse(_configuration["RabbitMQ:Port"]),
+				UserName = _configuration["RabbitMQ:Username"],
+				Password = _configuration["RabbitMQ:Password"],
 			};
-			factory.ClientProvidedName = "Rabbit Test Producer";
 
+			factory.ClientProvidedName = "Rabbit Test Producer";
 			var connection = factory.CreateConnection();
 			var channel = connection.CreateModel();
 

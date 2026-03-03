@@ -53,9 +53,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         'UserId': widget.userId.toString(),
       };
 
-      if (_searchQuery.length >= 3) {
-        params['searchTerm'] = _searchQuery;
-      }
+      if (_searchQuery.length >= 3) params['searchTerm'] = _searchQuery;
 
       if (_isPending == true) {
         params['IsPending'] = 'true';
@@ -103,14 +101,12 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       _isPending = null;
       _statusFilter = null;
       _currentPage = 1;
-
-      if (value == "Pending") {
+      if (value == "Pending")
         _isPending = true;
-      } else if (value == "Approved") {
+      else if (value == "Approved")
         _statusFilter = true;
-      } else if (value == "Rejected") {
+      else if (value == "Rejected")
         _statusFilter = false;
-      }
     });
     _fetchPerformers();
   }
@@ -221,10 +217,10 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.music_note, size: 36, color: Colors.white),
-            const SizedBox(width: 12),
-            const Text(
+          children: const [
+            Icon(Icons.music_note, size: 36, color: Colors.white),
+            SizedBox(width: 12),
+            Text(
               "Performer Management",
               style: TextStyle(
                 fontSize: 28,
@@ -242,7 +238,6 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
             width: 220,
@@ -318,19 +313,17 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            _tableHeaderCell('#', width: 40),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Full Name', width: 150),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Artist Name', width: 150),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Genres', width: 180),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Rating', width: 90),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Status', width: 90),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Actions', width: 80),
+            _tableHeaderCell('#', width: 45),
+            _vd(),
+            _tableHeaderCell('Full Name', flex: 2),
+            _vd(),
+            _tableHeaderCell('Artist Name', flex: 2),
+            _vd(),
+            _tableHeaderCell('Genres', flex: 3),
+            _vd(),
+            _tableHeaderCell('Rating', width: 100),
+            _vd(),
+            _tableHeaderCell('Status', width: 100),
           ],
         ),
       ),
@@ -341,7 +334,6 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     String genresText = performer.genres != null && performer.genres!.isNotEmpty
         ? performer.genres!.join(", ")
         : "No specific genres";
-
     bool hasRating =
         performer.averageRating != null && performer.averageRating! > 0;
 
@@ -353,82 +345,77 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
-          _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(performer.user?.fullName ?? "N/A", width: 150),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(performer.artistName ?? "N/A", width: 150),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(
-            genresText,
-            width: 180,
-            isGrey: performer.genres == null || performer.genres!.isEmpty,
-            isItalic: performer.genres == null || performer.genres!.isEmpty,
-          ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          Container(
-            width: 90,
-            alignment: Alignment.center,
-            child: hasRating
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        performer.averageRating!.toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.star,
-                        size: 14,
-                        color: Color(0xFFFFA500),
-                      ),
-                    ],
-                  )
-                : Text(
-                    "No ratings",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade500,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-          ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          Container(
-            width: 90,
-            alignment: Alignment.center,
-            child: _buildStatusBadge(performer),
-          ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          Container(
-            width: 80,
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () {},
-                  child: const Icon(
-                    Icons.edit,
-                    size: 22,
-                    color: Color(0xFF1A237E),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                InkWell(
-                  onTap: () {},
-                  child: const Icon(
-                    Icons.delete_outline,
-                    size: 22,
-                    color: Color(0xFFE53935),
-                  ),
-                ),
-              ],
+          _tableCell(number.toString(), width: 45, isBold: true, center: true),
+          _vd(),
+          Expanded(
+            flex: 2,
+            child: _cellText(
+              performer.user?.fullName ?? "N/A",
+              false,
+              false,
+              false,
+              false,
             ),
+          ),
+          _vd(),
+          Expanded(
+            flex: 2,
+            child: _cellText(
+              performer.artistName ?? "N/A",
+              false,
+              false,
+              false,
+              false,
+            ),
+          ),
+          _vd(),
+          Expanded(
+            flex: 3,
+            child: _cellText(
+              genresText,
+              false,
+              false,
+              performer.genres == null || performer.genres!.isEmpty,
+              performer.genres == null || performer.genres!.isEmpty,
+            ),
+          ),
+          _vd(),
+          SizedBox(
+            width: 100,
+            child: Center(
+              child: hasRating
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          performer.averageRating!.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.star,
+                          size: 14,
+                          color: Color(0xFFFFA500),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      "No ratings",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade500,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+            ),
+          ),
+          _vd(),
+          SizedBox(
+            width: 100,
+            child: Center(child: _buildStatusBadge(performer)),
           ),
         ],
       ),
@@ -437,9 +424,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
 
   Widget _buildStatusBadge(Performer performer) {
     String statusText;
-    Color bgColor;
-    Color borderColor;
-    Color textColor;
+    Color bgColor, borderColor, textColor;
 
     if (performer.isApproved == true) {
       statusText = "Approved";
@@ -459,7 +444,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     }
 
     return Container(
-      width: 70,
+      width: 75,
       height: 24,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -480,7 +465,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   }
 
   Widget _tableHeaderCell(String text, {int? flex, double? width}) {
-    Widget content = Center(
+    final content = Center(
       child: Text(
         text,
         style: const TextStyle(
@@ -490,28 +475,21 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
         ),
       ),
     );
-    return flex != null
-        ? Expanded(flex: flex, child: content)
-        : SizedBox(width: width, child: content);
+    if (flex != null) return Expanded(flex: flex, child: content);
+    return SizedBox(width: width, child: content);
   }
 
   Widget _tableCell(
     String text, {
-    int? flex,
     double? width,
     bool isBold = false,
     bool center = false,
     bool isGrey = false,
     bool isItalic = false,
   }) {
-    return Container(
+    return SizedBox(
       width: width,
-      child: flex != null
-          ? Expanded(
-              flex: flex,
-              child: _cellText(text, isBold, center, isGrey, isItalic),
-            )
-          : _cellText(text, isBold, center, isGrey, isItalic),
+      child: _cellText(text, isBold, center, isGrey, isItalic),
     );
   }
 
@@ -542,8 +520,12 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
     );
   }
 
-  Widget _verticalDivider(Color color) =>
-      VerticalDivider(color: color, thickness: 1, indent: 6, endIndent: 6);
+  Widget _vd() => VerticalDivider(
+    color: const Color.fromARGB(77, 145, 156, 218),
+    thickness: 1,
+    indent: 6,
+    endIndent: 6,
+  );
 
   Widget _buildPagination() {
     return Row(
@@ -602,7 +584,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: Color.fromARGB(255, 29, 35, 93),
+              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -627,7 +609,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: Color.fromARGB(255, 29, 35, 93),
+              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),

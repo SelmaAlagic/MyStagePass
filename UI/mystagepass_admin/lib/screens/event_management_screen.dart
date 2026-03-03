@@ -61,7 +61,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     setState(() => _isLoading = true);
     try {
       var provider = Provider.of<EventProvider>(context, listen: false);
-
       var params = {
         'Page': (_currentPage - 1).toString(),
         'PageSize': _pageSize.toString(),
@@ -118,7 +117,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
             padding: const EdgeInsets.fromLTRB(40, 30, 40, 0),
             child: _buildHeader(),
           ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(40, 28, 40, 0),
             child: Column(
@@ -131,14 +129,12 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
               ],
             ),
           ),
-
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(40, 24, 40, 24),
               child: _buildTableStack(),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(40, 8, 40, 50),
             child: Column(
@@ -185,7 +181,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
             width: 220,
@@ -377,19 +372,17 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            _tableHeaderCell('#', width: 40),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Date', width: 100),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Performer Name', width: 150),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Location', width: 200),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Tickets sold', width: 80),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Status', width: 130),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Actions', width: 80),
+            _tableHeaderCell('#', width: 45),
+            _vd(),
+            _tableHeaderCell('Date', width: 110),
+            _vd(),
+            _tableHeaderCell('Performer Name', flex: 2),
+            _vd(),
+            _tableHeaderCell('Location', flex: 3),
+            _vd(),
+            _tableHeaderCell('Tickets Sold', width: 95),
+            _vd(),
+            _tableHeaderCell('Status', width: 100),
           ],
         ),
       ),
@@ -400,9 +393,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     String dateStr = event.eventDate != null
         ? DateFormat('dd MMM yyyy').format(event.eventDate!)
         : "N/A";
-
     bool isUpcoming = event.eventDate?.isAfter(DateTime.now()) ?? false;
-
     String loc = event.location?.locationName ?? event.locationName ?? "N/A";
     String city = event.location?.city?.name ?? "";
     String fullLocation = city.isNotEmpty && city != "N/A"
@@ -417,69 +408,42 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
-          _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(dateStr, width: 100),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(
-            event.performer?.artistName ?? event.eventName ?? "N/A",
-            width: 150,
-            isGrey:
-                event.performer?.artistName == null && event.eventName == null,
-            isItalic:
-                event.performer?.artistName == null && event.eventName == null,
+          _tableCell(number.toString(), width: 45, isBold: true, center: true),
+          _vd(),
+          _tableCell(dateStr, width: 110),
+          _vd(),
+          Expanded(
+            flex: 2,
+            child: _cellText(
+              event.performer?.artistName ?? event.eventName ?? "N/A",
+              false,
+              false,
+              event.performer?.artistName == null && event.eventName == null,
+              event.performer?.artistName == null && event.eventName == null,
+            ),
           ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(
-            fullLocation,
-            width: 200,
-            isGrey: loc == "N/A",
-            isItalic: loc == "N/A",
+          _vd(),
+          Expanded(
+            flex: 3,
+            child: _cellText(
+              fullLocation,
+              false,
+              false,
+              loc == "N/A",
+              loc == "N/A",
+            ),
           ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _vd(),
           _tableCell(
             "${event.ticketsSold ?? 0}",
-            width: 80,
+            width: 95,
             center: true,
             isBold: true,
           ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
+          _vd(),
           SizedBox(
-            width: 130,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 80),
-                child: _buildStatusBadge(isUpcoming),
-              ),
-            ),
-          ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          SizedBox(
-            width: 80,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.edit_outlined,
-                      size: 22,
-                      color: Color.fromARGB(255, 29, 35, 93),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  InkWell(
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.delete_outline,
-                      size: 22,
-                      color: Color(0xFFE53935),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            width: 100,
+            child: Center(child: _buildStatusBadge(isUpcoming)),
           ),
         ],
       ),
@@ -525,7 +489,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   }
 
   Widget _tableHeaderCell(String text, {int? flex, double? width}) {
-    Widget content = Center(
+    final content = Center(
       child: Text(
         text,
         style: const TextStyle(
@@ -535,28 +499,21 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         ),
       ),
     );
-    return flex != null
-        ? Expanded(flex: flex, child: content)
-        : SizedBox(width: width, child: content);
+    if (flex != null) return Expanded(flex: flex, child: content);
+    return SizedBox(width: width, child: content);
   }
 
   Widget _tableCell(
     String text, {
-    int? flex,
     double? width,
     bool isBold = false,
     bool center = false,
     bool isGrey = false,
     bool isItalic = false,
   }) {
-    return Container(
+    return SizedBox(
       width: width,
-      child: flex != null
-          ? Expanded(
-              flex: flex,
-              child: _cellText(text, isBold, center, isGrey, isItalic),
-            )
-          : _cellText(text, isBold, center, isGrey, isItalic),
+      child: _cellText(text, isBold, center, isGrey, isItalic),
     );
   }
 
@@ -587,8 +544,12 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
     );
   }
 
-  Widget _verticalDivider(Color color) =>
-      VerticalDivider(color: color, thickness: 1, indent: 6, endIndent: 6);
+  Widget _vd() => VerticalDivider(
+    color: const Color.fromARGB(77, 145, 156, 218),
+    thickness: 1,
+    indent: 6,
+    endIndent: 6,
+  );
 
   Widget _buildPagination() {
     return Row(

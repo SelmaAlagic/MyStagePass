@@ -10,10 +10,10 @@ namespace MyStagePass.Subscriber
 		{
 			try
 			{
-				string smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER") ?? "smtp.gmail.com";
+				string smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER");
 				int smtpPort = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587");
-				string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? "mystagepassapprs2@gmail.com";
-				string password = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? "icda mznr xbxh hfbu";
+				string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME");
+				string password = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
 
 				var emailData = JsonConvert.DeserializeObject<EmailModel>(message);
 				var senderEmail = emailData.Sender;

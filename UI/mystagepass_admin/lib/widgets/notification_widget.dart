@@ -107,11 +107,7 @@ class _NotificationDropdownState extends State<NotificationDropdown>
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildHeader(),
-                          _buildNotificationsList(),
-                          if (_notifications.isNotEmpty) _buildFooter(),
-                        ],
+                        children: [_buildHeader(), _buildNotificationsList()],
                       ),
                     ),
                   ),
@@ -254,44 +250,6 @@ class _NotificationDropdownState extends State<NotificationDropdown>
             },
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildFooter() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(16),
-          bottomRight: Radius.circular(16),
-        ),
-        border: Border(top: BorderSide(color: Colors.grey[200]!)),
-      ),
-      child: InkWell(
-        onTap: () {
-          widget.onClose();
-          widget.onViewAll();
-        },
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.green.shade600,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Center(
-            child: Text(
-              'View All Notifications',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

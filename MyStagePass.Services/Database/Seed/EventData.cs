@@ -8,210 +8,80 @@ namespace MyStagePass.Services.Database.Seed
 		public static void SeedData(this EntityTypeBuilder<Event> entity)
 		{
 			entity.HasData(
+				// ===== ILMA KARAHMET (PerformerID 2) - 3 events =====
 				new Event
 				{
 					EventID = 1,
-					EventName = "Retro Night Spectacle",
-					Description = "A journey back to the golden era of music with timeless hits and spectacular production.",
-					TotalTickets = 18000,
-					TicketsSold = 18000,
-					RegularPrice = 30,
+					EventName = "Ilma Karahmet - Debut Concert",
+					Description = "First solo concert of the rising pop artist",
+					EventDate = new DateTime(2026, 5, 10, 20, 0, 0), // upcoming
+					StatusID = 2, // Approved
+					TotalTickets = 5000,
+					TicketsSold = 2100,
+					RegularPrice = 25,
 					VipPrice = 60,
 					PremiumPrice = 100,
-					PerformerID = 6,
-					EventDate = new DateTime(2024, 10, 10, 20, 0, 0),
-					LocationID = 13,
-					StatusID = 2,
-					TotalScore = 480,
-					RatingCount = 100,
-					RatingAverage = 4.8f,
-					CreatedAt = new DateTime(2024, 10, 1, 10, 0, 0)
+					PerformerID = 2,
+					LocationID = 2,
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 1, 15, 14, 30, 0)
 				},
 				new Event
 				{
 					EventID = 2,
-					EventName = "Heartbeat Tour",
-					Description = "An emotional live experience featuring the most beautiful ballads of the decade.",
-					TotalTickets = 12000,
-					TicketsSold = 12000,
-					RegularPrice = 35,
+					EventName = "Ilma Karahmet - Tuzla Summer Fest",
+					Description = "Summer performance at Tuzla Festival",
+					EventDate = new DateTime(2024, 7, 22, 21, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 7000,
+					TicketsSold = 5200,
+					RegularPrice = 30,
 					VipPrice = 70,
 					PremiumPrice = 120,
-					PerformerID = 4,
-					EventDate = new DateTime(2024, 11, 05, 21, 0, 0),
-					LocationID = 7,
-					StatusID = 2,
-					TotalScore = 490,
-					RatingCount = 100,
-					RatingAverage = 4.9f,
-					CreatedAt = new DateTime(2024, 10, 20, 9, 0, 0)
+					PerformerID = 2,
+					LocationID = 5,
+					TotalScore = 412,
+					RatingCount = 89,
+					RatingAverage = 4.63f,
+					CreatedAt = new DateTime(2024, 3, 10, 11, 0, 0)
 				},
 				new Event
 				{
 					EventID = 3,
-					EventName = "Acoustic Unplugged Night",
-					Description = "An intimate atmosphere showcasing raw emotions through special acoustic arrangements.",
-					TotalTickets = 7000,
-					TicketsSold = 6500,
-					RegularPrice = 40,
+					EventName = "Ilma Karahmet - Acoustic Evening",
+					Description = "Special concert in an intimate setting",
+					EventDate = new DateTime(2026, 9, 5, 19, 30, 0), // upcoming
+					StatusID = 1, // Pending
+					TotalTickets = 3000,
+					TicketsSold = 0,
+					RegularPrice = 35,
 					VipPrice = 80,
 					PremiumPrice = 150,
-					PerformerID = 5,
-					EventDate = new DateTime(2024, 11, 25, 20, 30, 0),
-					LocationID = 18,
-					StatusID = 2,
-					TotalScore = 450,
-					RatingCount = 100,
-					RatingAverage = 4.5f,
-					CreatedAt = new DateTime(2024, 11, 1, 11, 0, 0)
+					PerformerID = 2,
+					LocationID = 12,
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 2, 5, 9, 15, 0)
 				},
+
+				// ===== TONI CETINSKI (PerformerID 4) - 5 events =====
 				new Event
 				{
 					EventID = 4,
-					EventName = "Winter Club Party",
-					Description = "The hottest winter night featuring top-tier rhythms and a clubbing atmosphere to remember.",
-					TotalTickets = 5000,
-					TicketsSold = 5000,
-					RegularPrice = 25,
-					VipPrice = 50,
-					PremiumPrice = 90,
-					PerformerID = 9,
-					EventDate = new DateTime(2024, 12, 20, 23, 0, 0),
-					LocationID = 23,
-					StatusID = 2,
-					TotalScore = 420,
-					RatingCount = 100,
-					RatingAverage = 4.2f,
-					CreatedAt = new DateTime(2024, 11, 15, 14, 0, 0)
-				},
-				new Event
-				{
-					EventID = 5,
-					EventName = "New Year's Eve Gala",
-					Description = "A glamorous New Year's celebration with an exclusive musical program and premium entertainment.",
-					TotalTickets = 4000,
-					TicketsSold = 4000,
-					RegularPrice = 50,
-					VipPrice = 100,
-					PremiumPrice = 150,
-					PerformerID = 2,
-					EventDate = new DateTime(2024, 12, 31, 22, 0, 0),
-					LocationID = 6,
-					StatusID = 2,
-					TotalScore = 470,
-					RatingCount = 100,
-					RatingAverage = 4.7f,
-					CreatedAt = new DateTime(2024, 12, 1, 10, 0, 0)
-				},
-				new Event
-				{
-					EventID = 6,
-					EventName = "The Power of Voice",
-					Description = "Vocal domination and energy that pushes the boundaries of modern pop music.",
-					TotalTickets = 5000,
-					TicketsSold = 4200,
-					RegularPrice = 20,
-					VipPrice = 40,
-					PremiumPrice = 80,
-					PerformerID = 3,
-					EventDate = new DateTime(2025, 01, 10, 20, 0, 0),
-					LocationID = 2,
-					StatusID = 2,
-					TotalScore = 460,
-					RatingCount = 100,
-					RatingAverage = 4.6f,
-					CreatedAt = new DateTime(2024, 12, 15, 9, 0, 0)
-				},
-				new Event
-				{
-					EventID = 7,
-					EventName = "Valentine's Warmup",
-					Description = "The perfect prelude to the holiday of love featuring the most romantic local melodies.",
-					TotalTickets = 5000,
-					TicketsSold = 5000,
-					RegularPrice = 25,
-					VipPrice = 50,
-					PremiumPrice = 90,
-					PerformerID = 8,
-					EventDate = new DateTime(2025, 02, 05, 21, 0, 0),
-					LocationID = 12,
-					StatusID = 2,
-					TotalScore = 480,
-					RatingCount = 100,
-					RatingAverage = 4.8f,
-					CreatedAt = new DateTime(2025, 1, 5, 10, 0, 0)
-				},
-				new Event
-				{
-					EventID = 8,
-					EventName = "The Arena Experience",
-					Description = "An audio-visual spectacle in the largest arena that will leave you breathless.",
+					EventName = "Toni Cetinski - Zagreb Arena",
+					Description = "Spectacular concert celebrating 30 years of career",
+					EventDate = new DateTime(2026, 11, 20, 20, 0, 0), // upcoming
+					StatusID = 1, // Pending
 					TotalTickets = 16000,
-					TicketsSold = 16000,
-					RegularPrice = 35,
-					VipPrice = 75,
-					PremiumPrice = 130,
-					PerformerID = 9,
-					EventDate = new DateTime(2025, 02, 10, 20, 0, 0),
-					LocationID = 8,
-					StatusID = 2,
-					TotalScore = 500,
-					RatingCount = 100,
-					RatingAverage = 5.0f,
-					CreatedAt = new DateTime(2025, 1, 10, 11, 0, 0)
-				},
-				new Event
-				{
-					EventID = 9,
-					EventName = "Valentine's Live Special",
-					Description = "A special concert evening dedicated to love in the heart of Sarajevo.",
-					TotalTickets = 15000,
-					TicketsSold = 8000,
-					RegularPrice = 25,
-					VipPrice = 50,
-					PremiumPrice = 90,
-					PerformerID = 7,
-					EventDate = new DateTime(2025, 02, 14, 20, 0, 0),
-					LocationID = 1,
-					StatusID = 2,
-					TotalScore = 0,
-					RatingCount = 0,
-					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 1, 20, 9, 0, 0)
-				},
-				new Event
-				{
-					EventID = 10,
-					EventName = "Canceled Pop Show",
-					Description = "A major pop concert designed to be the highlight of the winter tour season.",
-					TotalTickets = 3000,
 					TicketsSold = 0,
-					RegularPrice = 20,
-					VipPrice = 40,
-					PremiumPrice = 70,
-					PerformerID = 2,
-					EventDate = new DateTime(2025, 02, 22, 22, 0, 0),
-					LocationID = 26,
-					StatusID = 3,
-					TotalScore = 0,
-					RatingCount = 0,
-					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 1, 25, 14, 0, 0)
-				},
-				new Event
-				{
-					EventID = 11,
-					EventName = "Women's Day Spectacle",
-					Description = "A traditional concert dedicated to all ladies with flowers, emotions, and songs.",
-					TotalTickets = 6200,
-					TicketsSold = 2500,
-					RegularPrice = 20,
-					VipPrice = 40,
-					PremiumPrice = 80,
-					PerformerID = 3,
-					EventDate = new DateTime(2025, 03, 08, 20, 0, 0),
-					LocationID = 14,
-					StatusID = 1,
+					RegularPrice = 40,
+					VipPrice = 90,
+					PremiumPrice = 180,
+					PerformerID = 4,
+					LocationID = 8,
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
@@ -219,170 +89,351 @@ namespace MyStagePass.Services.Database.Seed
 				},
 				new Event
 				{
-					EventID = 12,
-					EventName = "Spring Live Tour",
-					Description = "Awakening of spring with new energy and the premiere of upcoming singles.",
-					TotalTickets = 8000,
-					TicketsSold = 3100,
-					RegularPrice = 20,
-					VipPrice = 45,
-					PremiumPrice = 85,
-					PerformerID = 8,
-					EventDate = new DateTime(2025, 03, 15, 21, 0, 0),
-					LocationID = 4,
-					StatusID = 2,
-					TotalScore = 0,
-					RatingCount = 0,
-					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 2, 10, 9, 0, 0)
+					EventID = 5,
+					EventName = "Toni Cetinski - Split Summer Nights",
+					Description = "Summer open-air concert",
+					EventDate = new DateTime(2024, 8, 5, 21, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 12000,
+					TicketsSold = 11800,
+					RegularPrice = 35,
+					VipPrice = 80,
+					PremiumPrice = 160,
+					PerformerID = 4,
+					LocationID = 7,
+					TotalScore = 1100,
+					RatingCount = 234,
+					RatingAverage = 4.70f,
+					CreatedAt = new DateTime(2024, 2, 20, 12, 0, 0)
 				},
 				new Event
 				{
-					EventID = 13,
-					EventName = "Sava Center Exclusive",
-					Description = "An exclusive night in a prestigious setting with top-tier musicians and surprise guests.",
-					TotalTickets = 4000,
-					TicketsSold = 3800,
-					RegularPrice = 45,
-					VipPrice = 90,
+					EventID = 6,
+					EventName = "Toni Cetinski - Sarajevo Winter",
+					Description = "Romantic evening with the most beautiful ballads",
+					EventDate = new DateTime(2025, 2, 14, 20, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 15000,
+					TicketsSold = 14300,
+					RegularPrice = 35,
+					VipPrice = 80,
 					PremiumPrice = 160,
 					PerformerID = 4,
-					EventDate = new DateTime(2025, 03, 28, 20, 0, 0),
-					LocationID = 27,
-					StatusID = 1,
+					LocationID = 1,
+					TotalScore = 865,
+					RatingCount = 187,
+					RatingAverage = 4.62f,
+					CreatedAt = new DateTime(2024, 9, 1, 15, 30, 0)
+				},
+				new Event
+				{
+					EventID = 7,
+					EventName = "Toni Cetinski - Mostar Bridge Concert",
+					Description = "Unique concert near the Old Bridge",
+					EventDate = new DateTime(2024, 9, 15, 20, 30, 0), // past
+					StatusID = 2,
+					TotalTickets = 9000,
+					TicketsSold = 8900,
+					RegularPrice = 30,
+					VipPrice = 75,
+					PremiumPrice = 140,
+					PerformerID = 4,
+					LocationID = 15,
+					TotalScore = 756,
+					RatingCount = 168,
+					RatingAverage = 4.50f,
+					CreatedAt = new DateTime(2024, 4, 10, 9, 45, 0)
+				},
+				new Event
+				{
+					EventID = 8,
+					EventName = "Toni Cetinski - Banja Luka Special",
+					Description = "Greatest hits concert",
+					EventDate = new DateTime(2026, 4, 18, 20, 0, 0), // upcoming
+					StatusID = 2, // Approved
+					TotalTickets = 8000,
+					TicketsSold = 3250,
+					RegularPrice = 30,
+					VipPrice = 75,
+					PremiumPrice = 140,
+					PerformerID = 4,
+					LocationID = 4,
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 2, 20, 11, 0, 0)
+					CreatedAt = new DateTime(2024, 12, 5, 11, 20, 0)
+				},
+
+				// ===== ZELJKO SAMARDZIC (PerformerID 5) - 4 events =====
+				new Event
+				{
+					EventID = 9,
+					EventName = "Zeljko Samardzic - Belgrade Classics",
+					Description = "Evening of greatest folk-pop hits",
+					EventDate = new DateTime(2024, 10, 12, 20, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 18000,
+					TicketsSold = 17600,
+					RegularPrice = 25,
+					VipPrice = 60,
+					PremiumPrice = 120,
+					PerformerID = 5,
+					LocationID = 10,
+					TotalScore = 1420,
+					RatingCount = 312,
+					RatingAverage = 4.55f,
+					CreatedAt = new DateTime(2024, 5, 15, 13, 0, 0)
+				},
+				new Event
+				{
+					EventID = 10,
+					EventName = "Zeljko Samardzic - Sarajevo Ballads",
+					Description = "Love songs and romantic ballads",
+					EventDate = new DateTime(2025, 3, 8, 20, 0, 0), // past
+					StatusID = 2,
+					TotalTickets = 12000,
+					TicketsSold = 10900,
+					RegularPrice = 25,
+					VipPrice = 60,
+					PremiumPrice = 120,
+					PerformerID = 5,
+					LocationID = 3,
+					TotalScore = 712,
+					RatingCount = 156,
+					RatingAverage = 4.56f,
+					CreatedAt = new DateTime(2024, 8, 20, 10, 30, 0)
+				},
+				new Event
+				{
+					EventID = 11,
+					EventName = "Zeljko Samardzic - Zenica Live",
+					Description = "Intimate acoustic concert",
+					EventDate = new DateTime(2026, 7, 30, 21, 0, 0), // upcoming
+					StatusID = 1, // Pending
+					TotalTickets = 6200,
+					TicketsSold = 0,
+					RegularPrice = 20,
+					VipPrice = 50,
+					PremiumPrice = 100,
+					PerformerID = 5,
+					LocationID = 14,
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 1, 25, 16, 15, 0)
+				},
+				new Event
+				{
+					EventID = 12,
+					EventName = "Zeljko Samardzic - Novi Sad Festival",
+					Description = "Special guest at EXIT Festival",
+					EventDate = new DateTime(2024, 7, 7, 23, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 40000,
+					TicketsSold = 35000,
+					RegularPrice = 45,
+					VipPrice = 120,
+					PremiumPrice = 250,
+					PerformerID = 5,
+					LocationID = 29,
+					TotalScore = 1290,
+					RatingCount = 278,
+					RatingAverage = 4.64f,
+					CreatedAt = new DateTime(2024, 2, 28, 14, 0, 0)
+				},
+
+				// ===== ADI SOSE (PerformerID 6) - 2 events =====
+				new Event
+				{
+					EventID = 13,
+					EventName = "Adi Sose - Jazz Night",
+					Description = "Evening of jazz and soul music",
+					EventDate = new DateTime(2026, 6, 5, 21, 0, 0), // upcoming
+					StatusID = 2, // Approved
+					TotalTickets = 5000,
+					TicketsSold = 1850,
+					RegularPrice = 30,
+					VipPrice = 70,
+					PremiumPrice = 130,
+					PerformerID = 6,
+					LocationID = 2,
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2024, 11, 10, 9, 0, 0)
 				},
 				new Event
 				{
 					EventID = 14,
-					EventName = "Vocal Magic Live",
-					Description = "Vocal magic that captures hearts across the region as part of a major tour.",
-					TotalTickets = 11000,
-					TicketsSold = 5000,
-					RegularPrice = 30,
+					EventName = "Adi Sose - Akustik Session",
+					Description = "Unique vocal performance with band",
+					EventDate = new DateTime(2024, 11, 18, 20, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 3000,
+					TicketsSold = 2800,
+					RegularPrice = 25,
 					VipPrice = 60,
 					PremiumPrice = 110,
-					PerformerID = 9,
-					EventDate = new DateTime(2025, 04, 05, 20, 0, 0),
-					LocationID = 28,
-					StatusID = 2,
-					TotalScore = 0,
-					RatingCount = 0,
-					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 3, 1, 10, 0, 0)
+					PerformerID = 6,
+					LocationID = 26,
+					TotalScore = 315,
+					RatingCount = 67,
+					RatingAverage = 4.70f,
+					CreatedAt = new DateTime(2024, 6, 15, 12, 30, 0)
 				},
+
+				// ===== MIRZA SELIMOVIC (PerformerID 7) - 3 events =====
 				new Event
 				{
 					EventID = 15,
-					EventName = "Pop Rock Evening",
-					Description = "A fusion of powerful sounds and pop melodies in a legendary sports arena.",
-					TotalTickets = 5000,
-					TicketsSold = 1500,
-					RegularPrice = 30,
-					VipPrice = 60,
+					EventName = "Mirza Selimovic - Folk Spectacle",
+					Description = "Traditional folk music night",
+					EventDate = new DateTime(2024, 9, 28, 20, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 10000,
+					TicketsSold = 8200,
+					RegularPrice = 20,
+					VipPrice = 50,
 					PremiumPrice = 100,
-					PerformerID = 5,
-					EventDate = new DateTime(2025, 04, 12, 20, 30, 0),
-					LocationID = 2,
-					StatusID = 1,
-					TotalScore = 0,
-					RatingCount = 0,
-					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 3, 10, 9, 0, 0)
+					PerformerID = 7,
+					LocationID = 11,
+					TotalScore = 665,
+					RatingCount = 145,
+					RatingAverage = 4.59f,
+					CreatedAt = new DateTime(2024, 4, 5, 10, 45, 0)
 				},
 				new Event
 				{
 					EventID = 16,
-					EventName = "Rejected Summer Fest",
-					Description = "An outdoor summer festival planned to gather thousands of music lovers.",
+					EventName = "Mirza Selimovic - Bihac Summer",
+					Description = "Summer concert in Una National Park",
+					EventDate = new DateTime(2026, 8, 20, 20, 30, 0), // upcoming
+					StatusID = 1, // Pending
 					TotalTickets = 3000,
 					TicketsSold = 0,
 					RegularPrice = 25,
-					VipPrice = 50,
-					PremiumPrice = 90,
-					PerformerID = 9,
-					EventDate = new DateTime(2025, 04, 25, 22, 0, 0),
-					LocationID = 26,
-					StatusID = 3,
+					VipPrice = 60,
+					PremiumPrice = 120,
+					PerformerID = 7,
+					LocationID = 16,
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 3, 15, 14, 0, 0)
+					CreatedAt = new DateTime(2025, 2, 18, 8, 30, 0)
 				},
 				new Event
 				{
 					EventID = 17,
-					EventName = "Stadium Open Air",
-					Description = "A grand concert under the stars in a massive stadium setting.",
-					TotalTickets = 9000,
-					TicketsSold = 4500,
-					RegularPrice = 20,
-					VipPrice = 45,
-					PremiumPrice = 80,
-					PerformerID = 7,
-					EventDate = new DateTime(2025, 05, 10, 21, 0, 0),
-					LocationID = 15,
+					EventName = "Mirza Selimovic - New Year's Eve",
+					Description = "New Year celebration in Podgorica",
+					EventDate = new DateTime(2024, 12, 31, 22, 0, 0), // past
 					StatusID = 2,
-					TotalScore = 0,
-					RatingCount = 0,
-					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 3, 20, 10, 0, 0)
+					TotalTickets = 9000,
+					TicketsSold = 6750,
+					RegularPrice = 40,
+					VipPrice = 100,
+					PremiumPrice = 200,
+					PerformerID = 7,
+					LocationID = 9,
+					TotalScore = 580,
+					RatingCount = 125,
+					RatingAverage = 4.64f,
+					CreatedAt = new DateTime(2024, 7, 1, 11, 0, 0)
 				},
+
+				// ===== PRLJAVO KAZALISTE (PerformerID 9) - 4 events =====
 				new Event
 				{
 					EventID = 18,
-					EventName = "Kastel Fortress Spectacle",
-					Description = "A night to remember at the ancient fortress with premium sound and light shows.",
-					TotalTickets = 10000,
-					TicketsSold = 3000,
-					RegularPrice = 25,
-					VipPrice = 50,
-					PremiumPrice = 95,
-					PerformerID = 6,
-					EventDate = new DateTime(2025, 05, 17, 21, 0, 0),
-					LocationID = 11,
-					StatusID = 1,
+					EventName = "Prljavo Kazaliste - 40 Years Anniversary",
+					Description = "Jubilee concert with special guests",
+					EventDate = new DateTime(2026, 10, 5, 20, 0, 0), // upcoming
+					StatusID = 1, // Pending
+					TotalTickets = 16000,
+					TicketsSold = 0,
+					RegularPrice = 35,
+					VipPrice = 85,
+					PremiumPrice = 170,
+					PerformerID = 9,
+					LocationID = 8,
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 4, 1, 9, 0, 0)
+					CreatedAt = new DateTime(2025, 1, 30, 13, 20, 0)
 				},
 				new Event
 				{
 					EventID = 19,
-					EventName = "Zetra Hall Live",
-					Description = "The biggest concert of the artist's career in the legendary Olympic hall.",
+					EventName = "Prljavo Kazaliste - Sarajevo Rock Night",
+					Description = "Rock classics and new hits",
+					EventDate = new DateTime(2024, 11, 15, 21, 0, 0), // past
+					StatusID = 3,
 					TotalTickets = 12000,
-					TicketsSold = 5200,
-					RegularPrice = 25,
-					VipPrice = 55,
-					PremiumPrice = 100,
-					PerformerID = 2,
-					EventDate = new DateTime(2025, 05, 24, 20, 30, 0),
+					TicketsSold = 11000,
+					RegularPrice = 30,
+					VipPrice = 75,
+					PremiumPrice = 150,
+					PerformerID = 9,
 					LocationID = 3,
-					StatusID = 2,
-					TotalScore = 0,
-					RatingCount = 0,
-					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 4, 10, 11, 0, 0)
+					TotalScore = 935,
+					RatingCount = 203,
+					RatingAverage = 4.60f,
+					CreatedAt = new DateTime(2024, 6, 10, 9, 45, 0)
 				},
 				new Event
 				{
 					EventID = 20,
+					EventName = "Prljavo Kazaliste - Split Open Air",
+					Description = "Summer rock concert at Poljud",
+					EventDate = new DateTime(2024, 8, 25, 21, 0, 0), // past
+					StatusID = 3,
+					TotalTickets = 34000,
+					TicketsSold = 29800,
+					RegularPrice = 35,
+					VipPrice = 90,
+					PremiumPrice = 180,
+					PerformerID = 9,
+					LocationID = 19,
+					TotalScore = 1220,
+					RatingCount = 267,
+					RatingAverage = 4.57f,
+					CreatedAt = new DateTime(2024, 3, 15, 15, 30, 0)
+				},
+				new Event
+				{
+					EventID = 21,
+					EventName = "Prljavo Kazaliste - Mostar Rock Fest",
+					Description = "Headliner at Mostar Rock Festival",
+					EventDate = new DateTime(2026, 7, 12, 22, 0, 0), // upcoming
+					StatusID = 2, // Approved
+					TotalTickets = 9000,
+					TicketsSold = 4300,
+					RegularPrice = 30,
+					VipPrice = 75,
+					PremiumPrice = 150,
+					PerformerID = 9,
+					LocationID = 15,
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2024, 10, 5, 10, 0, 0)
+				},
+
+				// ===== BALKAN SPRING FESTIVAL =====
+				new Event
+				{
+					EventID = 22,
 					EventName = "Balkan Spring Festival",
 					Description = "Closing the spring season with a massive festival lineup at the fortress.",
+					EventDate = new DateTime(2026, 5, 31, 19, 0, 0), // upcoming
+					StatusID = 1, // Pending
 					TotalTickets = 40000,
 					TicketsSold = 12000,
 					RegularPrice = 40,
 					VipPrice = 100,
 					PremiumPrice = 200,
 					PerformerID = 8,
-					EventDate = new DateTime(2025, 05, 31, 19, 0, 0),
 					LocationID = 29,
-					StatusID = 1,
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,

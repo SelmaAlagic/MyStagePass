@@ -5,10 +5,10 @@ using MyStagePass.Subscriber;
 
 var factory = new ConnectionFactory
 {
-	HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+	HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST"),
 	Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-	UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
-	Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
+	UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME"),
+	Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"),
 };
 factory.ClientProvidedName = " [*] Rabbit Test Consumer";
 

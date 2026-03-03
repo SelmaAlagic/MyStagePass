@@ -59,7 +59,14 @@ namespace MyStagePass.Services.Services
 				}
 			}
 
-			await _notificationService.NotifyUser(1, $"New performer '{insert.FirstName} {insert.LastName}' is waiting for approval!");
+			var admins = await _context.Users
+					.Where(u => u.Admins.Any())
+					.ToListAsync();
+
+			foreach (var admin in admins)
+			{
+				await _notificationService.NotifyUser(admin.UserID, $"New performer '{insert.FirstName} {insert.LastName}' is waiting for approval!");
+			}
 		}
 
 		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
