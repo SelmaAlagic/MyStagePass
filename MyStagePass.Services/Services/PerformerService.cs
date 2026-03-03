@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.DTOs;
 using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Helpers;
 using MyStagePass.Services.Interfaces;
+using static MyStagePass.Services.Database.Event;
 
 namespace MyStagePass.Services.Services
 {
@@ -213,6 +215,33 @@ namespace MyStagePass.Services.Services
 					.Average();
 			}
 			return result;
+		}
+
+		public async Task<PerformerStatistics> GetMyStatistics(int performerId, int? month, int? year, int? eventId)
+		{
+			var query = _context.Tickets
+			   .Include(t => t.Event)
+			   .Include(t => t.Purchase)
+			   .Where(t => t.Event.PerformerID == performerId && !t.IsDeleted);
+
+			if (eventId.HasValue)
+				query = query.Where(t => t.EventID == eventId.Value);
+			else if (month.HasValue && year.HasValue)
+				query = query.Where(t => t.Purchase.PurchaseDate.Month == month.Value && t.Purchase.PurchaseDate.Year == year.Value);
+
+			var tickets = await query.ToListAsync();
+
+			return new PerformerStatistics
+			{
+				TotalTicketsSold = tickets.Count,
+				TotalRevenue = tickets.Sum(t => t.Price),
+				RegularRevenue = tickets.Where(t => t.TicketType == TicketType.Regular).Sum(t => t.Price),
+				VipRevenue = tickets.Where(t => t.TicketType == TicketType.Vip).Sum(t => t.Price),
+				PremiumRevenue = tickets.Where(t => t.TicketType == TicketType.Premium).Sum(t => t.Price),
+				RegularTicketsSold = tickets.Count(t => (int)t.TicketType == 1),
+				VipTicketsSold = tickets.Count(t => (int)t.TicketType == 2),
+				PremiumTicketsSold = tickets.Count(t => (int)t.TicketType == 3),
+			};
 		}
 	}
 }

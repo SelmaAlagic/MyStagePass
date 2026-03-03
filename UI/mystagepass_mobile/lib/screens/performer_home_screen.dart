@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mystagepass_mobile/screens/performer_add_event_screen.dart';
 import 'package:mystagepass_mobile/screens/performer_events_screen.dart';
+import 'package:mystagepass_mobile/screens/performer_statistics_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -243,7 +244,17 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
                                     _buildMenuCard(
                                       "Statistics",
                                       Icons.analytics_rounded,
-                                      () {},
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                StatisticsScreen(
+                                                  userId: widget.userId,
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                     const SizedBox(height: 20),
                                     _buildMenuCard(

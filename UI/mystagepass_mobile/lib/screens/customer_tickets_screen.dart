@@ -1,11 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/Ticket/ticket.dart';
 import '../providers/ticket_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
+import 'package:printing/printing.dart';
 
 class TicketsScreen extends StatefulWidget {
   final int userId;
@@ -75,6 +81,372 @@ class _TicketsScreenState extends State<TicketsScreen> {
   String _formatDate(DateTime? dt) {
     if (dt == null) return "—";
     return "${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}";
+  }
+
+  String _getTicketTypeLabel(int? type) {
+    switch (type) {
+      case 2:
+        return "VIP";
+      case 3:
+        return "PREMIUM";
+      default:
+        return "REGULAR";
+    }
+  }
+
+  Color _getTicketTypeColor(int? type) {
+    switch (type) {
+      case 2:
+        return const Color(0xFF7B1FA2);
+      case 3:
+        return const Color(0xFFE65100);
+      default:
+        return const Color.fromARGB(255, 75, 163, 204);
+    }
+  }
+
+  PdfColor _getTicketTypePdfColor(int? type) {
+    switch (type) {
+      case 2:
+        return const PdfColor.fromInt(0xFF7B1FA2);
+      case 3:
+        return const PdfColor.fromInt(0xFFE65100);
+      default:
+        return const PdfColor.fromInt(0xFF4BA3CC);
+    }
+  }
+
+  Future<void> _downloadTicketPdf(Ticket ticket) async {
+    final event = ticket.event;
+    final typeLabel = _getTicketTypeLabel(ticket.ticketType);
+    final typePdfColor = _getTicketTypePdfColor(ticket.ticketType);
+    final regularFont = await PdfGoogleFonts.nunitoRegular();
+    final boldFont = await PdfGoogleFonts.nunitoBold();
+
+    final pdf = pw.Document();
+
+    pw.MemoryImage? qrImage;
+    if (ticket.qrCodeData != null && ticket.qrCodeData!.isNotEmpty) {
+      qrImage = pw.MemoryImage(base64Decode(ticket.qrCodeData!));
+    }
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Container(
+                width: double.infinity,
+                padding: const pw.EdgeInsets.all(20),
+                decoration: pw.BoxDecoration(
+                  color: const PdfColor.fromInt(0xFF1D235D),
+                  borderRadius: pw.BorderRadius.circular(12),
+                ),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'MyStagePass',
+                          style: pw.TextStyle(
+                            font: boldFont,
+                            color: PdfColors.white,
+                            fontSize: 22,
+                          ),
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Text(
+                          'Your Ticket',
+                          style: pw.TextStyle(
+                            font: regularFont,
+                            color: PdfColors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: pw.BoxDecoration(
+                        color: typePdfColor,
+                        borderRadius: pw.BorderRadius.circular(20),
+                      ),
+                      child: pw.Text(
+                        typeLabel,
+                        style: pw.TextStyle(
+                          font: boldFont,
+                          color: PdfColors.white,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: 24),
+
+              pw.Text(
+                event?.eventName ?? 'Event',
+                style: pw.TextStyle(
+                  font: boldFont,
+                  fontSize: 20,
+                  color: const PdfColor.fromInt(0xFF1D235D),
+                ),
+              ),
+              pw.SizedBox(height: 4),
+              if (event?.performer?.artistName != null)
+                pw.Text(
+                  event!.performer!.artistName!,
+                  style: pw.TextStyle(
+                    font: regularFont,
+                    fontSize: 13,
+                    color: PdfColors.grey,
+                  ),
+                ),
+              pw.SizedBox(height: 20),
+
+              pw.Container(
+                width: double.infinity,
+                padding: const pw.EdgeInsets.all(16),
+                decoration: pw.BoxDecoration(
+                  color: const PdfColor.fromInt(0xFFF5F6F8),
+                  borderRadius: pw.BorderRadius.circular(12),
+                  border: pw.Border.all(
+                    color: const PdfColor.fromInt(0xFFEAECF0),
+                  ),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _pdfDetailRow(
+                      boldFont,
+                      regularFont,
+                      'Location',
+                      [
+                        event?.location?.locationName,
+                        event?.location?.city?.name,
+                      ].where((s) => s != null && s.isNotEmpty).join(', '),
+                    ),
+                    pw.SizedBox(height: 8),
+                    _pdfDetailRow(
+                      boldFont,
+                      regularFont,
+                      'Address',
+                      event?.location?.address ?? '—',
+                    ),
+                    pw.SizedBox(height: 8),
+                    _pdfDetailRow(
+                      boldFont,
+                      regularFont,
+                      'Date',
+                      _formatDate(event?.eventDate),
+                    ),
+                    pw.SizedBox(height: 8),
+                    _pdfDetailRow(
+                      boldFont,
+                      regularFont,
+                      'Start Time',
+                      _formatTime(event?.eventDate),
+                    ),
+                    pw.SizedBox(height: 8),
+                    _pdfDetailRow(
+                      boldFont,
+                      regularFont,
+                      'Price',
+                      ticket.price != null ? '${ticket.price} KM' : '—',
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: 24),
+
+              if (qrImage != null) ...[
+                pw.Text(
+                  'Your QR Code',
+                  style: pw.TextStyle(
+                    font: boldFont,
+                    fontSize: 14,
+                    color: const PdfColor.fromInt(0xFF1D235D),
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                pw.Divider(color: const PdfColor.fromInt(0xFFEAECF0)),
+                pw.SizedBox(height: 12),
+                pw.Center(
+                  child: pw.Container(
+                    padding: const pw.EdgeInsets.all(12),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.white,
+                      borderRadius: pw.BorderRadius.circular(12),
+                      border: pw.Border.all(
+                        color: const PdfColor.fromInt(0xFFEAECF0),
+                      ),
+                    ),
+                    child: pw.Column(
+                      children: [
+                        pw.Image(qrImage, width: 150, height: 150),
+                        pw.SizedBox(height: 8),
+                        pw.Text(
+                          'Show this code at the event entrance',
+                          style: pw.TextStyle(
+                            font: regularFont,
+                            fontSize: 10,
+                            color: PdfColors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 24),
+              ],
+
+              pw.Divider(color: const PdfColor.fromInt(0xFFEAECF0)),
+              pw.SizedBox(height: 8),
+              pw.Text(
+                'Generated by MyStagePass · ${DateTime.now().day}.${DateTime.now().month}.${DateTime.now().year}',
+                style: pw.TextStyle(
+                  font: regularFont,
+                  fontSize: 10,
+                  color: PdfColors.grey,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    try {
+      final bytes = await pdf.save();
+      final fileName = 'ticket.pdf';
+
+      Directory? directory;
+      if (Platform.isAndroid) {
+        directory = await getExternalStorageDirectory();
+      } else if (Platform.isIOS) {
+        directory = await getApplicationDocumentsDirectory();
+      }
+
+      if (directory == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Could not find storage directory"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsBytes(bytes);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.picture_as_pdf_rounded,
+                  color: Color(0xFF2E7D32),
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    "Ticket PDF saved",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1B5E20),
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    OpenFile.open(file.path);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 0),
+                  ),
+                  child: const Text(
+                    "OPEN",
+                    style: TextStyle(
+                      color: Color(0xFF2E7D32),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFFE8F5E9),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Color(0xFF2E7D32), width: 1),
+            ),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to save PDF: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  pw.Widget _pdfDetailRow(
+    pw.Font boldFont,
+    pw.Font regularFont,
+    String label,
+    String value,
+  ) {
+    return pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.SizedBox(
+          width: 80,
+          child: pw.Text(
+            label,
+            style: pw.TextStyle(
+              font: boldFont,
+              fontSize: 11,
+              color: const PdfColor.fromInt(0xFF555555),
+            ),
+          ),
+        ),
+        pw.Expanded(
+          child: pw.Text(
+            value,
+            style: pw.TextStyle(
+              font: regularFont,
+              fontSize: 11,
+              color: const PdfColor.fromInt(0xFF2D3142),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   void _showTicketDetailsModal(BuildContext context, Ticket ticket) {
@@ -320,7 +692,10 @@ class _TicketsScreenState extends State<TicketsScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _downloadTicketPdf(ticket);
+                          },
                           icon: const Icon(
                             Icons.picture_as_pdf_rounded,
                             size: 15,
@@ -847,27 +1222,5 @@ class _TicketsScreenState extends State<TicketsScreen> {
         ),
       ),
     );
-  }
-
-  String _getTicketTypeLabel(int? type) {
-    switch (type) {
-      case 2:
-        return "VIP";
-      case 3:
-        return "PREMIUM";
-      default:
-        return "REGULAR";
-    }
-  }
-
-  Color _getTicketTypeColor(int? type) {
-    switch (type) {
-      case 2:
-        return const Color(0xFF7B1FA2);
-      case 3:
-        return const Color(0xFFE65100);
-      default:
-        return const Color.fromARGB(255, 75, 163, 204);
-    }
   }
 }

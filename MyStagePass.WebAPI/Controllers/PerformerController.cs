@@ -57,5 +57,18 @@ namespace MyStagePass.WebAPI.Controllers
 		{
 			return await base.Delete(id);
 		}
+
+		[Authorize(Roles = "Performer")]
+		[HttpGet("my-statistics")]
+		public async Task<IActionResult> GetMyStatistics([FromQuery] int? month, [FromQuery] int? year, [FromQuery] int? eventId)
+		{
+			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
+			if (string.IsNullOrEmpty(performerIdClaim))
+				throw new UnauthorizedAccessException("Invalid token");
+
+			int performerId = int.Parse(performerIdClaim);
+			var result = await _performerService.GetMyStatistics(performerId, month, year, eventId);
+			return Ok(result);
+		}
 	}
 }
