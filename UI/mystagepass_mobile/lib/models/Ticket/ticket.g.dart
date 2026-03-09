@@ -12,7 +12,6 @@ Ticket _$TicketFromJson(Map<String, dynamic> json) => Ticket(
   eventID: (json['eventID'] as num?)?.toInt(),
   purchaseID: (json['purchaseID'] as num?)?.toInt(),
   ticketType: (json['ticketType'] as num?)?.toInt(),
-  qrCodeData: json['qrCodeData'] as String?,
   isDeleted: json['isDeleted'] as bool?,
   event: json['event'] == null
       ? null
@@ -25,7 +24,6 @@ Map<String, dynamic> _$TicketToJson(Ticket instance) => <String, dynamic>{
   'eventID': instance.eventID,
   'purchaseID': instance.purchaseID,
   'ticketType': instance.ticketType,
-  'qrCodeData': instance.qrCodeData,
   'isDeleted': instance.isDeleted,
   'event': instance.event,
 };

@@ -263,6 +263,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: Column(
@@ -333,37 +334,40 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            ElevatedButton(
-              onPressed: tickets.isEmpty
-                  ? null
-                  : () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TicketsScreen(
-                            userId: widget.userId,
-                            preloadedTickets: tickets,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: ElevatedButton(
+                onPressed: tickets.isEmpty
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TicketsScreen(
+                              userId: widget.userId,
+                              preloadedTickets: tickets,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1D235D),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
+                        );
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1D235D),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  elevation: 0,
                 ),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9),
+                child: const Text(
+                  "Show Tickets",
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
-                elevation: 0,
-              ),
-              child: const Text(
-                "Show Tickets",
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               ),
             ),
           ],

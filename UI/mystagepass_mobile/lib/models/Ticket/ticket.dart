@@ -10,7 +10,6 @@ class Ticket {
   int? eventID;
   int? purchaseID;
   int? ticketType;
-  String? qrCodeData;
   bool? isDeleted;
   Event? event;
 
@@ -20,7 +19,6 @@ class Ticket {
     this.eventID,
     this.purchaseID,
     this.ticketType,
-    this.qrCodeData,
     this.isDeleted,
     this.event,
   });

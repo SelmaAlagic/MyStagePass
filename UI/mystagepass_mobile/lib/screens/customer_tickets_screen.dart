@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
@@ -7,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../models/Ticket/ticket.dart';
 import '../providers/ticket_provider.dart';
 import '../providers/auth_provider.dart';
@@ -123,12 +123,28 @@ class _TicketsScreenState extends State<TicketsScreen> {
     final regularFont = await PdfGoogleFonts.nunitoRegular();
     final boldFont = await PdfGoogleFonts.nunitoBold();
 
-    final pdf = pw.Document();
+    final qrValidationResult = QrValidator.validate(
+      data: ticket.ticketID.toString(),
+      version: QrVersions.auto,
+      errorCorrectionLevel: QrErrorCorrectLevel.L,
+    );
 
     pw.MemoryImage? qrImage;
-    if (ticket.qrCodeData != null && ticket.qrCodeData!.isNotEmpty) {
-      qrImage = pw.MemoryImage(base64Decode(ticket.qrCodeData!));
+    if (qrValidationResult.status == QrValidationStatus.valid) {
+      final qrCode = qrValidationResult.qrCode!;
+      final painter = QrPainter.withQr(
+        qr: qrCode,
+        color: const Color(0xFF000000),
+        emptyColor: const Color(0xFFFFFFFF),
+        gapless: true,
+      );
+      final picData = await painter.toImageData(300);
+      if (picData != null) {
+        qrImage = pw.MemoryImage(picData.buffer.asUint8List());
+      }
     }
+
+    final pdf = pw.Document();
 
     pdf.addPage(
       pw.Page(
@@ -192,7 +208,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
                 ),
               ),
               pw.SizedBox(height: 24),
-
               pw.Text(
                 event?.eventName ?? 'Event',
                 style: pw.TextStyle(
@@ -212,7 +227,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
                   ),
                 ),
               pw.SizedBox(height: 20),
-
               pw.Container(
                 width: double.infinity,
                 padding: const pw.EdgeInsets.all(16),
@@ -267,7 +281,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
                 ),
               ),
               pw.SizedBox(height: 24),
-
               if (qrImage != null) ...[
                 pw.Text(
                   'Your QR Code',
@@ -308,7 +321,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
                 ),
                 pw.SizedBox(height: 24),
               ],
-
               pw.Divider(color: const PdfColor.fromInt(0xFFEAECF0)),
               pw.SizedBox(height: 8),
               pw.Text(
@@ -327,7 +339,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
 
     try {
       final bytes = await pdf.save();
-      final fileName = 'ticket.pdf';
+      const fileName = 'ticket.pdf';
 
       Directory? directory;
       if (Platform.isAndroid) {
@@ -621,73 +633,67 @@ class _TicketsScreenState extends State<TicketsScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  if (ticket.qrCodeData != null &&
-                      ticket.qrCodeData!.isNotEmpty) ...[
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Your QR Code",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF2D3142),
-                        ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Your QR Code",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2D3142),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.memory(
-                              base64Decode(ticket.qrCodeData!),
-                              width: 120,
-                              height: 120,
-                              fit: BoxFit.fill,
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        QrImageView(
+                          data: ticket.ticketID.toString(),
+                          version: QrVersions.auto,
+                          size: 120,
+                          backgroundColor: Colors.white,
+                        ),
+                        const SizedBox(height: 7),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 12,
+                              color: Colors.grey[700],
                             ),
-                          ),
-                          const SizedBox(height: 7),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.info_outline_rounded,
-                                size: 12,
-                                color: Colors.grey[700],
-                              ),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  "Show this code at the event entrance",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey[700],
-                                    fontStyle: FontStyle.italic,
-                                  ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                "Show this code at the event entrance",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[700],
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 14),
-                  ],
+                  ),
+                  const SizedBox(height: 14),
                   Row(
                     children: [
                       Expanded(
@@ -1147,42 +1153,23 @@ class _TicketsScreenState extends State<TicketsScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      if (ticket.qrCodeData != null &&
-                          ticket.qrCodeData!.isNotEmpty)
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.memory(
-                              base64Decode(ticket.qrCodeData!),
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                        )
-                      else
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.white30, width: 1),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.qr_code_rounded,
-                              color: Colors.white54,
-                              size: 32,
-                            ),
+                      Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: QrImageView(
+                            data: ticket.ticketID.toString(),
+                            version: QrVersions.auto,
+                            size: 70,
+                            backgroundColor: Colors.white,
                           ),
                         ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),

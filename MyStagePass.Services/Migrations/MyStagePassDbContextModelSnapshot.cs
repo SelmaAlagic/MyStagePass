@@ -2303,9 +2303,6 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("PurchaseID")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("QRCodeData")
-                        .HasColumnType("varbinary(max)");
-
                     b.Property<int>("TicketType")
                         .HasColumnType("int");
 

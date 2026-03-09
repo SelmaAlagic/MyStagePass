@@ -123,7 +123,6 @@ namespace MyStagePass.Services.Services
 					_context.Tickets.Add(ticket);
 					await _context.SaveChangesAsync();
 
-					ticket.GenerateQRCode($"{ticket.TicketID}");
 				}
 
 				ev.TicketsSold += request.NumberOfTickets;
