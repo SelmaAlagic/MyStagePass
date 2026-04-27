@@ -4,5 +4,6 @@
 	{
 		public string? FTS { get; set;}
 		public bool? IsActive {  get; set;}
+		public string? Role { get; set; }
 	}
 }

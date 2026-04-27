@@ -9,7 +9,7 @@ namespace MyStagePass.Services.Interfaces
 		Task<int> GetUnreadCount(int userId);
 		Task MarkAllAsRead(int userId);
 		Task<Model.Models.Notification> Insert(NotificationInsertRequest request);
-		Task NotifyUser(int userId, string message);
-		Task NotifyUsers(List<int> userIds, string message);
+		Task NotifyUser(int userId, string title,  string message);
+		Task NotifyUsers(List<int> userIds, string title, string message);
 	}
 }

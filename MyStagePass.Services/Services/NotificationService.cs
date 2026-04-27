@@ -51,28 +51,30 @@ namespace MyStagePass.Services.Services
 		public async Task<Model.Models.Notification> Insert(NotificationInsertRequest request)
 		{
 			var entity = _mapper.Map<Database.Notification>(request);
-			entity.CreatedAt = DateTime.Now;
+			entity.CreatedAt = DateTime.UtcNow;
 			await _context.Notifications.AddAsync(entity);
 			await _context.SaveChangesAsync();
 			return _mapper.Map<Model.Models.Notification>(entity);
 		}
 
-		public async Task NotifyUser(int userId, string message)
+		public async Task NotifyUser(int userId, string title, string message)
 		{
 			await Insert(new NotificationInsertRequest
 			{
 				UserID = userId,
+				Title = title,
 				Message = message
 			});
 		}
 
-		public async Task NotifyUsers(List<int> userIds, string message)
+		public async Task NotifyUsers(List<int> userIds, string title, string message)
 		{
 			foreach (var userId in userIds)
 			{
 				await Insert(new NotificationInsertRequest
 				{
 					UserID = userId,
+					Title = title,
 					Message = message
 				});
 			}

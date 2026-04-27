@@ -143,7 +143,7 @@ namespace MyStagePass.Services.Database
 
 			modelBuilder.Entity<Purchase>(entity =>
 			{
-				entity.HasOne<Customer>()
+				entity.HasOne(p => p.Customer)
 					.WithMany(co => co.Purchases)
 					.HasForeignKey(n => n.CustomerID)
 					.OnDelete(DeleteBehavior.Cascade);

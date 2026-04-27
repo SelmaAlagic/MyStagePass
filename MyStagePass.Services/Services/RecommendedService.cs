@@ -46,7 +46,7 @@ namespace MyStagePass.Services.Services
 				.Include(e => e.Performer).ThenInclude(p => p.Genres).ThenInclude(pg => pg.Genre)
 				.Include(e => e.Location).ThenInclude(l => l.City)
 				.Include(e => e.Tickets)
-				.Where(e => e.EventDate > DateTime.Now)
+				.Where(e => e.EventDate > DateTime.UtcNow)
 				.Where(e => !allInteractedEventIds.Contains(e.EventID))
 				.ToListAsync();
 
@@ -168,7 +168,7 @@ namespace MyStagePass.Services.Services
 				.Include(e => e.Performer).ThenInclude(p => p.Genres).ThenInclude(pg => pg.Genre)
 				.Include(e => e.Location).ThenInclude(l => l.City)
 				.Include(e => e.Tickets)
-				.Where(e => e.EventDate > DateTime.Now)
+				.Where(e => e.EventDate > DateTime.UtcNow)
 				.OrderByDescending(e => e.TicketsSold)
 				.Take(topN)
 				.ToListAsync();

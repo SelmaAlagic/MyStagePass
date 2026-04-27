@@ -18,6 +18,7 @@ Event _$EventFromJson(Map<String, dynamic> json) => Event(
   regularPrice: (json['regularPrice'] as num?)?.toInt(),
   vipPrice: (json['vipPrice'] as num?)?.toInt(),
   premiumPrice: (json['premiumPrice'] as num?)?.toInt(),
+  isCancelled: json['isCancelled'] as bool?,
   performer: json['performer'] == null
       ? null
       : Performer.fromJson(json['performer'] as Map<String, dynamic>),
@@ -43,6 +44,7 @@ Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
   'vipPrice': instance.vipPrice,
   'premiumPrice': instance.premiumPrice,
   'createdAt': instance.createdAt?.toIso8601String(),
+  'isCancelled': instance.isCancelled,
   'performer': instance.performer,
   'location': instance.location,
   'status': instance.status,

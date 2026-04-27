@@ -78,6 +78,24 @@ namespace MyStagePass.WebAPI.Controllers
 			}
 		}
 
+		[Authorize(Roles = "Admin")]
+		[HttpPut("{id}/cancel")]
+		public async Task<IActionResult> Cancel(int id)
+		{
+			var eventService = _service as IEventService;
+			if (eventService == null)
+				return BadRequest("Service not available");
+			try
+			{
+				var result = await eventService.CancelEvent(id);
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
 		[Authorize(Roles = "Performer")]
 		[HttpPut("{id}")]
 		public override async Task<Event> Update(int id, [FromBody] EventUpdateRequest update)

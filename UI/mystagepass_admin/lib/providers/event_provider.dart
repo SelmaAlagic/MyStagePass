@@ -23,4 +23,14 @@ class EventProvider extends BaseProvider<Event> {
       throw Exception("Greška pri izmjeni statusa");
     }
   }
+
+  Future<void> cancelEvent(int id) async {
+    final url = Uri.parse('${getBaseUrl()}api/Event/$id/cancel');
+    final headers = await createHeaders();
+    final response = await http.put(url, headers: headers);
+
+    if (!isValidResponse(response)) {
+      throw Exception("Greška pri otkazivanju eventa");
+    }
+  }
 }

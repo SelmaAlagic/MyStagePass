@@ -53,6 +53,21 @@ namespace MyStagePass.Services.Services
 				query = query.Where(u => u.IsActive == search.IsActive.Value);
 			}
 
+			if (!string.IsNullOrWhiteSpace(search.Role))
+			{
+				switch (search.Role.ToLower())
+				{
+					case "customer":
+						query = query.Where(u => u.Customers.Any());
+						break;
+					case "performer":
+						query = query.Where(u => u.Performers.Any());
+						break;
+					case "admin":
+						query = query.Where(u => u.Admins.Any());
+						break;
+				}
+			}
 			return query;
 		}
 		public override async Task<Model.Models.User> GetById(int id)
@@ -236,7 +251,7 @@ namespace MyStagePass.Services.Services
 
 			var token = new JwtSecurityToken(
 				claims: claims,
-				expires: DateTime.Now.AddHours(8),  
+				expires: DateTime.UtcNow.AddHours(8),  
 				signingCredentials: creds
 			);
 

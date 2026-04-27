@@ -91,7 +91,6 @@ namespace MyStagePass.WebAPI.Controllers
 			}
 		}
 
-		[Authorize(Roles = "Admin, Customer, Performer")]
 		[HttpGet("my-profile")]
 		public async Task<IActionResult> GetMyProfile()
 		{

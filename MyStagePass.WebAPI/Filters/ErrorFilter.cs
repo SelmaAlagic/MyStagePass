@@ -7,6 +7,13 @@ namespace MyStagePass.WebAPI.Filters
 {
 	public class ErrorFilter : ExceptionFilterAttribute
 	{
+		private readonly ILogger<ErrorFilter> _logger;
+
+		public ErrorFilter(ILogger<ErrorFilter> logger)
+		{
+			_logger = logger;
+		}
+
 		public override void OnException(ExceptionContext context)
 		{
 			if (context.Exception is UserException)
@@ -16,6 +23,7 @@ namespace MyStagePass.WebAPI.Filters
 			}
 			else
 			{
+				_logger.LogError(context.Exception, "Unhandled exception");
 				context.ModelState.AddModelError("ERROR", "Server side error");
 				context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 			}

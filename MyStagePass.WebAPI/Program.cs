@@ -74,35 +74,36 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllers(x =>
 {
 	x.Filters.Add<ErrorFilter>();
-});
-
+})
+.AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+builder.Services.AddScoped<ErrorFilter>();
 builder.Services.AddAuthorization();
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost\\SQLEXPRESS;Database=MyStagePassDummy;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"; //konekcija na bazu ukoliko nemamo u appsetting.json vec definiran default connection
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+	throw new InvalidOperationException("Connection string not configured.");
 builder.Services.AddDatabaseServices(connectionString);
-
-builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddTransient<IUserService, UserService>();
-builder.Services.AddTransient<ICustomerService, CustomerService>();
-builder.Services.AddTransient<IAdminService, AdminService>();
-builder.Services.AddTransient<IPerformerService, PerformerService>();
-builder.Services.AddTransient<IEventService, EventService>();
-builder.Services.AddTransient<ICityService, CityService>();
-builder.Services.AddTransient<IGenreService, GenreService>();
-builder.Services.AddTransient<ITicketService, TicketService>();
-builder.Services.AddTransient<IPurchaseService, PurchaseService>();
-builder.Services.AddTransient<ILocationService, LocationService>();
-builder.Services.AddTransient<INotificationService, NotificationService>();
-builder.Services.AddTransient<IStatusService, StatusService>();
-builder.Services.AddTransient<ICountryService, CountryService>();
-builder.Services.AddTransient<IReviewService, ReviewService>();
-builder.Services.AddTransient<ICustomerFavoriteEventService, CustomerFavoriteEventService>();
-builder.Services.AddTransient<IRabbitMQProducer, RabbitMQProducer>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IPerformerService, PerformerService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IGenreService, GenreService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IStatusService, StatusService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ICustomerFavoriteEventService, CustomerFavoriteEventService>();
+builder.Services.AddSingleton<IRabbitMQProducer, RabbitMQProducer>();
 builder.Services.AddScoped<IRecommendedService, RecommendedService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
@@ -137,14 +138,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFlutter");
-app.Use(async (context, next) =>
-{
-	if (context.Request.Path.StartsWithSegments("/api/Payment/webhook"))
-	{
-		context.Request.EnableBuffering();
-	}
-	await next();
-});
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

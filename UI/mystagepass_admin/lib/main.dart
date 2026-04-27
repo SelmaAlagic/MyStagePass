@@ -11,10 +11,31 @@ import 'providers/event_provider.dart';
 import 'providers/city_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/report_provider.dart';
+import 'widgets/sidebar_layout.dart';
+import 'screens/user_management_screen.dart';
+import 'screens/event_management_screen.dart';
+import 'screens/performer_management_screen.dart';
+import 'screens/reports_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  SidebarLayout.registerScreen(
+    SidebarRoutes.users,
+    (id) => UserManagementScreen(userId: id),
+  );
+  SidebarLayout.registerScreen(
+    SidebarRoutes.events,
+    (id) => EventManagementScreen(userId: id),
+  );
+  SidebarLayout.registerScreen(
+    SidebarRoutes.performers,
+    (id) => PerformerManagementScreen(userId: id),
+  );
+  SidebarLayout.registerScreen(
+    SidebarRoutes.reports,
+    (id) => ReportsScreen(userId: id),
+  );
   runApp(
     MultiProvider(
       providers: [

@@ -8,7 +8,7 @@ import '../models/search_result.dart';
 import '../utils/alert_helpers.dart';
 import 'package:mystagepass_admin/screens/upcoming_events_screen.dart';
 import 'dart:async';
-import 'package:mystagepass_admin/widgets/base_layout.dart';
+import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 
 class EventRequestsScreen extends StatefulWidget {
   const EventRequestsScreen({super.key, required this.userId});
@@ -231,8 +231,9 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseLayout(
+    return SidebarLayout(
       userId: widget.userId,
+      activeRouteKey: SidebarRoutes.events,
       child: Column(
         children: [
           Padding(

@@ -9,6 +9,7 @@ class Notification {
   int? notificationID;
   int? userID;
   User? user;
+  String? title;
   String? message;
   DateTime? createdAt;
   bool? isRead;
@@ -18,6 +19,7 @@ class Notification {
     this.notificationID,
     this.userID,
     this.user,
+    this.title,
     this.message,
     this.createdAt,
     this.isRead,

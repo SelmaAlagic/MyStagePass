@@ -8,7 +8,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles = "Admin, Performer")]
+	[Authorize(Roles = "Admin,Performer")]
 	public class StatusController : BaseController<Status, StatusSearchObject>
 	{
 		public StatusController(ILogger<BaseController<Status, StatusSearchObject>> logger, IStatusService service) : base(logger, service)

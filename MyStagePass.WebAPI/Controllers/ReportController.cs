@@ -22,6 +22,5 @@ namespace MyStagePass.WebAPI.Controllers
 		{
 			return await _reportService.GetMonthlyReportData(month, year);
 		}
-
 	}
 }

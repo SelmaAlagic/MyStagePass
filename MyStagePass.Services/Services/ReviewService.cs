@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
@@ -17,14 +18,14 @@ namespace MyStagePass.Services.Services
 		{
 			var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.EventID == request.EventID);
 			if (eventEntity == null)
-				throw new Exception("Event not found");
+				throw new UserException("Event not found");
 
-			if (eventEntity.EventDate > DateTime.Now)
-				throw new Exception("Cannot review an event that hasn't happened yet.");
+			if (eventEntity.EventDate > DateTime.UtcNow)
+				throw new UserException("Cannot review an event that hasn't happened yet.");
 
 			var review = _mapper.Map<Review>(request);
 
-			review.CreatedAt = DateTime.Now;
+			review.CreatedAt = DateTime.UtcNow;
 
 			_context.Reviews.Add(review);
 

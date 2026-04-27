@@ -7,7 +7,7 @@ import '../models/search_result.dart';
 import '../models/Location/location.dart';
 import '../providers/location_provider.dart';
 import 'dart:async';
-import '../widgets/base_layout.dart';
+import '../widgets/sidebar_layout.dart';
 
 class UpcomingEventsScreen extends StatefulWidget {
   const UpcomingEventsScreen({super.key, required this.userId});
@@ -341,8 +341,9 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseLayout(
+    return SidebarLayout(
       userId: widget.userId,
+      activeRouteKey: SidebarRoutes.events,
       child: Column(
         children: [
           Padding(

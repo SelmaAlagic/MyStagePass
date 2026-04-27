@@ -1,6 +1,4 @@
-﻿using QRCoder;
-
-namespace MyStagePass.Model.Models
+﻿namespace MyStagePass.Model.Models
 {
 	public class Ticket
 	{
@@ -10,17 +8,9 @@ namespace MyStagePass.Model.Models
 		public virtual Event Event { get; set; } = null!;
 		public int PurchaseID { get; set; }
 		public virtual Purchase Purchase { get; set; } = null!;
-		public Event.TicketType TicketType { get; set; }
+
+		public TicketType TicketType { get; set; }
 		public bool IsDeleted { get; set; } = false;
-		public string GetTicketTypeName()
-		{
-			return TicketType switch
-			{
-				Event.TicketType.Regular => "Regular",
-				Event.TicketType.Vip => "VIP",
-				Event.TicketType.Premium => "Premium",
-				_ => "Unknown"
-			};
-		}
+
 	}
 }

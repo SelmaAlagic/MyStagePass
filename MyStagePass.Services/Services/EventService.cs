@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
@@ -13,12 +14,14 @@ namespace MyStagePass.Services.Services
 		private readonly MyStagePassDbContext _context;
 		private readonly IMapper _mapper;
 		private readonly INotificationService _notificationService;
+		private readonly ILogger<EventService> _logger;
 
-		public EventService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService) : base(context, mapper)
+		public EventService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService, ILogger<EventService> logger) : base(context, mapper)
 		{
 			_context = context;
 			_mapper = mapper;
 			_notificationService = notificationService;
+			_logger=logger;
 		}
 
 		public override async Task BeforeInsert(Event entity, EventInsertRequest insert)
@@ -27,19 +30,18 @@ namespace MyStagePass.Services.Services
 			if (location != null)
 				entity.TotalTickets = location.Capacity;
 
-			var pendingStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.StatusName == "Pending");
-			if (pendingStatus != null)
-				entity.StatusID = pendingStatus.StatusID;
-
+			entity.StatusID = Status.PendingID;
 			entity.CreatedAt = DateTime.UtcNow;
-
 			entity.TicketsSold = 0; 
 		}
 		public override async Task<Model.Models.Event> Insert(EventInsertRequest insert)
 		{
 			var result = await base.Insert(insert);
 
-			await _notificationService.NotifyUser(1, $"Event '{result.EventName}' has been created and is waiting for approval!");
+			var admins = await _context.Users.Where(u => u.Admins.Any()).ToListAsync();
+			foreach (var admin in admins)
+				await _notificationService.NotifyUser(admin.UserID, "New Event Submitted",
+					$"Event '{result.EventName}' has been submitted and is waiting for approval!");
 
 			return result;
 		}
@@ -105,9 +107,9 @@ namespace MyStagePass.Services.Services
 			if (search.IsUpcoming != null)
 			{
 				if (search.IsUpcoming.Value)
-					query = query.Where(e => e.EventDate >= DateTime.Now);
+					query = query.Where(e => e.EventDate >= DateTime.UtcNow);
 				else
-					query = query.Where(e => e.EventDate < DateTime.Now); 
+					query = query.Where(e => e.EventDate < DateTime.UtcNow); 
 			}
 
 			if (search.MaxPrice != null)
@@ -127,19 +129,29 @@ namespace MyStagePass.Services.Services
 			if (entity == null)
 				throw new UserException("Event not found");
 
-			var status = await _context.Statuses.FirstOrDefaultAsync(s => s.StatusName.ToLower() == newStatus.ToLower());
+			var allowedTransitions = new Dictionary<int, List<int>>
+			{
+				{ Status.PendingID,  new List<int> { Status.ApprovedID, Status.RejectedID } },
+				{ Status.ApprovedID, new List<int>() },
+				{ Status.RejectedID, new List<int>() }
+			};
+
+			var status = await _context.Statuses
+				.FirstOrDefaultAsync(s => s.StatusName.ToLower() == newStatus.ToLower());
 			if (status == null)
 				throw new UserException("Status not found");
+
+			if (!allowedTransitions.ContainsKey(entity.StatusID) ||
+				!allowedTransitions[entity.StatusID].Contains(status.StatusID))
+				throw new UserException($"Cannot transition from '{entity.Status.StatusName}' to '{newStatus}'.");
 			
 			entity.StatusID = status.StatusID;
 			await _context.SaveChangesAsync();
 
-			string statusLower = newStatus.ToLower();
-
-			if (statusLower == "approved")
+			if (status.StatusID == Status.ApprovedID)
 			{
 				await _notificationService.NotifyUser(
-					entity.Performer.UserID,
+					entity.Performer.UserID, "Event Status Update",
 					$"Great news! Your event '{entity.EventName}' has been approved and is now live!"
 				);
 
@@ -160,20 +172,85 @@ namespace MyStagePass.Services.Services
 					if (performer != null)
 					{
 						await _notificationService.NotifyUsers(
-							followerUserIds,
+							followerUserIds, "New Event From Favorite Performer",
 							$"{performer.ArtistName} has added a new event!"
 						);
 					}
 				}
 			}
-			else if (statusLower == "rejected")
+			else if (status.StatusID == Status.RejectedID)
 			{
 				await _notificationService.NotifyUser(
-					entity.Performer.UserID,
+					entity.Performer.UserID, "Event Status Update",
 					$"Unfortunately, your event '{entity.EventName}' was not approved."
 				);
 			}
 
+			return _mapper.Map<Model.Models.Event>(entity);
+		}
+
+		public async Task<Model.Models.Event> CancelEvent(int eventId)
+		{
+			var entity = await _context.Events
+				.Include(e => e.Status)
+				.Include(e => e.Tickets)
+					.ThenInclude(t => t.Purchase)
+						.ThenInclude(p => p.Customer)
+							.ThenInclude(c => c.User)
+				.FirstOrDefaultAsync(e => e.EventID == eventId);
+
+			if (entity == null)
+				throw new UserException("Event not found");
+
+			if (entity.StatusID != Status.ApprovedID)
+				throw new UserException("Only approved events can be cancelled.");
+
+			if (entity.IsCancelled)
+				throw new UserException("Event is already cancelled.");
+
+			entity.IsCancelled = true;
+
+			var activeTickets = entity.Tickets.Where(t => !t.IsDeleted).ToList();
+			foreach (var ticket in activeTickets)
+				ticket.IsDeleted = true;
+
+			var purchaseIds = activeTickets
+				.Select(t => t.PurchaseID)
+				.Distinct()
+				.ToList();
+
+			var purchases = await _context.Purchases
+				.Where(p => purchaseIds.Contains(p.PurchaseID) && p.PaymentIntentId != null)
+				.ToListAsync();
+
+			var refundService = new Stripe.RefundService();
+			foreach (var purchase in purchases)
+			{
+				try
+				{
+					var refundOptions = new Stripe.RefundCreateOptions
+					{
+						PaymentIntent = purchase.PaymentIntentId
+					};
+					await refundService.CreateAsync(refundOptions);
+				}
+				catch (Stripe.StripeException ex)
+				{
+					_logger.LogError(ex, "Refund failed for purchase {PurchaseID}", purchase.PurchaseID);
+				}
+			}
+
+			var customerUserIds = activeTickets
+				.Select(t => t.Purchase.Customer.User.UserID)
+				.Distinct()
+				.ToList();
+
+			if (customerUserIds.Any())
+				await _notificationService.NotifyUsers(
+				customerUserIds, "Event Cancelled",
+				$"The event '{entity.EventName}' has been cancelled. Your refund has been processed and will appear on your account shortly.");
+
+			await _context.SaveChangesAsync();
 			return _mapper.Map<Model.Models.Event>(entity);
 		}
 	}

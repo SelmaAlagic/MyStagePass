@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MyStagePass.Services.Interfaces;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -6,40 +7,53 @@ using System.Text;
 
 namespace MyStagePass.Services.Services
 {
-	public class RabbitMQProducer : IRabbitMQProducer
+	public class RabbitMQProducer : IRabbitMQProducer, IDisposable
 	{
-		private readonly IConfiguration _configuration;
+		private IConnection? _connection;
+		private IModel? _channel;
+		private readonly ILogger<RabbitMQProducer> _logger;
 
-		public RabbitMQProducer(IConfiguration configuration)
+		public RabbitMQProducer(IConfiguration configuration, ILogger<RabbitMQProducer> logger)
 		{
-			_configuration = configuration;
+			_logger = logger;
+			try
+			{
+				var factory = new ConnectionFactory
+				{
+					HostName = configuration["RabbitMQ:Host"],
+					Port = int.Parse(configuration["RabbitMQ:Port"]),
+					UserName = configuration["RabbitMQ:Username"],
+					Password = configuration["RabbitMQ:Password"],
+				};
+				_connection = factory.CreateConnection();
+				_channel = _connection.CreateModel();
+				_channel.ExchangeDeclare("EmailExchange", ExchangeType.Direct);
+				_channel.QueueDeclare("EmailQueue", true, false, false, null);
+				_channel.QueueBind("EmailQueue", "EmailExchange", "email_queue", null);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex, "RabbitMQ connection failed. Messaging will be unavailable.");
+			}
 		}
 
 		public void SendMessage<T>(T message)
 		{
-			var factory = new ConnectionFactory
+			if (_channel == null)
 			{
-				HostName = _configuration["RabbitMQ:Host"],
-				Port = int.Parse(_configuration["RabbitMQ:Port"]),
-				UserName = _configuration["RabbitMQ:Username"],
-				Password = _configuration["RabbitMQ:Password"],
-			};
+				_logger.LogWarning("RabbitMQ channel is not available. Message not sent.");
+				return;
+			}
 
-			factory.ClientProvidedName = "Rabbit Test Producer";
-			var connection = factory.CreateConnection();
-			var channel = connection.CreateModel();
+			string json = JsonConvert.SerializeObject(message);
+			byte[] body = Encoding.UTF8.GetBytes(json);
+			_channel.BasicPublish("EmailExchange", "email_queue", null, body);
+		}
 
-			string exchangeName = "EmailExchange";
-			string routingKey = "email_queue";
-			string queueName = "EmailQueue";
-
-			channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
-			channel.QueueDeclare(queueName, true, false, false, null);
-			channel.QueueBind(queueName, exchangeName, routingKey, null);
-
-			string emailModelJson = JsonConvert.SerializeObject(message);
-			byte[] messageBodyBytes = Encoding.UTF8.GetBytes(emailModelJson);
-			channel.BasicPublish(exchangeName, routingKey, null, messageBodyBytes);
+		public void Dispose()
+		{
+			_channel?.Close();
+			_connection?.Close();
 		}
 	}
 }

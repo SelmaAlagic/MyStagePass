@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mystagepass_admin/widgets/base_layout.dart';
+import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 import 'package:provider/provider.dart';
 import '../models/Performer/performer.dart';
 import '../providers/performer_provider.dart';
@@ -125,8 +125,9 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseLayout(
+    return SidebarLayout(
       userId: widget.userId,
+      activeRouteKey: SidebarRoutes.performers,
       child: Column(
         children: [
           Padding(

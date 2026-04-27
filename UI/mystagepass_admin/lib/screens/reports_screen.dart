@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:mystagepass_admin/providers/report_provider.dart';
 import 'package:mystagepass_admin/models/Chart/chart.dart';
-import 'package:mystagepass_admin/widgets/base_layout.dart';
+import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:file_picker/file_picker.dart';
@@ -580,8 +580,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseLayout(
+    return SidebarLayout(
       userId: widget.userId,
+      activeRouteKey: SidebarRoutes.reports,
       child: Column(
         children: [
           Padding(

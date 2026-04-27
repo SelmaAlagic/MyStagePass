@@ -18,7 +18,6 @@ namespace MyStagePass.Model.Models
 		public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 		public ICollection<Performer> Performers { get; set; } = new List<Performer>();
 		public ICollection<Customer> Customers { get; set; } = new List<Customer>();
-		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 		public virtual ICollection<Admin> Admins { get; set; } = new List<Admin>();
 		public string Role
 		{

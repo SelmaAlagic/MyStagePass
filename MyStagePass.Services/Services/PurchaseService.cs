@@ -92,8 +92,8 @@ namespace MyStagePass.Services.Services
 
 			int singlePrice = request.TicketType switch
 			{
-				Model.Models.Event.TicketType.Vip => ev.VipPrice,
-				Model.Models.Event.TicketType.Premium => ev.PremiumPrice,
+				Model.Models.TicketType.Vip => ev.VipPrice,
+				Model.Models.TicketType.Premium => ev.PremiumPrice,
 				_ => ev.RegularPrice
 			};
 
@@ -103,8 +103,9 @@ namespace MyStagePass.Services.Services
 				var purchaseEntity = new Database.Purchase
 				{
 					CustomerID = request.CustomerID,
-					PurchaseDate = DateTime.Now,
-					IsDeleted = false
+					PurchaseDate = DateTime.UtcNow,
+					IsDeleted = false,
+					PaymentIntentId = request.PaymentIntentId
 				};
 
 				_context.Purchases.Add(purchaseEntity);
@@ -117,7 +118,7 @@ namespace MyStagePass.Services.Services
 						EventID = request.EventID,
 						PurchaseID = purchaseEntity.PurchaseID,
 						Price = singlePrice,
-						TicketType = (Database.Event.TicketType)request.TicketType,
+						TicketType = (Database.TicketType)request.TicketType,
 						IsDeleted = false
 					};
 					_context.Tickets.Add(ticket);
@@ -197,6 +198,13 @@ namespace MyStagePass.Services.Services
 				.ToList();
 
 			return PagedResult<Model.Models.Event>.Create(pagedEvents, page, pageSize, totalCount);
+		}
+
+		public async Task<Model.Models.Purchase?> GetByPaymentIntentId(string paymentIntentId)
+		{
+			var entity = await _context.Purchases
+				.FirstOrDefaultAsync(p => p.PaymentIntentId == paymentIntentId);
+			return entity == null ? null : _mapper.Map<Model.Models.Purchase>(entity);
 		}
 	}
 }

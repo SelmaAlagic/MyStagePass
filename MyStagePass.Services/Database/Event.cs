@@ -4,12 +4,6 @@ namespace MyStagePass.Services.Database
 {
 	public class Event
 	{
-		public enum TicketType
-		{
-			Regular = 1,
-			Vip = 2,
-			Premium = 3
-		}
 		public int EventID { get; set; }
 		public string? EventName { get; set; }
 		public string? Description { get; set; }
@@ -40,12 +34,14 @@ namespace MyStagePass.Services.Database
 			return TicketsAvailable >= requestedAmount;
 		}
 
+		public bool IsCancelled { get; set; } = false;
+
 		[NotMapped]
 		public string TimeStatus
 		{
 			get
 			{
-				if (EventDate < DateTime.Now)
+				if (EventDate < DateTime.UtcNow)
 					return "Ended";
 				else
 					return "Upcoming";

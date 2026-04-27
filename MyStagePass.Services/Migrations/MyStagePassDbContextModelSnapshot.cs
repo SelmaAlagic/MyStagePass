@@ -59,6 +59,7 @@ namespace MyStagePass.Services.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CityID");
@@ -163,6 +164,7 @@ namespace MyStagePass.Services.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CountryID"));
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CountryID");
@@ -407,6 +409,9 @@ namespace MyStagePass.Services.Migrations
                     b.Property<string>("EventName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
+
                     b.Property<int>("LocationID")
                         .HasColumnType("int");
 
@@ -458,6 +463,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "First solo concert of the rising pop artist",
                             EventDate = new DateTime(2026, 5, 10, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Ilma Karahmet - Debut Concert",
+                            IsCancelled = false,
                             LocationID = 2,
                             PerformerID = 2,
                             PremiumPrice = 100,
@@ -477,6 +483,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Summer performance at Tuzla Festival",
                             EventDate = new DateTime(2024, 7, 22, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Ilma Karahmet - Tuzla Summer Fest",
+                            IsCancelled = true,
                             LocationID = 5,
                             PerformerID = 2,
                             PremiumPrice = 120,
@@ -496,6 +503,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Special concert in an intimate setting",
                             EventDate = new DateTime(2026, 9, 5, 19, 30, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Ilma Karahmet - Acoustic Evening",
+                            IsCancelled = false,
                             LocationID = 12,
                             PerformerID = 2,
                             PremiumPrice = 150,
@@ -515,6 +523,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Spectacular concert celebrating 30 years of career",
                             EventDate = new DateTime(2026, 11, 20, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Toni Cetinski - Zagreb Arena",
+                            IsCancelled = false,
                             LocationID = 8,
                             PerformerID = 4,
                             PremiumPrice = 180,
@@ -534,6 +543,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Summer open-air concert",
                             EventDate = new DateTime(2024, 8, 5, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Toni Cetinski - Split Summer Nights",
+                            IsCancelled = true,
                             LocationID = 7,
                             PerformerID = 4,
                             PremiumPrice = 160,
@@ -553,6 +563,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Romantic evening with the most beautiful ballads",
                             EventDate = new DateTime(2025, 2, 14, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Toni Cetinski - Sarajevo Winter",
+                            IsCancelled = false,
                             LocationID = 1,
                             PerformerID = 4,
                             PremiumPrice = 160,
@@ -572,6 +583,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Unique concert near the Old Bridge",
                             EventDate = new DateTime(2024, 9, 15, 20, 30, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Toni Cetinski - Mostar Bridge Concert",
+                            IsCancelled = false,
                             LocationID = 15,
                             PerformerID = 4,
                             PremiumPrice = 140,
@@ -591,6 +603,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Greatest hits concert",
                             EventDate = new DateTime(2026, 4, 18, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Toni Cetinski - Banja Luka Special",
+                            IsCancelled = false,
                             LocationID = 4,
                             PerformerID = 4,
                             PremiumPrice = 140,
@@ -610,6 +623,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Evening of greatest folk-pop hits",
                             EventDate = new DateTime(2024, 10, 12, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Zeljko Samardzic - Belgrade Classics",
+                            IsCancelled = false,
                             LocationID = 10,
                             PerformerID = 5,
                             PremiumPrice = 120,
@@ -629,6 +643,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Love songs and romantic ballads",
                             EventDate = new DateTime(2025, 3, 8, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Zeljko Samardzic - Sarajevo Ballads",
+                            IsCancelled = false,
                             LocationID = 3,
                             PerformerID = 5,
                             PremiumPrice = 120,
@@ -648,6 +663,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Intimate acoustic concert",
                             EventDate = new DateTime(2026, 7, 30, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Zeljko Samardzic - Zenica Live",
+                            IsCancelled = false,
                             LocationID = 14,
                             PerformerID = 5,
                             PremiumPrice = 100,
@@ -667,6 +683,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Special guest at EXIT Festival",
                             EventDate = new DateTime(2024, 7, 7, 23, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Zeljko Samardzic - Novi Sad Festival",
+                            IsCancelled = false,
                             LocationID = 29,
                             PerformerID = 5,
                             PremiumPrice = 250,
@@ -686,6 +703,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Evening of jazz and soul music",
                             EventDate = new DateTime(2026, 6, 5, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Adi Sose - Jazz Night",
+                            IsCancelled = false,
                             LocationID = 2,
                             PerformerID = 6,
                             PremiumPrice = 130,
@@ -705,6 +723,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Unique vocal performance with band",
                             EventDate = new DateTime(2024, 11, 18, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Adi Sose - Akustik Session",
+                            IsCancelled = false,
                             LocationID = 26,
                             PerformerID = 6,
                             PremiumPrice = 110,
@@ -724,6 +743,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Traditional folk music night",
                             EventDate = new DateTime(2024, 9, 28, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Mirza Selimovic - Folk Spectacle",
+                            IsCancelled = false,
                             LocationID = 11,
                             PerformerID = 7,
                             PremiumPrice = 100,
@@ -743,6 +763,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Summer concert in Una National Park",
                             EventDate = new DateTime(2026, 8, 20, 20, 30, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Mirza Selimovic - Bihac Summer",
+                            IsCancelled = false,
                             LocationID = 16,
                             PerformerID = 7,
                             PremiumPrice = 120,
@@ -762,6 +783,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "New Year celebration in Podgorica",
                             EventDate = new DateTime(2024, 12, 31, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Mirza Selimovic - New Year's Eve",
+                            IsCancelled = false,
                             LocationID = 9,
                             PerformerID = 7,
                             PremiumPrice = 200,
@@ -781,6 +803,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Jubilee concert with special guests",
                             EventDate = new DateTime(2026, 10, 5, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Prljavo Kazaliste - 40 Years Anniversary",
+                            IsCancelled = false,
                             LocationID = 8,
                             PerformerID = 9,
                             PremiumPrice = 170,
@@ -800,6 +823,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Rock classics and new hits",
                             EventDate = new DateTime(2024, 11, 15, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Prljavo Kazaliste - Sarajevo Rock Night",
+                            IsCancelled = false,
                             LocationID = 3,
                             PerformerID = 9,
                             PremiumPrice = 150,
@@ -819,6 +843,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Summer rock concert at Poljud",
                             EventDate = new DateTime(2024, 8, 25, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Prljavo Kazaliste - Split Open Air",
+                            IsCancelled = false,
                             LocationID = 19,
                             PerformerID = 9,
                             PremiumPrice = 180,
@@ -838,6 +863,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Headliner at Mostar Rock Festival",
                             EventDate = new DateTime(2026, 7, 12, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Prljavo Kazaliste - Mostar Rock Fest",
+                            IsCancelled = false,
                             LocationID = 15,
                             PerformerID = 9,
                             PremiumPrice = 150,
@@ -857,6 +883,7 @@ namespace MyStagePass.Services.Migrations
                             Description = "Closing the spring season with a massive festival lineup at the fortress.",
                             EventDate = new DateTime(2026, 5, 31, 19, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Balkan Spring Festival",
+                            IsCancelled = false,
                             LocationID = 29,
                             PerformerID = 8,
                             PremiumPrice = 200,
@@ -880,6 +907,7 @@ namespace MyStagePass.Services.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GenreID"));
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("GenreID");
@@ -1213,6 +1241,10 @@ namespace MyStagePass.Services.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
@@ -1231,7 +1263,8 @@ namespace MyStagePass.Services.Migrations
                             NotificationID = 1,
                             CreatedAt = new DateTime(2025, 3, 15, 9, 30, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "New performer request (Dzejla Ramovic) waiting for verification!",
+                            Message = "Performer Dzejla Ramovic has registered and is waiting for verification!",
+                            Title = "New Performer Registration",
                             UserID = 1,
                             isRead = false
                         },
@@ -1240,7 +1273,8 @@ namespace MyStagePass.Services.Migrations
                             NotificationID = 2,
                             CreatedAt = new DateTime(2025, 3, 18, 11, 15, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "New performer request (Jelena Rozga) waiting for verification!",
+                            Message = "Performer Jelena Rozga has registered and is waiting for verification!",
+                            Title = "New Performer Registration",
                             UserID = 1,
                             isRead = false
                         },
@@ -1249,314 +1283,259 @@ namespace MyStagePass.Services.Migrations
                             NotificationID = 3,
                             CreatedAt = new DateTime(2025, 3, 20, 14, 45, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "New performer request (Marija Serifovic) waiting for verification!",
+                            Message = "Performer Marija Serifovic has registered and is waiting for verification!",
+                            Title = "New Performer Registration",
                             UserID = 1,
-                            isRead = false
+                            isRead = true
                         },
                         new
                         {
                             NotificationID = 4,
-                            CreatedAt = new DateTime(2025, 3, 22, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 3, 10, 16, 20, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "3 events pending approval for approved performers!",
+                            Message = "Ilma Karahmet submitted a new event for approval!",
+                            Title = "New Event Submitted",
                             UserID = 1,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 5,
-                            CreatedAt = new DateTime(2025, 3, 10, 16, 20, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 3, 5, 13, 10, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Ilma Karahmet submitted a new event for approval",
+                            Message = "Toni Cetinski submitted a new event for approval!",
+                            Title = "New Event Submitted",
                             UserID = 1,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 6,
-                            CreatedAt = new DateTime(2025, 3, 5, 13, 10, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 1, 30, 10, 15, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Toni Cetinski submitted 2 new events for approval",
+                            Message = "Zeljko Samardzic submitted a new event for approval!",
+                            Title = "New Event Submitted",
                             UserID = 1,
-                            isRead = true
+                            isRead = false
                         },
                         new
                         {
                             NotificationID = 7,
-                            CreatedAt = new DateTime(2025, 3, 15, 9, 35, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 2, 1, 10, 30, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your performer application has been received and is pending review",
-                            UserID = 2,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 8,
-                            CreatedAt = new DateTime(2025, 3, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your application is still under review by admin",
-                            UserID = 2,
+                            Message = "Prljavo Kazaliste submitted a new event for approval!",
+                            Title = "New Event Submitted",
+                            UserID = 1,
                             isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 9,
-                            CreatedAt = new DateTime(2025, 1, 20, 14, 30, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your event 'Ilma Karahmet - Debut Concert' has been approved!",
-                            UserID = 3,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 10,
-                            CreatedAt = new DateTime(2025, 2, 10, 11, 45, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your event 'Ilma Karahmet - Acoustic Evening' is pending approval",
-                            UserID = 3,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 11,
-                            CreatedAt = new DateTime(2025, 2, 15, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "5 customers have added your events to favorites!",
-                            UserID = 3,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 12,
-                            CreatedAt = new DateTime(2025, 3, 18, 11, 20, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your performer application has been received and is pending review",
-                            UserID = 4,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 13,
-                            CreatedAt = new DateTime(2025, 3, 25, 10, 30, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your application is still under review by admin",
-                            UserID = 4,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 14,
-                            CreatedAt = new DateTime(2024, 3, 10, 13, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your event 'Toni Cetinski - Split Summer Nights' has been approved!",
-                            UserID = 5,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 15,
-                            CreatedAt = new DateTime(2024, 9, 5, 16, 15, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your event 'Toni Cetinski - Sarajevo Winter' has been approved!",
-                            UserID = 5,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 16,
-                            CreatedAt = new DateTime(2024, 4, 15, 10, 45, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your event 'Toni Cetinski - Mostar Bridge Concert' has been approved!",
-                            UserID = 5,
-                            isRead = true
                         },
                         new
                         {
                             NotificationID = 17,
-                            CreatedAt = new DateTime(2024, 12, 10, 9, 30, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 1, 20, 14, 30, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Toni Cetinski - Banja Luka Special' is pending approval",
-                            UserID = 5,
-                            isRead = false
+                            Message = "Your event 'Ilma Karahmet - Debut Concert' has been approved!",
+                            Title = "Event Status Update",
+                            UserID = 3,
+                            isRead = true
                         },
                         new
                         {
                             NotificationID = 18,
-                            CreatedAt = new DateTime(2025, 2, 5, 14, 20, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 2, 12, 11, 45, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Toni Cetinski - Zagreb Arena' is pending approval",
-                            UserID = 5,
-                            isRead = false
+                            Message = "Your event 'Ilma Karahmet - Acoustic Evening' has been approved!",
+                            Title = "Event Status Update",
+                            UserID = 3,
+                            isRead = true
                         },
                         new
                         {
                             NotificationID = 19,
-                            CreatedAt = new DateTime(2025, 1, 20, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 3, 10, 13, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "8 customers have added your events to favorites!",
+                            Message = "Your event 'Toni Cetinski - Split Summer Nights' has been approved!",
+                            Title = "Event Status Update",
                             UserID = 5,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 20,
-                            CreatedAt = new DateTime(2024, 9, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 9, 5, 16, 15, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Congratulations! Your event 'Split Summer Nights' reached 234 reviews with 4.70 average rating!",
+                            Message = "Your event 'Toni Cetinski - Sarajevo Winter' has been approved!",
+                            Title = "Event Status Update",
                             UserID = 5,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 21,
-                            CreatedAt = new DateTime(2024, 5, 20, 12, 30, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 12, 12, 9, 30, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Zeljko Samardzic - Belgrade Classics' has been approved!",
-                            UserID = 6,
-                            isRead = true
+                            Message = "Your event 'Toni Cetinski - Banja Luka Special' has been rejected.",
+                            Title = "Event Status Update",
+                            UserID = 5,
+                            isRead = false
                         },
                         new
                         {
                             NotificationID = 22,
-                            CreatedAt = new DateTime(2024, 8, 25, 15, 45, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 5, 20, 12, 30, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Zeljko Samardzic - Sarajevo Ballads' has been approved!",
+                            Message = "Your event 'Zeljko Samardzic - Belgrade Classics' has been approved!",
+                            Title = "Event Status Update",
                             UserID = 6,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 23,
-                            CreatedAt = new DateTime(2025, 1, 30, 10, 15, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 2, 1, 10, 15, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Zeljko Samardzic - Zenica Live' is pending approval",
+                            Message = "Your event 'Zeljko Samardzic - Zenica Live' has been rejected.",
+                            Title = "Event Status Update",
                             UserID = 6,
                             isRead = false
                         },
                         new
                         {
                             NotificationID = 24,
-                            CreatedAt = new DateTime(2024, 3, 5, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 11, 15, 13, 20, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Zeljko Samardzic - Novi Sad Festival' has been approved!",
-                            UserID = 6,
+                            Message = "Your event 'Adi Sose - Jazz Night' has been approved!",
+                            Title = "Event Status Update",
+                            UserID = 7,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 25,
-                            CreatedAt = new DateTime(2025, 2, 1, 14, 30, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 6, 20, 9, 45, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "6 customers have added your events to favorites!",
-                            UserID = 6,
-                            isRead = false
+                            Message = "Your event 'Adi Sose - Akustik Session' has been approved!",
+                            Title = "Event Status Update",
+                            UserID = 7,
+                            isRead = true
                         },
                         new
                         {
                             NotificationID = 26,
-                            CreatedAt = new DateTime(2024, 11, 15, 13, 20, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 4, 10, 14, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Adi Sose - Jazz Night' has been approved!",
-                            UserID = 7,
+                            Message = "Your event 'Mirza Selimovic - Folk Spectacle' has been approved!",
+                            Title = "Event Status Update",
+                            UserID = 8,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 27,
-                            CreatedAt = new DateTime(2024, 6, 20, 9, 45, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 2, 22, 15, 15, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Adi Sose - Akustik Session' has been approved!",
-                            UserID = 7,
-                            isRead = true
+                            Message = "Your event 'Mirza Selimovic - Bihac Summer' has been rejected.",
+                            Title = "Event Status Update",
+                            UserID = 8,
+                            isRead = false
                         },
                         new
                         {
                             NotificationID = 28,
-                            CreatedAt = new DateTime(2025, 1, 10, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 6, 15, 13, 45, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "3 customers have added your events to favorites!",
-                            UserID = 7,
+                            Message = "Your event 'Prljavo Kazaliste - Sarajevo Rock Night' has been approved!",
+                            Title = "Event Status Update",
+                            UserID = 10,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 29,
-                            CreatedAt = new DateTime(2024, 12, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 2, 3, 10, 30, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your Akustik Session event got 4.70 average rating from 67 reviews!",
-                            UserID = 7,
-                            isRead = true
+                            Message = "Your event 'Prljavo Kazaliste - 40 Years Anniversary' has been rejected.",
+                            Title = "Event Status Update",
+                            UserID = 10,
+                            isRead = false
                         },
                         new
                         {
                             NotificationID = 30,
-                            CreatedAt = new DateTime(2024, 4, 10, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 12, 5, 11, 20, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Mirza Selimovic - Folk Spectacle' has been approved!",
-                            UserID = 8,
+                            Message = "Toni Cetinski has announced a new event in Banja Luka!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 11,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 31,
-                            CreatedAt = new DateTime(2024, 7, 5, 11, 30, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 1, 30, 13, 45, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Mirza Selimovic - New Year's Eve' has been approved!",
-                            UserID = 8,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 32,
-                            CreatedAt = new DateTime(2025, 2, 20, 15, 15, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your event 'Mirza Selimovic - Bihac Summer' is pending approval",
-                            UserID = 8,
+                            Message = "Prljavo Kazaliste has announced a new anniversary concert!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 11,
                             isRead = false
                         },
                         new
                         {
-                            NotificationID = 33,
-                            CreatedAt = new DateTime(2025, 1, 5, 12, 45, 0, 0, DateTimeKind.Unspecified),
+                            NotificationID = 32,
+                            CreatedAt = new DateTime(2025, 1, 25, 16, 30, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "4 customers have added your events to favorites!",
-                            UserID = 8,
+                            Message = "Zeljko Samardzic has announced a new event!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 12,
                             isRead = true
                         },
                         new
                         {
-                            NotificationID = 34,
-                            CreatedAt = new DateTime(2025, 3, 20, 14, 50, 0, 0, DateTimeKind.Unspecified),
+                            NotificationID = 33,
+                            CreatedAt = new DateTime(2025, 2, 5, 11, 45, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your performer application has been received and is pending review",
-                            UserID = 9,
+                            Message = "Ilma Karahmet has announced a new acoustic evening!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 12,
+                            isRead = false
+                        },
+                        new
+                        {
+                            NotificationID = 34,
+                            CreatedAt = new DateTime(2024, 11, 10, 9, 30, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Message = "Adi Sose has announced a new Jazz Night!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 13,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 35,
-                            CreatedAt = new DateTime(2025, 3, 25, 9, 15, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 2, 18, 10, 20, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your application is still under review by admin",
-                            UserID = 9,
+                            Message = "Mirza Selimovic has announced a new event in Bihac!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 13,
                             isRead = false
                         },
                         new
                         {
                             NotificationID = 36,
-                            CreatedAt = new DateTime(2025, 2, 1, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 1, 15, 14, 45, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Prljavo Kazaliste - 40 Years Anniversary' is pending approval",
-                            UserID = 10,
-                            isRead = false
+                            Message = "Ilma Karahmet has announced a new debut concert!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 14,
+                            isRead = true
                         },
                         new
                         {
                             NotificationID = 37,
-                            CreatedAt = new DateTime(2024, 6, 15, 13, 45, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 1, 25, 16, 15, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Prljavo Kazaliste - Sarajevo Rock Night' has been approved!",
-                            UserID = 10,
+                            Message = "Zeljko Samardzic has announced a new event in Zenica!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 15,
                             isRead = true
                         },
                         new
@@ -1564,178 +1543,28 @@ namespace MyStagePass.Services.Migrations
                             NotificationID = 38,
                             CreatedAt = new DateTime(2024, 3, 20, 16, 20, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Your event 'Prljavo Kazaliste - Split Open Air' has been approved!",
-                            UserID = 10,
+                            Message = "Prljavo Kazaliste has announced a new Split Open Air concert!",
+                            Title = "New Event From Favorite Performer",
+                            UserID = 15,
                             isRead = true
                         },
                         new
                         {
                             NotificationID = 39,
-                            CreatedAt = new DateTime(2024, 10, 10, 11, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Your event 'Prljavo Kazaliste - Mostar Rock Fest' has been approved!",
-                            UserID = 10,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 40,
-                            CreatedAt = new DateTime(2025, 2, 15, 14, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "5 customers have added your events to favorites!",
-                            UserID = 10,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 41,
-                            CreatedAt = new DateTime(2024, 12, 5, 11, 20, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Toni Cetinski added a new event in Banja Luka!",
-                            UserID = 11,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 42,
-                            CreatedAt = new DateTime(2025, 1, 30, 13, 45, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Prljavo Kazaliste added a new anniversary concert!",
-                            UserID = 11,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 43,
-                            CreatedAt = new DateTime(2025, 1, 25, 16, 30, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Zeljko Samardzic event in Zenica is now available!",
-                            UserID = 11,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 44,
-                            CreatedAt = new DateTime(2025, 2, 1, 10, 15, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "One of your favorite performers (Toni Cetinski) has a new event!",
-                            UserID = 11,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 45,
-                            CreatedAt = new DateTime(2024, 7, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Zeljko Samardzic at EXIT Festival was a huge success!",
-                            UserID = 12,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 46,
-                            CreatedAt = new DateTime(2024, 12, 1, 14, 30, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Mirza Selimovic New Year's Eve event is coming up!",
-                            UserID = 12,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 47,
-                            CreatedAt = new DateTime(2025, 2, 5, 11, 45, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Ilma Karahmet acoustic evening tickets now available!",
-                            UserID = 12,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 48,
-                            CreatedAt = new DateTime(2024, 11, 10, 9, 30, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Adi Sose Jazz Night is coming soon!",
-                            UserID = 13,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 49,
-                            CreatedAt = new DateTime(2024, 7, 25, 15, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Ilma Karahmet Tuzla Summer Fest reviews are in - 4.63 rating!",
-                            UserID = 13,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 50,
-                            CreatedAt = new DateTime(2025, 2, 18, 10, 20, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Mirza Selimovic Bihac Summer event is now pending approval",
-                            UserID = 13,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 51,
-                            CreatedAt = new DateTime(2025, 1, 15, 14, 45, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Ilma Karahmet debut concert tickets selling fast!",
-                            UserID = 14,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 52,
-                            CreatedAt = new DateTime(2025, 3, 9, 11, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Zeljko Samardzic Sarajevo Ballads event has ended - check reviews!",
-                            UserID = 14,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 53,
-                            CreatedAt = new DateTime(2025, 1, 25, 16, 15, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Zeljko Samardzic Zenica Live tickets now available!",
-                            UserID = 15,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 54,
-                            CreatedAt = new DateTime(2024, 8, 28, 10, 30, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Prljavo Kazaliste Split Open Air was amazing - 4.57 rating!",
-                            UserID = 15,
-                            isRead = true
-                        },
-                        new
-                        {
-                            NotificationID = 55,
-                            CreatedAt = new DateTime(2025, 2, 15, 13, 45, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Message = "Toni Cetinski Sarajevo Winter event photos available!",
-                            UserID = 15,
-                            isRead = false
-                        },
-                        new
-                        {
-                            NotificationID = 56,
                             CreatedAt = new DateTime(2025, 1, 30, 13, 20, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Prljavo Kazaliste 40 Years Anniversary concert announced!",
+                            Message = "Prljavo Kazaliste has announced a 40 Years Anniversary concert!",
+                            Title = "New Event From Favorite Performer",
                             UserID = 16,
                             isRead = false
                         },
                         new
                         {
-                            NotificationID = 57,
+                            NotificationID = 40,
                             CreatedAt = new DateTime(2025, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Message = "Toni Cetinski Zagreb Arena event is now pending approval",
+                            Message = "Toni Cetinski has announced a new event in Zagreb Arena!",
+                            Title = "New Event From Favorite Performer",
                             UserID = 16,
                             isRead = true
                         });
@@ -1983,6 +1812,9 @@ namespace MyStagePass.Services.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
@@ -2259,6 +2091,7 @@ namespace MyStagePass.Services.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusID"));
 
                     b.Property<string>("StatusName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("StatusID");
@@ -3121,11 +2954,13 @@ namespace MyStagePass.Services.Migrations
 
             modelBuilder.Entity("MyStagePass.Services.Database.Purchase", b =>
                 {
-                    b.HasOne("MyStagePass.Services.Database.Customer", null)
+                    b.HasOne("MyStagePass.Services.Database.Customer", "Customer")
                         .WithMany("Purchases")
                         .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("MyStagePass.Services.Database.Review", b =>

@@ -7,7 +7,6 @@ using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Helpers;
 using MyStagePass.Services.Interfaces;
-using static MyStagePass.Services.Database.Event;
 
 namespace MyStagePass.Services.Services
 {
@@ -65,7 +64,7 @@ namespace MyStagePass.Services.Services
 
 			foreach (var admin in admins)
 			{
-				await _notificationService.NotifyUser(admin.UserID, $"New performer '{insert.FirstName} {insert.LastName}' is waiting for approval!");
+				await _notificationService.NotifyUser(admin.UserID, "New Performer Registration", $"New performer '{insert.FirstName} {insert.LastName}' is waiting for approval!");
 			}
 		}
 
@@ -113,6 +112,9 @@ namespace MyStagePass.Services.Services
 
 			if (entity == null)
 				throw new UserException("Performer not found.");
+
+			if (entity.IsApproved != null)
+				throw new UserException("Performer has already been reviewed and cannot be changed.");
 
 			entity.IsApproved = isApproved;
 
@@ -224,6 +226,19 @@ namespace MyStagePass.Services.Services
 			return result;
 		}
 
+		public override async Task<Model.Models.Performer> GetById(int id)
+		{
+			var entity = await _context.Performers
+				.Include(p => p.User)
+				.Include(p => p.Genres).ThenInclude(pg => pg.Genre)
+				.FirstOrDefaultAsync(p => p.PerformerID == id);
+
+			if (entity == null)
+				throw new UserException("Performer not found.");
+
+			return _mapper.Map<Model.Models.Performer>(entity);
+		}
+
 		public async Task<PerformerStatistics> GetMyStatistics(int performerId, int? month, int? year, int? eventId)
 		{
 			var query = _context.Tickets
@@ -245,9 +260,9 @@ namespace MyStagePass.Services.Services
 				RegularRevenue = tickets.Where(t => t.TicketType == TicketType.Regular).Sum(t => t.Price),
 				VipRevenue = tickets.Where(t => t.TicketType == TicketType.Vip).Sum(t => t.Price),
 				PremiumRevenue = tickets.Where(t => t.TicketType == TicketType.Premium).Sum(t => t.Price),
-				RegularTicketsSold = tickets.Count(t => (int)t.TicketType == 1),
-				VipTicketsSold = tickets.Count(t => (int)t.TicketType == 2),
-				PremiumTicketsSold = tickets.Count(t => (int)t.TicketType == 3),
+				RegularTicketsSold = tickets.Count(t => t.TicketType == TicketType.Regular),
+				VipTicketsSold = tickets.Count(t => t.TicketType == TicketType.Vip),
+				PremiumTicketsSold = tickets.Count(t => t.TicketType == TicketType.Premium),
 			};
 		}
 	}
