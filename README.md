@@ -95,7 +95,7 @@ Every recommendation includes an **explanation**, for example:
    ```
 
 2. **Set up environment variables**
-   - Unzip `.env-tajne.zip` using the provided password
+   - Unzip `.env-secrets.zip` using the provided password
    - Place the `.env` file in the root API folder
 
 3. **Start all services**
