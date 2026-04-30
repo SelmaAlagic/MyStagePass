@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace MyStagePass.Model.Models
 {
@@ -10,8 +11,13 @@ namespace MyStagePass.Model.Models
         public string? LastName { get; set; }
         public string? Username { get; set; }
         public string? Email { get; set; }
+
+		[JsonIgnore]
         public string? Password { get; set; }
-        public string? Salt { get; set; }
+
+		[JsonIgnore]
+		public string? Salt { get; set; }
+
         public string? PhoneNumber { get; set; }
         public byte[]? Image { get; set; }
         public bool IsActive { get; set; } = true;

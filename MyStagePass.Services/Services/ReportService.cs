@@ -8,8 +8,6 @@ namespace MyStagePass.Services.Services
 	public class ReportService : IReportService
 	{
 		private readonly MyStagePassDbContext _context;
-		private readonly string _turquoiseColor = "#76e3d7";
-
 		public ReportService(MyStagePassDbContext context)
 		{
 			_context = context;

@@ -79,16 +79,28 @@ namespace MyStagePass.Services.Services
 		public override async Task<Model.Models.Purchase> Insert(PurchaseInsertRequest request)
 		{
 			var customer = await _context.Customers
-				.FirstOrDefaultAsync(c => c.UserID == request.CustomerID);
+				.FirstOrDefaultAsync(c => c.CustomerID == request.CustomerID)
+				?? throw new UserException("Customer not found.");
 
-			if (customer == null)
-				throw new UserException("Customer not found for the given user.");
+			var ev = await _context.Events
+				.Include(e => e.Status)
+				.FirstOrDefaultAsync(e => e.EventID == request.EventID)
+				?? throw new UserException("Event not found.");
 
-			request.CustomerID = customer.CustomerID;
+			if (ev.StatusID != Status.ApprovedID)
+				throw new UserException("Tickets can only be purchased for approved events.");
 
-			var ev = await _context.Events.FindAsync(request.EventID);
-			if (ev == null)
-				throw new UserException("Event not found");
+			if (ev.EventDate < DateTime.UtcNow)
+				throw new UserException("Cannot purchase tickets for past events.");
+
+			if (request.NumberOfTickets <= 0)
+				throw new UserException("Number of tickets must be at least 1.");
+
+			int remainingTickets = ev.TotalTickets - ev.TicketsSold;
+			if (request.NumberOfTickets > remainingTickets)
+				throw new UserException(remainingTickets == 0
+					? "This event is sold out."
+					: $"Not enough tickets available. Only {remainingTickets} ticket(s) remaining.");
 
 			int singlePrice = request.TicketType switch
 			{
@@ -96,6 +108,9 @@ namespace MyStagePass.Services.Services
 				Model.Models.TicketType.Premium => ev.PremiumPrice,
 				_ => ev.RegularPrice
 			};
+
+			if (singlePrice <= 0)
+				throw new UserException("Invalid ticket price for selected ticket type.");
 
 			using var transaction = await _context.Database.BeginTransactionAsync();
 			try
@@ -122,15 +137,12 @@ namespace MyStagePass.Services.Services
 						IsDeleted = false
 					};
 					_context.Tickets.Add(ticket);
-					await _context.SaveChangesAsync();
-
 				}
 
 				ev.TicketsSold += request.NumberOfTickets;
 				await _context.SaveChangesAsync();
 				await transaction.CommitAsync();
 
-				var purchaseId = purchaseEntity.PurchaseID;
 				var result = await _context.Purchases
 					.Include(p => p.Tickets)
 						.ThenInclude(t => t.Event)
@@ -140,9 +152,14 @@ namespace MyStagePass.Services.Services
 						.ThenInclude(t => t.Event)
 							.ThenInclude(e => e.Location)
 								.ThenInclude(l => l.City)
-					.FirstOrDefaultAsync(p => p.PurchaseID == purchaseId);
+					.FirstOrDefaultAsync(p => p.PurchaseID == purchaseEntity.PurchaseID);
 
 				return _mapper.Map<Model.Models.Purchase>(result);
+			}
+			catch (UserException)
+			{
+				await transaction.RollbackAsync();
+				throw; 
 			}
 			catch (Exception ex)
 			{
@@ -181,9 +198,9 @@ namespace MyStagePass.Services.Services
 			var pageSize = search.PageSize ?? 10;
 
 			var customerId = search.CustomerID;
-			var reviews = _context.Reviews
+			var reviews = await _context.Reviews
 				.Where(r => r.CustomerID == search.CustomerID)
-				.ToList();
+				.ToListAsync();
 
 			var pagedEvents = eventsFromDb
 				.Skip(page * pageSize)

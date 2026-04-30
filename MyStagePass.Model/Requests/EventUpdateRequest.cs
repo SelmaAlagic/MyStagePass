@@ -16,6 +16,5 @@ namespace MyStagePass.Model.Requests
 		public int? PremiumPrice { get; set; }
 		public int? PerformerID { get; set; }
 		public DateTime? EventDate { get; set; }
-		public int? LocationID { get; set; }
 	}
 }

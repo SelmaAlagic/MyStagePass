@@ -6,42 +6,47 @@ namespace MyStagePass.Subscriber
 {
 	public class EmailService
 	{
+		private readonly string _smtpServer;
+		private readonly int _smtpPort;
+		private readonly string _fromMail;
+		private readonly string _password;
+		private readonly bool _enableSsl;
+
+		public EmailService()
+		{
+			_smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER")
+				?? throw new InvalidOperationException("SMTP_SERVER is not configured.");
+			_smtpPort = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587");
+			_fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME")
+				?? throw new InvalidOperationException("SMTP_USERNAME is not configured.");
+			_password = Environment.GetEnvironmentVariable("SMTP_PASSWORD")
+				?? throw new InvalidOperationException("SMTP_PASSWORD is not configured.");
+			_enableSsl = bool.Parse(Environment.GetEnvironmentVariable("SMTP_USE_SSL") ?? "true");
+		}
+
 		public void SendEmail(string message)
 		{
-			try
+			var emailData = JsonConvert.DeserializeObject<EmailModel>(message)
+				?? throw new InvalidOperationException("Could not deserialize email message.");
+
+			using var mailMessage = new MailMessage
 			{
-				string smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER");
-				int smtpPort = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587");
-				string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME");
-				string password = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
+				From = new MailAddress(_fromMail),
+				Subject = emailData.Subject,
+				Body = emailData.Content,
+			};
+			mailMessage.To.Add(emailData.Recipient);
 
-				var emailData = JsonConvert.DeserializeObject<EmailModel>(message);
-				var senderEmail = emailData.Sender;
-				var recipientEmail = emailData.Recipient;
-				var subject = emailData.Subject;
-				var content = emailData.Content;
-
-				MailMessage MailMessageObj = new MailMessage();
-
-				MailMessageObj.From = new MailAddress(fromMail);
-				MailMessageObj.Subject = subject;
-				MailMessageObj.To.Add(recipientEmail);
-				MailMessageObj.Body = content;
-
-				var smtpClient = new SmtpClient()
-				{
-					Host = smtpServer,
-					Port = smtpPort,
-					Credentials = new NetworkCredential(fromMail, password),
-					EnableSsl = true
-				};
-
-				smtpClient.Send(MailMessageObj);
-			}
-			catch (Exception ex)
+			using var smtpClient = new SmtpClient
 			{
-				Console.WriteLine($"Error sending email: {ex.Message}");
-			}
+				Host = _smtpServer,
+				Port = _smtpPort,
+				Credentials = new NetworkCredential(_fromMail, _password),
+				EnableSsl = _enableSsl
+			};
+
+			smtpClient.Send(mailMessage);
+			Console.WriteLine($"[*] Email sent to {emailData.Recipient} | Subject: {emailData.Subject}");
 		}
 	}
 }

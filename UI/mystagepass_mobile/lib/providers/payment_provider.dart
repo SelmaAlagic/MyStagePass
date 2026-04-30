@@ -9,7 +9,6 @@ class PaymentProvider extends BaseProvider {
     required int eventId,
     required int numberOfTickets,
     required int ticketType,
-    required int amountInCents,
   }) async {
     var url = "${getBaseUrl()}api/Payment/create-payment-intent";
     var uri = Uri.parse(url);
@@ -19,7 +18,6 @@ class PaymentProvider extends BaseProvider {
       'eventId': eventId,
       'numberOfTickets': numberOfTickets,
       'ticketType': ticketType,
-      'amount': amountInCents,
     });
 
     var response = await http.post(uri, headers: headers, body: body);
@@ -29,6 +27,22 @@ class PaymentProvider extends BaseProvider {
       return data['clientSecret'];
     } else {
       throw Exception("Failed to create payment intent");
+    }
+  }
+
+  Future<void> verifyAndPurchase(String paymentIntentId) async {
+    var url = "${getBaseUrl()}api/Payment/verify-and-purchase";
+    var uri = Uri.parse(url);
+    var headers = await createHeaders();
+
+    var body = jsonEncode({'paymentIntentId': paymentIntentId});
+
+    var response = await http.post(uri, headers: headers, body: body);
+
+    if (!isValidResponse(response)) {
+      final errorBody = jsonDecode(response.body);
+      final errorMsg = errorBody['errors']?['error']?[0] ?? response.body;
+      throw Exception(errorMsg); // ← bacit će stvarnu poruku sa servera
     }
   }
 }

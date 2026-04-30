@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyStagePass.Model.Models
@@ -13,6 +14,9 @@ namespace MyStagePass.Model.Models
 		public List<string> Genres { get; set; } = new List<string>();
 		public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 		public bool? IsApproved { get; set; } = null;
+		public string? RejectionReason { get; set; }
+		public int? RejectedByAdminID { get; set; }
+		public DateTime? RejectedAt { get; set; }
 
 		[NotMapped]
 		public float AverageRating { get; set; }

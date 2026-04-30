@@ -861,9 +861,49 @@ class _RecommendedEventsScreenState extends State<RecommendedEventsScreen> {
                       ],
                     ),
                   ),
+                  if (rec.recommendationReason != null &&
+                      rec.recommendationReason!.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1D235D).withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color(0xFF1D235D).withOpacity(0.12),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.lightbulb_outline_rounded,
+                            size: 13,
+                            color: Color(0xFF1D235D),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              rec.recommendationReason!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF1D235D),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
+
             Positioned(
               top: 12,
               right: 12,

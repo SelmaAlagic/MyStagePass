@@ -10,6 +10,7 @@ class Recommendations {
   String? cityName;
   Map<String, int>? ticketPrices;
   double? similarityScore;
+  String? recommendationReason;
 
   Recommendations({
     this.eventName,
@@ -18,6 +19,7 @@ class Recommendations {
     this.cityName,
     this.ticketPrices,
     this.similarityScore,
+    this.recommendationReason,
   });
 
   factory Recommendations.fromJson(Map<String, dynamic> json) =>

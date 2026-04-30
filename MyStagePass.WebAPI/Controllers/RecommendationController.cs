@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MyStagePass.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyStagePass.Model.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using MyStagePass.Model.Helpers;
 
 namespace MyStagePass.WebAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	[Authorize(Roles = "Customer")]
+	[Authorize(Roles = Roles.Customer)]
 	public class RecommendationController : ControllerBase
 	{
 		private readonly IRecommendedService _recommendedService;
@@ -19,18 +18,19 @@ namespace MyStagePass.WebAPI.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<EventRecommendation>>> GetRecommendations([FromQuery] int topN = 10)
+		public async Task<ActionResult<List<EventRecommendation>>> GetRecommendations(
+			[FromQuery] int topN = 10)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-
-			if (string.IsNullOrEmpty(customerIdClaim))
-				return Unauthorized("User is not logged in!");
-
-			if (!int.TryParse(customerIdClaim, out int customerId))
-				return BadRequest("Invalid user ID");
-
-			var recommendations = await _recommendedService.GetRecommendationsForCustomerAsync(customerId, topN);
-			return Ok(recommendations);
+			try
+			{
+				var recommendations = await _recommendedService
+					.GetRecommendationsForCustomerAsync(topN);
+				return Ok(recommendations);
+			}
+			catch (UnauthorizedAccessException ex)
+			{
+				return Unauthorized(ex.Message);
+			}
 		}
 	}
 }

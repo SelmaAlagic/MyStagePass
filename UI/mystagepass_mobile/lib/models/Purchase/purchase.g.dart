@@ -17,6 +17,8 @@ Purchase _$PurchaseFromJson(Map<String, dynamic> json) => Purchase(
       .toList(),
   isDeleted: json['isDeleted'] as bool?,
   total: (json['total'] as num?)?.toInt(),
+  isRefunded: json['isRefunded'] as bool?,
+  paymentIntentId: json['paymentIntentId'] as String?,
 );
 
 Map<String, dynamic> _$PurchaseToJson(Purchase instance) => <String, dynamic>{
@@ -26,4 +28,6 @@ Map<String, dynamic> _$PurchaseToJson(Purchase instance) => <String, dynamic>{
   'tickets': instance.tickets,
   'isDeleted': instance.isDeleted,
   'total': instance.total,
+  'paymentIntentId': instance.paymentIntentId,
+  'isRefunded': instance.isRefunded,
 };

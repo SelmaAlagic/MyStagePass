@@ -11,5 +11,6 @@ namespace MyStagePass.Model.DTOs
 		public string CityName {  get; set; }
 		public Dictionary<string, int> TicketPrices { get; set; } = new Dictionary<string, int>();
 		public double SimilarityScore { get; set; }
+		public string RecommendationReason { get; set; } = "";
 	}
 }

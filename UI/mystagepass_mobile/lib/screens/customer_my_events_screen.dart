@@ -486,7 +486,7 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      height: 210,
+      height: 220,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -647,38 +647,39 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 11),
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        event.userRating != null
-                            ? _buildRatedBadge(event.userRating!)
-                            : ElevatedButton.icon(
-                                onPressed: isPastEvent
-                                    ? () => _showReviewModal(event)
-                                    : null,
-                                icon: Icon(
+                    child: event.userRating != null
+                        ? Row(
+                            children: [
+                              const Spacer(),
+                              _buildRatedBadge(event.userRating!),
+                            ],
+                          )
+                        : isPastEvent
+                        ? Row(
+                            children: [
+                              const Spacer(),
+                              ElevatedButton.icon(
+                                onPressed: () => _showReviewModal(event),
+                                icon: const Icon(
                                   Icons.star,
                                   size: 13,
-                                  color: isPastEvent
-                                      ? Colors.amber
-                                      : Colors.white38,
+                                  color: Colors.amber,
                                 ),
-                                label: Text(
+                                label: const Text(
                                   "Rate Event",
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isPastEvent
-                                        ? Colors.white
-                                        : Colors.white38,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: isPastEvent
-                                      ? const Color.fromARGB(159, 60, 73, 190)
-                                      : Colors.grey.withOpacity(0.35),
-                                  disabledBackgroundColor: Colors.grey
-                                      .withOpacity(0.35),
+                                  backgroundColor: const Color.fromARGB(
+                                    159,
+                                    60,
+                                    73,
+                                    190,
+                                  ),
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 6,
@@ -693,8 +694,49 @@ class _CustomerMyEventsScreenState extends State<CustomerMyEventsScreen> {
                                   ),
                                 ),
                               ),
-                      ],
-                    ),
+                            ],
+                          )
+                        : LayoutBuilder(
+                            builder: (context, constraints) => Container(
+                              width: constraints.maxWidth,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFFFFF8E1,
+                                ).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFFFFB300,
+                                  ).withOpacity(0.4),
+                                ),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Icon(
+                                    Icons.lightbulb_outline_rounded,
+                                    size: 13,
+                                    color: Color(0xFFFFB300),
+                                  ),
+                                  SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      "You'll be able to rate this event once it takes place.",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFFFFE082),
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),

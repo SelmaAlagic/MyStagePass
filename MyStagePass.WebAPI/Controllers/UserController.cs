@@ -15,19 +15,21 @@ namespace MyStagePass.WebAPI.Controllers
 	public class UserController : BaseCRUDController<User, UserSearchObject, UserInsertRequest, UserUpdateRequest>
 	{
 		private readonly IUserService _userService;
-		public UserController(ILogger<BaseController<User, UserSearchObject>> logger, IUserService service) : base(logger, service)
+		private readonly ICurrentUserService _currentUserService;
+		public UserController(ILogger<BaseController<User, UserSearchObject>> logger, IUserService service, ICurrentUserService currentUserService) : base(logger, service)
 		{
 			_userService=service;
+			_currentUserService=currentUserService;
 		}
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = Roles.Admin)]
 		[HttpDelete("deactivate/{id}")]
 		public override async Task<User> Delete(int id)
 		{
 			return await _service.Delete(id);
 		}
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = Roles.Admin)]
 		[HttpPut("restore/{id}")]
 		public async Task<ActionResult<User>> Restore(int id)
 		{
@@ -73,15 +75,15 @@ namespace MyStagePass.WebAPI.Controllers
 				var firstName = User.FindFirst("FirstName")?.Value;
 				var lastName = User.FindFirst("LastName")?.Value;
 
-				return Ok(new
+				return Ok(new CurrentUser
 				{
-					userId = int.Parse(userId ?? "0"),
-					email,
-					role,
-					username,
-					firstName,
-					lastName,
-					fullName = $"{firstName} {lastName}".Trim()
+					UserId = int.Parse(userId ?? "0"),
+					Email = email,
+					Role = role,
+					Username = username,
+					FirstName = firstName,
+					LastName = lastName,
+					FullName = $"{firstName} {lastName}".Trim()
 				});
 			}
 			catch (Exception ex)
@@ -96,8 +98,7 @@ namespace MyStagePass.WebAPI.Controllers
 		{
 			try
 			{
-				var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
+				var userId = _currentUserService.GetUserId();
 				var user = await _userService.GetById(userId);
 
 				if (user == null)

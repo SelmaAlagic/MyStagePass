@@ -13,6 +13,7 @@ class Notification {
   DateTime? createdAt;
   bool? isRead;
   bool? isDeleted;
+  String? title;
 
   Notification({
     this.notificationID,
@@ -22,6 +23,7 @@ class Notification {
     this.createdAt,
     this.isRead,
     this.isDeleted,
+    this.title,
   });
 
   factory Notification.fromJson(Map<String, dynamic> json) =>

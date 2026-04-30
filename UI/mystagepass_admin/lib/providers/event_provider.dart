@@ -24,9 +24,13 @@ class EventProvider extends BaseProvider<Event> {
     }
   }
 
-  Future<void> cancelEvent(int id) async {
-    final url = Uri.parse('${getBaseUrl()}api/Event/$id/cancel');
+  Future<void> cancelEvent(int id, String reason) async {
+    final url = Uri.parse(
+      '${getBaseUrl()}api/Event/$id/cancel?reason=${Uri.encodeComponent(reason)}',
+    );
+
     final headers = await createHeaders();
+
     final response = await http.put(url, headers: headers);
 
     if (!isValidResponse(response)) {

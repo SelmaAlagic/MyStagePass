@@ -18,6 +18,7 @@ Notification _$NotificationFromJson(Map<String, dynamic> json) => Notification(
       : DateTime.parse(json['createdAt'] as String),
   isRead: json['isRead'] as bool?,
   isDeleted: json['isDeleted'] as bool?,
+  title: json['title'] as String?,
 );
 
 Map<String, dynamic> _$NotificationToJson(Notification instance) =>
@@ -29,4 +30,5 @@ Map<String, dynamic> _$NotificationToJson(Notification instance) =>
       'createdAt': instance.createdAt?.toIso8601String(),
       'isRead': instance.isRead,
       'isDeleted': instance.isDeleted,
+      'title': instance.title,
     };

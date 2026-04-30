@@ -11,7 +11,7 @@ namespace MyStagePass.Services.Database.Seed
 				new Event
 				{
 					EventID = 1,
-					EventName = "Ilma Karahmet - Debut Concert",
+					EventName = "Debut Concert",
 					Description = "First solo concert of the rising pop artist",
 					EventDate = new DateTime(2026, 5, 10, 20, 0, 0),
 					StatusID = 2,
@@ -25,16 +25,15 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2025, 1, 15, 14, 30, 0)
 				},
 				new Event
 				{
 					EventID = 2,
-					EventName = "Ilma Karahmet - Tuzla Summer Fest",
+					EventName = "Tuzla Summer Fest",
 					Description = "Summer performance at Tuzla Festival",
-					EventDate = new DateTime(2024, 7, 22, 21, 0, 0),
-					StatusID = 3,
+					EventDate = new DateTime(2025, 7, 22, 21, 0, 0),
+					StatusID = 4,
 					TotalTickets = 7000,
 					TicketsSold = 5200,
 					RegularPrice = 30,
@@ -45,13 +44,12 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 412,
 					RatingCount = 89,
 					RatingAverage = 4.63f,
-					IsCancelled = true,
 					CreatedAt = new DateTime(2024, 3, 10, 11, 0, 0)
 				},
 				new Event
 				{
 					EventID = 3,
-					EventName = "Ilma Karahmet - Acoustic Evening",
+					EventName = "Acoustic Evening",
 					Description = "Special concert in an intimate setting",
 					EventDate = new DateTime(2026, 9, 5, 19, 30, 0),
 					StatusID = 1,
@@ -65,13 +63,12 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2025, 2, 5, 9, 15, 0)
 				},
 				new Event
 				{
 					EventID = 4,
-					EventName = "Toni Cetinski - Zagreb Arena",
+					EventName = "Zagreb Arena",
 					Description = "Spectacular concert celebrating 30 years of career",
 					EventDate = new DateTime(2026, 11, 20, 20, 0, 0),
 					StatusID = 1,
@@ -85,15 +82,14 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2025, 2, 1, 10, 0, 0)
 				},
 				new Event
 				{
 					EventID = 5,
-					EventName = "Toni Cetinski - Split Summer Nights",
+					EventName = "Split Summer Nights",
 					Description = "Summer open-air concert",
-					EventDate = new DateTime(2024, 8, 5, 21, 0, 0),
+					EventDate = new DateTime(2026, 7, 1, 21, 0, 0),
 					StatusID = 3,
 					TotalTickets = 12000,
 					TicketsSold = 11800,
@@ -105,15 +101,14 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 1100,
 					RatingCount = 234,
 					RatingAverage = 4.70f,
-					IsCancelled = true,
-					CreatedAt = new DateTime(2024, 2, 20, 12, 0, 0)
+					CreatedAt = new DateTime(2025, 2, 20, 12, 0, 0)
 				},
 				new Event
 				{
 					EventID = 6,
-					EventName = "Toni Cetinski - Sarajevo Winter",
+					EventName = "Sarajevo Winter",
 					Description = "Romantic evening with the most beautiful ballads",
-					EventDate = new DateTime(2025, 2, 14, 20, 0, 0),
+					EventDate = new DateTime(2025, 7, 5, 20, 0, 0),
 					StatusID = 3,
 					TotalTickets = 15000,
 					TicketsSold = 14300,
@@ -125,16 +120,15 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 865,
 					RatingCount = 187,
 					RatingAverage = 4.62f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2024, 9, 1, 15, 30, 0)
 				},
 				new Event
 				{
 					EventID = 7,
-					EventName = "Toni Cetinski - Mostar Bridge Concert",
+					EventName = "Mostar Bridge Concert",
 					Description = "Unique concert near the Old Bridge",
-					EventDate = new DateTime(2024, 9, 15, 20, 30, 0),
-					StatusID = 2,
+					EventDate = new DateTime(2026, 4, 22, 20, 30, 0),
+					StatusID = 4,
 					TotalTickets = 9000,
 					TicketsSold = 8900,
 					RegularPrice = 30,
@@ -145,16 +139,15 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 756,
 					RatingCount = 168,
 					RatingAverage = 4.50f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2024, 4, 10, 9, 45, 0)
 				},
 				new Event
 				{
 					EventID = 8,
-					EventName = "Toni Cetinski - Banja Luka Special",
+					EventName = "Banja Luka Special",
 					Description = "Greatest hits concert",
-					EventDate = new DateTime(2026, 4, 18, 20, 0, 0),
-					StatusID = 2,
+					EventDate = new DateTime(2026, 12, 18, 20, 0, 0),
+					StatusID = 4,
 					TotalTickets = 8000,
 					TicketsSold = 3250,
 					RegularPrice = 30,
@@ -165,16 +158,15 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 12, 5, 11, 20, 0)
+					CreatedAt = new DateTime(2025, 12, 5, 11, 20, 0)
 				},
 				new Event
 				{
 					EventID = 9,
-					EventName = "Zeljko Samardzic - Belgrade Classics",
+					EventName = "Belgrade Classics",
 					Description = "Evening of greatest folk-pop hits",
-					EventDate = new DateTime(2024, 10, 12, 20, 0, 0),
-					StatusID = 3,
+					EventDate = new DateTime(2025, 4, 12, 20, 0, 0),
+					StatusID = 2,
 					TotalTickets = 18000,
 					TicketsSold = 17600,
 					RegularPrice = 25,
@@ -185,16 +177,15 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 1420,
 					RatingCount = 312,
 					RatingAverage = 4.55f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2024, 5, 15, 13, 0, 0)
 				},
 				new Event
 				{
 					EventID = 10,
-					EventName = "Zeljko Samardzic - Sarajevo Ballads",
+					EventName = "Sarajevo Ballads",
 					Description = "Love songs and romantic ballads",
-					EventDate = new DateTime(2025, 3, 8, 20, 0, 0),
-					StatusID = 2,
+					EventDate = new DateTime(2026, 8, 8, 20, 0, 0),
+					StatusID = 4,
 					TotalTickets = 12000,
 					TicketsSold = 10900,
 					RegularPrice = 25,
@@ -205,13 +196,12 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 712,
 					RatingCount = 156,
 					RatingAverage = 4.56f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 8, 20, 10, 30, 0)
+					CreatedAt = new DateTime(2025, 8, 20, 10, 30, 0)
 				},
 				new Event
 				{
 					EventID = 11,
-					EventName = "Zeljko Samardzic - Zenica Live",
+					EventName = "Zenica Live",
 					Description = "Intimate acoustic concert",
 					EventDate = new DateTime(2026, 7, 30, 21, 0, 0),
 					StatusID = 1,
@@ -225,16 +215,15 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2025, 1, 25, 16, 15, 0)
 				},
 				new Event
 				{
 					EventID = 12,
-					EventName = "Zeljko Samardzic - Novi Sad Festival",
+					EventName = "Novi Sad Festival",
 					Description = "Special guest at EXIT Festival",
-					EventDate = new DateTime(2024, 7, 7, 23, 0, 0),
-					StatusID = 3,
+					EventDate = new DateTime(2027, 7, 7, 23, 0, 0),
+					StatusID = 2,
 					TotalTickets = 40000,
 					TicketsSold = 35000,
 					RegularPrice = 45,
@@ -245,13 +234,12 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 1290,
 					RatingCount = 278,
 					RatingAverage = 4.64f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 2, 28, 14, 0, 0)
+					CreatedAt = new DateTime(2026, 2, 28, 14, 0, 0)
 				},
 				new Event
 				{
 					EventID = 13,
-					EventName = "Adi Sose - Jazz Night",
+					EventName = "Jazz Night",
 					Description = "Evening of jazz and soul music",
 					EventDate = new DateTime(2026, 6, 5, 21, 0, 0),
 					StatusID = 2,
@@ -265,16 +253,15 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 11, 10, 9, 0, 0)
+					CreatedAt = new DateTime(2025, 11, 10, 9, 0, 0)
 				},
 				new Event
 				{
 					EventID = 14,
-					EventName = "Adi Sose - Akustik Session",
+					EventName = "Akustik Session",
 					Description = "Unique vocal performance with band",
-					EventDate = new DateTime(2024, 11, 18, 20, 0, 0),
-					StatusID = 3,
+					EventDate = new DateTime(2026, 11, 18, 20, 0, 0),
+					StatusID = 2,
 					TotalTickets = 3000,
 					TicketsSold = 2800,
 					RegularPrice = 25,
@@ -285,15 +272,14 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 315,
 					RatingCount = 67,
 					RatingAverage = 4.70f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 6, 15, 12, 30, 0)
+					CreatedAt = new DateTime(2025, 6, 15, 12, 30, 0)
 				},
 				new Event
 				{
 					EventID = 15,
-					EventName = "Mirza Selimovic - Folk Spectacle",
+					EventName = "Folk Spectacle",
 					Description = "Traditional folk music night",
-					EventDate = new DateTime(2024, 9, 28, 20, 0, 0),
+					EventDate = new DateTime(2025, 9, 28, 20, 0, 0),
 					StatusID = 3,
 					TotalTickets = 10000,
 					TicketsSold = 8200,
@@ -305,13 +291,12 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 665,
 					RatingCount = 145,
 					RatingAverage = 4.59f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2024, 4, 5, 10, 45, 0)
 				},
 				new Event
 				{
 					EventID = 16,
-					EventName = "Mirza Selimovic - Bihac Summer",
+					EventName = "Bihac Summer",
 					Description = "Summer concert in Una National Park",
 					EventDate = new DateTime(2026, 8, 20, 20, 30, 0),
 					StatusID = 1,
@@ -325,15 +310,14 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2025, 2, 18, 8, 30, 0)
 				},
 				new Event
 				{
 					EventID = 17,
-					EventName = "Mirza Selimovic - New Year's Eve",
+					EventName = "New Year's Eve",
 					Description = "New Year celebration in Podgorica",
-					EventDate = new DateTime(2024, 12, 31, 22, 0, 0),
+					EventDate = new DateTime(2026, 12, 31, 22, 0, 0),
 					StatusID = 2,
 					TotalTickets = 9000,
 					TicketsSold = 6750,
@@ -345,13 +329,12 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 580,
 					RatingCount = 125,
 					RatingAverage = 4.64f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 7, 1, 11, 0, 0)
+					CreatedAt = new DateTime(2025, 11, 30, 11, 0, 0)
 				},
 				new Event
 				{
 					EventID = 18,
-					EventName = "Prljavo Kazaliste - 40 Years Anniversary",
+					EventName = "40 Years Anniversary",
 					Description = "Jubilee concert with special guests",
 					EventDate = new DateTime(2026, 10, 5, 20, 0, 0),
 					StatusID = 1,
@@ -365,15 +348,14 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2025, 1, 30, 13, 20, 0)
 				},
 				new Event
 				{
 					EventID = 19,
-					EventName = "Prljavo Kazaliste - Sarajevo Rock Night",
+					EventName = "Sarajevo Rock Night",
 					Description = "Rock classics and new hits",
-					EventDate = new DateTime(2024, 11, 15, 21, 0, 0),
+					EventDate = new DateTime(2026, 11, 15, 21, 0, 0),
 					StatusID = 3,
 					TotalTickets = 12000,
 					TicketsSold = 11000,
@@ -384,16 +366,15 @@ namespace MyStagePass.Services.Database.Seed
 					LocationID = 3,
 					TotalScore = 935,
 					RatingCount = 203,
-					RatingAverage = 4.60f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 6, 10, 9, 45, 0)
+					RatingAverage = 4.61f,
+					CreatedAt = new DateTime(2025, 6, 10, 9, 45, 0)
 				},
 				new Event
 				{
 					EventID = 20,
-					EventName = "Prljavo Kazaliste - Split Open Air",
+					EventName = "Split Open Air",
 					Description = "Summer rock concert at Poljud",
-					EventDate = new DateTime(2024, 8, 25, 21, 0, 0),
+					EventDate = new DateTime(2025, 8, 25, 21, 0, 0),
 					StatusID = 3,
 					TotalTickets = 34000,
 					TicketsSold = 29800,
@@ -405,13 +386,12 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 1220,
 					RatingCount = 267,
 					RatingAverage = 4.57f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2024, 3, 15, 15, 30, 0)
 				},
 				new Event
 				{
 					EventID = 21,
-					EventName = "Prljavo Kazaliste - Mostar Rock Fest",
+					EventName = "Mostar Rock Fest",
 					Description = "Headliner at Mostar Rock Festival",
 					EventDate = new DateTime(2026, 7, 12, 22, 0, 0),
 					StatusID = 2,
@@ -425,8 +405,7 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
-					CreatedAt = new DateTime(2024, 10, 5, 10, 0, 0)
+					CreatedAt = new DateTime(2025, 10, 5, 10, 0, 0)
 				},
 				new Event
 				{
@@ -445,7 +424,6 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					IsCancelled = false,
 					CreatedAt = new DateTime(2025, 4, 20, 10, 0, 0)
 				}
 			);

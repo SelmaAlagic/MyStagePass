@@ -15,7 +15,7 @@ namespace MyStagePass.Services.Database.Seed
 				new Performer { PerformerID = 6, ArtistName = "Adi Sose", Bio = "Vocalist known for unique style", IsApproved = true, UserID = 7 },
 				new Performer { PerformerID = 7, ArtistName = "Mirza Selimovic", Bio = "Pop-folk singer from BiH", IsApproved = true, UserID = 8 },
 				new Performer { PerformerID = 8, ArtistName = "Marija Serifovic", Bio = "Eurovision winner and pop star", IsApproved = false, UserID = 9 },
-				new Performer { PerformerID = 9, ArtistName = "Prljavo kazaliste", Bio = "Modern pop griup", IsApproved = true, UserID = 10 }
+				new Performer { PerformerID = 9, ArtistName = "Prljavo kazaliste", Bio = "Modern pop group", IsApproved = true, UserID = 10 }
 			);
 		}
 	}

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
@@ -9,64 +10,52 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[AllowAnonymous]
+	[Authorize]
 	public class PerformerController : BaseCRUDController<Performer, PerformerSearchObject, PerformerInsertRequest, PerformerUpdateRequest>
 	{
 		private readonly IPerformerService _performerService;
-		public PerformerController(ILogger<BaseController<Performer, PerformerSearchObject>> logger, IPerformerService service) : base(logger, service)
+		private readonly ICurrentUserService _currentUserService;
+
+		public PerformerController(ILogger<BaseController<Performer, PerformerSearchObject>> logger, IPerformerService service, ICurrentUserService currentUserService) : base(logger, service)
 		{
 			_performerService = service;
+			_currentUserService=currentUserService;
 		}
 
 		[HttpPost("register")]
+		[AllowAnonymous]
 		public override Task<Performer> Insert([FromBody] PerformerInsertRequest insert)
 		{
 			return base.Insert(insert);
 		}
 
-		[Authorize(Roles ="Admin")]
+		[Authorize(Roles =Roles.Admin)]
 		[HttpPut("{id}/approve")]
-		public async Task<IActionResult> Approve(int id, [FromQuery] bool isApproved)
+		public async Task<IActionResult> Approve(int id, [FromQuery] bool isApproved, [FromQuery] string? reason = null)
 		{
-			var result = await _performerService.ApprovePerformer(id, isApproved);
-			if (result == null)
-				return NotFound();
+			var result = await _performerService.ApprovePerformer(id, isApproved, reason);
 			return Ok(result);
 		}
 
-		[Authorize(Roles = "Admin,Performer")]
+		[Authorize(Roles = Roles.Admin + "," + Roles.Performer)]
 		[HttpPut("{id}")]
 		public override async Task<Performer> Update(int id, [FromBody] PerformerUpdateRequest update)
 		{
-			var isAdmin = User.IsInRole("Admin");
-			if (!isAdmin)
-			{
-				var performerIdClaim = User.FindFirst("PerformerID")?.Value;
-				if (string.IsNullOrEmpty(performerIdClaim))
-					throw new UnauthorizedAccessException("Invalid token");
-				int tokenPerformerId = int.Parse(performerIdClaim);
-				if (tokenPerformerId != id)
-					throw new UnauthorizedAccessException("You can only update your own profile");
-			}
 			return await _performerService.Update(id, update);
 		}
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = Roles.Admin)]
 		[HttpDelete("{id}")]
 		public override async Task<Performer> Delete(int id)
 		{
 			return await base.Delete(id);
 		}
 
-		[Authorize(Roles = "Performer")]
+		[Authorize(Roles = Roles.Performer)]
 		[HttpGet("my-statistics")]
 		public async Task<IActionResult> GetMyStatistics([FromQuery] int? month, [FromQuery] int? year, [FromQuery] int? eventId)
 		{
-			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
-			if (string.IsNullOrEmpty(performerIdClaim))
-				throw new UnauthorizedAccessException("Invalid token");
-
-			int performerId = int.Parse(performerIdClaim);
+			int performerId = _currentUserService.GetPerformerId();
 			var result = await _performerService.GetMyStatistics(performerId, month, year, eventId);
 			return Ok(result);
 		}

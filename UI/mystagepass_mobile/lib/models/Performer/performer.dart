@@ -11,6 +11,7 @@ class Performer {
   String? bio;
   List<String>? genres;
   User? user;
+  double? averageRating;
 
   Performer(
     this.performerID,
@@ -19,6 +20,7 @@ class Performer {
     this.artistName,
     this.bio,
     this.genres,
+    this.averageRating,
   );
 
   factory Performer.fromJson(Map<String, dynamic> json) =>

@@ -92,6 +92,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IPerformerService, PerformerService>();
+builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
@@ -99,13 +100,13 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ICustomerFavoriteEventService, CustomerFavoriteEventService>();
 builder.Services.AddSingleton<IRabbitMQProducer, RabbitMQProducer>();
 builder.Services.AddScoped<IRecommendedService, RecommendedService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddAutoMapper(cfg => { cfg.AddProfile<MappingProfile>(); });
 
@@ -119,6 +120,9 @@ builder.Services.AddCors(options =>
 				  .AllowAnyHeader();
 		});
 });
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 var app = builder.Build();

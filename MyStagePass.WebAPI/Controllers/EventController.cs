@@ -10,116 +10,78 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize]
 	public class EventController : BaseCRUDController<Event, EventSearchObject, EventInsertRequest, EventUpdateRequest>
 	{
-		public EventController(ILogger<BaseController<Event, EventSearchObject>> logger, IEventService service) : base(logger, service)
+		private readonly ICurrentUserService _currentUserService;
+
+		public EventController(ILogger<BaseController<Event, EventSearchObject>> logger, IEventService service, ICurrentUserService currentUserService) : base(logger, service)
 		{
+			_currentUserService=currentUserService;
 		}
 
 		[AllowAnonymous]
 		[HttpGet]
 		public override async Task<PagedResult<Event>> Get([FromQuery] EventSearchObject search)
 		{
-			search.Status = "Approved";
+			search.IncludeCancelled = true;
 			return await base.Get(search);
 		}
 
-		[Authorize(Roles = "Performer")]
+		[Authorize(Roles = Roles.Performer)]
 		[HttpGet("my-events")]
 		public async Task<PagedResult<Event>> GetMyEvents([FromQuery] EventSearchObject search)
 		{
-			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
-
-			if (string.IsNullOrEmpty(performerIdClaim) || !int.TryParse(performerIdClaim, out int performerId))
-				throw new UnauthorizedAccessException("Performer not authenticated");
-
-			search.PerformerID = performerId;
+			search.PerformerID = _currentUserService.GetPerformerId();
 			return await base.Get(search);
 		}
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = Roles.Admin)]
 		[HttpGet("admin/all")]
 		public async Task<PagedResult<Event>> GetAllForAdmin([FromQuery] EventSearchObject search)
 		{
 			return await base.Get(search);
 		}
 
-		[Authorize(Roles = "Performer")]
+		[Authorize(Roles = Roles.Performer)]
 		[HttpPost]
 		public override async Task<Event> Insert([FromBody] EventInsertRequest insert)
 		{
-			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
-
-			if (string.IsNullOrEmpty(performerIdClaim) || !int.TryParse(performerIdClaim, out int performerId))
-				throw new UnauthorizedAccessException("Performer not authenticated");
-
-			insert.PerformerID = performerId;
-
+			insert.PerformerID = _currentUserService.GetPerformerId();
 			return await base.Insert(insert);
 		}
 
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = Roles.Admin)]
 		[HttpPut("{id}/status")]
 		public async Task<IActionResult> ApproveEvent(int id, [FromQuery] string newStatus)
 		{
 			var eventService = _service as IEventService;
-			if (eventService == null)
-				return BadRequest("Service not available");
-
-			try
-			{
-				await eventService.UpdateAdminStatus(id, newStatus);
-				return Ok($"Event status updated to {newStatus} successfully!");
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await eventService.UpdateAdminStatus(id, newStatus);
+			return Ok($"Event status updated to {newStatus} successfully!");
 		}
 
-		[Authorize(Roles = "Admin")]
-		[HttpPut("{id}/cancel")]
-		public async Task<IActionResult> Cancel(int id)
-		{
-			var eventService = _service as IEventService;
-			if (eventService == null)
-				return BadRequest("Service not available");
-			try
-			{
-				var result = await eventService.CancelEvent(id);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
-		}
-
-		[Authorize(Roles = "Performer")]
+		[Authorize(Roles = Roles.Performer)]
 		[HttpPut("{id}")]
 		public override async Task<Event> Update(int id, [FromBody] EventUpdateRequest update)
 		{
-			var existingEvent = await (_service as IEventService).GetById(id);
-			if (existingEvent == null)
-				throw new Exception("Event not found");
-
-			var performerIdClaim = User.FindFirst("PerformerID")?.Value;
-
-			if (string.IsNullOrEmpty(performerIdClaim) || !int.TryParse(performerIdClaim, out int performerId))
-				throw new UnauthorizedAccessException("Performer not authenticated");
-
-			if (existingEvent.PerformerID != performerId)
-				throw new Exception("You can only update your own events");
-
 			return await base.Update(id, update);
 		}
 
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = Roles.Admin)]
 		[HttpDelete("{id}")]
 		public override async Task<Event> Delete(int id)
 		{
 			return await base.Delete(id);
+		}
+
+		[Authorize(Roles = Roles.Admin)]
+		[HttpPut("{id}/cancel")]
+		public async Task<IActionResult> Cancel(int id, [FromQuery] string? reason = null)
+		{
+			var eventService = _service as IEventService;
+			var result = await eventService.CancelEvent(id, reason);
+			return Ok(result);
 		}
 	}
 }

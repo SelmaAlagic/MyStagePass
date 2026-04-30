@@ -15,12 +15,15 @@ namespace MyStagePass.Model.Requests
 		public string Description { get; set; }
 
 		[Required]
+		[Range(1, int.MaxValue, ErrorMessage = "Price must be greater than 0")]
 		public int RegularPrice { get; set; }
 
 		[Required]
+		[Range(1, int.MaxValue, ErrorMessage = "Price must be greater than 0")]
 		public int VipPrice { get; set; }
 
 		[Required]
+		[Range(1, int.MaxValue, ErrorMessage = "Price must be greater than 0")]
 		public int PremiumPrice { get; set; }
 
 		[JsonIgnore]

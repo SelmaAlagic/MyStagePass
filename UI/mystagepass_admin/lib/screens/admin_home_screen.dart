@@ -598,7 +598,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 _route(
                                   UserManagementScreen(userId: widget.userId),
                                 ),
-                              ),
+                              ).then((_) => _loadUserData()),
                             ),
                             _GridCard(
                               title: 'Manage events',
@@ -609,7 +609,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 _route(
                                   EventManagementScreen(userId: widget.userId),
                                 ),
-                              ),
+                              ).then((_) => _loadUserData()),
                             ),
                             _GridCard(
                               title: 'Manage performers',
@@ -622,7 +622,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     userId: widget.userId,
                                   ),
                                 ),
-                              ),
+                              ).then((_) => _loadUserData()),
                             ),
                             _GridCard(
                               title: 'Reports & stats',
@@ -631,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen>
                               onTap: () => Navigator.push(
                                 context,
                                 _route(ReportsScreen(userId: widget.userId)),
-                              ),
+                              ).then((_) => _loadUserData()),
                             ),
                           ],
                         ),
@@ -1170,11 +1170,22 @@ class _RecentListState extends State<_RecentList> {
   final NotificationProvider _notificationProvider = NotificationProvider();
   List<dynamic> _notifications = [];
   bool _loading = true;
+  int _lastUnreadCount = -1;
 
   @override
   void initState() {
     super.initState();
     _loadNotifications();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final np = Provider.of<NotificationProvider>(context);
+    if (np.unreadCount != _lastUnreadCount) {
+      _lastUnreadCount = np.unreadCount;
+      _loadNotifications();
+    }
   }
 
   Future<void> _loadNotifications() async {
@@ -1184,12 +1195,14 @@ class _RecentListState extends State<_RecentList> {
         (a, b) =>
             (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)),
       );
-      setState(() {
-        _notifications = items;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _notifications = items;
+          _loading = false;
+        });
+      }
     } catch (e) {
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -1871,152 +1884,157 @@ class _EditProfileDialogState extends State<EditProfileDialog>
         _selectedImage != null ||
         (_base64Image != null && _base64Image!.isNotEmpty);
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (_) => setState(() => _avatarHovered = true),
-          onExit: (_) => setState(() => _avatarHovered = false),
-          child: GestureDetector(
-            onTap: _pickImage,
-            child: Stack(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _avatarHovered ? _blue : _blue.withOpacity(0.3),
-                      width: 2.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _blue.withOpacity(_avatarHovered ? 0.20 : 0.07),
-                        blurRadius: 10,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => setState(() => _avatarHovered = true),
+            onExit: (_) => setState(() => _avatarHovered = false),
+            child: GestureDetector(
+              onTap: _pickImage,
+              child: Stack(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _avatarHovered ? _blue : _blue.withOpacity(0.3),
+                        width: 2.5,
                       ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: _selectedImage != null
-                        ? Image.file(
-                            _selectedImage!,
-                            height: 68,
-                            width: 68,
-                            fit: BoxFit.cover,
-                          )
-                        : ImageHelpers.getImage(
-                            _base64Image,
-                            height: 68,
-                            width: 68,
+                      boxShadow: [
+                        BoxShadow(
+                          color: _blue.withOpacity(
+                            _avatarHovered ? 0.20 : 0.07,
                           ),
-                  ),
-                ),
-                Positioned.fill(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 160),
-                    opacity: _avatarHovered ? 1.0 : 0.0,
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
                     child: ClipOval(
-                      child: Container(
-                        color: _navy.withOpacity(0.42),
-                        child: const Center(
-                          child: Icon(
-                            Icons.camera_alt_rounded,
-                            color: _white,
-                            size: 17,
+                      child: _selectedImage != null
+                          ? Image.file(
+                              _selectedImage!,
+                              height: 68,
+                              width: 68,
+                              fit: BoxFit.cover,
+                            )
+                          : ImageHelpers.getImage(
+                              _base64Image,
+                              height: 68,
+                              width: 68,
+                            ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 160),
+                      opacity: _avatarHovered ? 1.0 : 0.0,
+                      child: ClipOval(
+                        child: Container(
+                          color: _navy.withOpacity(0.42),
+                          child: const Center(
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              color: _white,
+                              size: 17,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  bottom: 1,
-                  right: 1,
-                  child: Container(
-                    width: 11,
-                    height: 11,
-                    decoration: BoxDecoration(
-                      color: _green,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: _white, width: 1.8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(width: 14),
-
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-              decoration: BoxDecoration(
-                color: _blue100,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _blue.withOpacity(0.2)),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.admin_panel_settings_rounded,
-                    size: 11,
-                    color: _navyMid,
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    'ADMIN',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: _navyMid,
-                      letterSpacing: 0.6,
+                  Positioned(
+                    bottom: 1,
+                    right: 1,
+                    child: Container(
+                      width: 11,
+                      height: 11,
+                      decoration: BoxDecoration(
+                        color: _green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: _white, width: 1.8),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Tap avatar to change photo',
-              style: TextStyle(fontSize: 11, color: _t2),
-            ),
-            if (hasImage) ...[
-              const SizedBox(height: 4),
-              GestureDetector(
-                onTap: _removeImage,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.delete_outline_rounded,
-                        size: 11,
-                        color: Colors.red.shade400,
+          ),
+
+          const SizedBox(height: 10),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _blue100,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: _blue.withOpacity(0.2)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.admin_panel_settings_rounded,
+                      size: 11,
+                      color: _navyMid,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'ADMIN',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: _navyMid,
+                        letterSpacing: 0.6,
                       ),
-                      const SizedBox(width: 3),
-                      Text(
-                        'Remove picture',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.red.shade400,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 6),
+              Text(
+                'Tap avatar to change photo',
+                style: TextStyle(fontSize: 11, color: _t2),
+              ),
+              if (hasImage) ...[
+                const SizedBox(height: 4),
+                GestureDetector(
+                  onTap: _removeImage,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.delete_outline_rounded,
+                          size: 11,
+                          color: Colors.red.shade400,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          'Remove picture',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.red.shade400,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 

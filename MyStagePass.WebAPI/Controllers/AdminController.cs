@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
@@ -9,7 +10,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles=Roles.Admin)]
 	public class AdminController : BaseCRUDController<Admin, AdminSearchObject, AdminInsertRequest, AdminUpdateRequest>
 	{
 		public AdminController(ILogger<BaseController<Admin, AdminSearchObject>> logger, IAdminService service) : base(logger, service)

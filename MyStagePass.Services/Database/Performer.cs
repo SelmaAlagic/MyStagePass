@@ -10,5 +10,8 @@
 		public virtual ICollection<PerformerGenre> Genres { get; set; } = new List<PerformerGenre>();
 		public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 		public bool? IsApproved { get; set; } = null;
+		public string? RejectionReason { get; set; }
+		public int? RejectedByAdminID { get; set; }
+		public DateTime? RejectedAt { get; set; }
 	}
 }

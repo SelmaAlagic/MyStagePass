@@ -240,11 +240,12 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
   }
 
   Widget _buildPurchaseCard(Purchase purchase) {
-    final tickets =
-        purchase.tickets?.where((t) => t.isDeleted != true).toList() ?? [];
-    final ticketCount = tickets.length;
-    final eventName = tickets.isNotEmpty
-        ? (tickets.first.event?.eventName ?? "Event")
+    final isRefunded = purchase.isRefunded == true;
+    final allTickets = purchase.tickets ?? [];
+    final tickets = allTickets.where((t) => t.isDeleted != true).toList();
+    final ticketCount = isRefunded ? allTickets.length : tickets.length;
+    final eventName = allTickets.isNotEmpty
+        ? (allTickets.first.event?.eventName ?? "Event")
         : "Purchase #${purchase.purchaseID}";
 
     return Container(
@@ -269,14 +270,41 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    eventName,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1D235D),
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          eventName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1D235D),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (isRefunded) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFCEBEB),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            "Cancelled",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFA32D2D),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 8),
                   const Divider(
@@ -328,48 +356,61 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                           color: Color(0xFF616161),
                         ),
                       ),
+                      if (isRefunded) ...[
+                        const SizedBox(width: 6),
+                        const Text(
+                          "· Refunded",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF4CAF50),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: ElevatedButton(
-                onPressed: tickets.isEmpty
-                    ? null
-                    : () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => TicketsScreen(
-                              userId: widget.userId,
-                              preloadedTickets: tickets,
+            if (!isRefunded) ...[
+              const SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: ElevatedButton(
+                  onPressed: tickets.isEmpty
+                      ? null
+                      : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TicketsScreen(
+                                userId: widget.userId,
+                                preloadedTickets: tickets,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1D235D),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1D235D),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    elevation: 0,
                   ),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(9),
+                  child: const Text(
+                    "Show Tickets",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  "Show Tickets",
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

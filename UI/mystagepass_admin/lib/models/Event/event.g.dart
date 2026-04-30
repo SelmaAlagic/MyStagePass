@@ -6,32 +6,37 @@ part of 'event.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Event _$EventFromJson(Map<String, dynamic> json) => Event(
-  eventId: (json['eventID'] as num?)?.toInt(),
-  eventName: json['eventName'] as String?,
-  ticketsSold: (json['ticketsSold'] as num?)?.toInt(),
-  locationName: json['locationName'] as String?,
-  eventDate: json['eventDate'] == null
-      ? null
-      : DateTime.parse(json['eventDate'] as String),
-  timeStatus: json['timeStatus'] as String?,
-  regularPrice: (json['regularPrice'] as num?)?.toInt(),
-  vipPrice: (json['vipPrice'] as num?)?.toInt(),
-  premiumPrice: (json['premiumPrice'] as num?)?.toInt(),
-  isCancelled: json['isCancelled'] as bool?,
-  performer: json['performer'] == null
-      ? null
-      : Performer.fromJson(json['performer'] as Map<String, dynamic>),
-  location: json['location'] == null
-      ? null
-      : Location.fromJson(json['location'] as Map<String, dynamic>),
-  status: json['status'] == null
-      ? null
-      : Status.fromJson(json['status'] as Map<String, dynamic>),
-  createdAt: json['createdAt'] == null
-      ? null
-      : DateTime.parse(json['createdAt'] as String),
-);
+Event _$EventFromJson(Map<String, dynamic> json) =>
+    Event(
+        eventId: (json['eventID'] as num?)?.toInt(),
+        eventName: json['eventName'] as String?,
+        ticketsSold: (json['ticketsSold'] as num?)?.toInt(),
+        locationName: json['locationName'] as String?,
+        eventDate: json['eventDate'] == null
+            ? null
+            : DateTime.parse(json['eventDate'] as String),
+        timeStatus: json['timeStatus'] as String?,
+        regularPrice: (json['regularPrice'] as num?)?.toInt(),
+        vipPrice: (json['vipPrice'] as num?)?.toInt(),
+        premiumPrice: (json['premiumPrice'] as num?)?.toInt(),
+        performer: json['performer'] == null
+            ? null
+            : Performer.fromJson(json['performer'] as Map<String, dynamic>),
+        location: json['location'] == null
+            ? null
+            : Location.fromJson(json['location'] as Map<String, dynamic>),
+        status: json['status'] == null
+            ? null
+            : Status.fromJson(json['status'] as Map<String, dynamic>),
+        createdAt: json['createdAt'] == null
+            ? null
+            : DateTime.parse(json['createdAt'] as String),
+      )
+      ..cancellationReason = json['cancellationReason'] as String?
+      ..approvedByAdminId = (json['approvedByAdminId'] as num?)?.toInt()
+      ..statusChangedAt = json['statusChangedAt'] == null
+          ? null
+          : DateTime.parse(json['statusChangedAt'] as String);
 
 Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
   'eventID': instance.eventId,
@@ -44,8 +49,10 @@ Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
   'vipPrice': instance.vipPrice,
   'premiumPrice': instance.premiumPrice,
   'createdAt': instance.createdAt?.toIso8601String(),
-  'isCancelled': instance.isCancelled,
   'performer': instance.performer,
   'location': instance.location,
   'status': instance.status,
+  'cancellationReason': instance.cancellationReason,
+  'approvedByAdminId': instance.approvedByAdminId,
+  'statusChangedAt': instance.statusChangedAt?.toIso8601String(),
 };

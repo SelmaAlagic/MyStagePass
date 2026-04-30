@@ -5,6 +5,7 @@ import '../providers/performer_provider.dart';
 import '../providers/genre_provider.dart';
 import '../models/Genre/genre.dart';
 import '../utils/alert_helpers.dart';
+import '../utils/form_helpers.dart';
 
 class PerformerRegistrationScreen extends StatefulWidget {
   const PerformerRegistrationScreen({super.key});
@@ -150,7 +151,11 @@ class _PerformerRegistrationScreenState
 
   Future<void> _handleRegister() async {
     if (_selectedGenreIds.isEmpty) {
-      AlertHelpers.showError(context, "Please select at least one genre.");
+      AlertHelpers.showInfo(
+        context,
+        "Warning",
+        "Please select at least one genre.",
+      );
       return;
     }
 
@@ -448,57 +453,17 @@ class _PerformerRegistrationScreenState
     bool isPassword = false,
     int maxLines = 1,
   }) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _darkBlue,
-          primary: _darkBlue,
-        ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword ? _isObscured : false,
-        maxLines: maxLines,
-        validator: validator,
-        cursorColor: _darkBlue,
-        style: TextStyle(fontSize: 14, color: _darkText),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Color(0xFF98A2B3)),
-          floatingLabelStyle: TextStyle(color: _darkBlue),
-          prefixIcon: Icon(icon, color: _darkBlue, size: 20),
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    _isObscured
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: const Color(0xFF98A2B3),
-                    size: 20,
-                  ),
-                  onPressed: () => setState(() => _isObscured = !_isObscured),
-                )
-              : null,
-          filled: true,
-          fillColor: Colors.white,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFEAECF0)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkBlue, width: 1.5),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkRed),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkRed, width: 1.5),
-          ),
-        ),
-      ),
+    return FormHelpers.drawModernTextField(
+      controller: controller,
+      label: label,
+      icon: icon,
+      validator: validator,
+      isPassword: isPassword,
+      obscureText: isPassword ? _isObscured : false,
+      maxLines: isPassword ? 1 : maxLines,
+      onTogglePassword: isPassword
+          ? () => setState(() => _isObscured = !_isObscured)
+          : null,
     );
   }
 }

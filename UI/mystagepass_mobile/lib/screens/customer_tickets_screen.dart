@@ -727,20 +727,27 @@ class _TicketsScreenState extends State<TicketsScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () async {
-                            final address = event?.location?.locationName ?? '';
+                            final address = event?.location?.address ?? '';
+                            final locationName =
+                                event?.location?.locationName ?? '';
                             final city = event?.location?.city?.name ?? '';
-                            final query = Uri.encodeComponent(
-                              '$address, $city',
+
+                            final destination = Uri.encodeComponent(
+                              [
+                                locationName,
+                                address,
+                                city,
+                              ].where((s) => s.isNotEmpty).join(', '),
                             );
-                            final url = Uri.parse(
-                              'https://www.google.com/maps/search/?api=1&query=$query',
+
+                            final googleMapsApp = Uri.parse(
+                              'https://maps.google.com/?daddr=$destination',
                             );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            }
+
+                            await launchUrl(
+                              googleMapsApp,
+                              mode: LaunchMode.externalApplication,
+                            );
                           },
                           icon: const Icon(Icons.map_rounded, size: 15),
                           label: const Text(

@@ -840,15 +840,46 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ],
               ),
             ),
+
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 20,
                 ),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: _darkBlue.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: _darkBlue.withOpacity(0.15)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: _darkBlue,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              "Select a filter by month or event to load your ticket sales statistics!",
+                              style: GoogleFonts.nunito(
+                                fontSize: 13,
+                                color: _darkBlue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     _buildSectionHeader("Filter by Month"),
                     const SizedBox(height: 12),
                     Opacity(
@@ -977,7 +1008,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     if (_isLoadingStats)
                       Center(child: CircularProgressIndicator(color: _darkBlue))
                     else if (_noData)
-                      _buildNoDataCard()
+                      Padding(
+                        padding: const EdgeInsets.only(top: 80),
+                        child: _buildNoDataCard(),
+                      )
                     else if (_statistics != null)
                       _buildStatisticsContent(),
                   ],
@@ -1008,14 +1042,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildNoDataCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEAECF0)),
-      ),
+    return Center(
       child: Column(
         children: [
           Container(
@@ -1041,7 +1068,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ? "This month hasn't passed yet."
                 : "No ticket sales found for the selected filter.",
             textAlign: TextAlign.center,
-            style: GoogleFonts.nunito(fontSize: 13, color: Colors.grey[500]),
+            style: GoogleFonts.nunito(
+              fontSize: 13,
+              color: _darkBlue.withOpacity(0.5),
+            ),
           ),
         ],
       ),

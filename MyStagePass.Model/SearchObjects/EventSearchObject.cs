@@ -13,5 +13,6 @@ namespace MyStagePass.Model.SearchObjects
 		public bool? IsUpcoming { get; set; }
 		public float? MaxPrice { get; set; }
 		public float? MinPrice { get; set; }
+		public bool? IncludeCancelled { get; set; }
 	}
 }

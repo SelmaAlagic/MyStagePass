@@ -3,6 +3,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class FormHelpers {
+  static const Color _errorColor = Color(0xFFB71C1C);
+
   static Widget drawStringContainer(
     String hint,
     String propertyName, {
@@ -134,9 +136,8 @@ class FormHelpers {
       ),
       decoration: InputDecoration(
         labelText: required ? "$label*" : label,
-        labelStyle: TextStyle(
-          color: enabled ? Colors.grey.shade700 : Colors.grey.shade500,
-        ),
+        labelStyle: const TextStyle(color: Color(0xFF98A2B3)),
+        floatingLabelStyle: const TextStyle(color: Color(0xFF1D235D)),
         hintText: hintText,
         hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
         prefixIcon: Icon(
@@ -163,39 +164,27 @@ class FormHelpers {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: serverError != null
-                ? Colors.red.shade900
-                : Colors.grey.shade500,
-            width: 1.0,
-          ),
+          borderSide: const BorderSide(color: Color(0xFFEAECF0), width: 1.0),
         ),
+
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: serverError != null
-                ? Colors.red.shade900
-                : const Color(0xFF1A237E),
-            width: 1.0,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF1D235D), width: 1.5),
         ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
+        errorStyle: const TextStyle(
+          color: Color(0xFFB71C1C),
+          fontWeight: FontWeight.w400,
+          fontSize: 12,
         ),
+
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
+          borderSide: const BorderSide(color: Color(0xFFB71C1C), width: 1.0),
         ),
+
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade900, width: 1.0),
-        ),
-        errorText: serverError,
-        errorStyle: TextStyle(
-          color: Colors.red.shade900,
-          fontWeight: FontWeight.w300,
-          fontSize: 12,
+          borderSide: const BorderSide(color: Color(0xFFB71C1C), width: 1.5),
         ),
       ),
     );

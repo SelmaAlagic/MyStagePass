@@ -785,7 +785,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     showDialog(
       context: context,
-      barrierColor: Colors.black87,
+      barrierColor: Colors.black.withOpacity(0.5),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {

@@ -10,6 +10,7 @@ import '../models/Genre/genre.dart';
 import '../models/search_result.dart';
 import '../utils/alert_helpers.dart';
 import '../utils/image_helpers.dart';
+import '../utils/form_helpers.dart';
 import 'login_screen.dart';
 import '../widgets/performer_nav_bar.dart';
 
@@ -1173,59 +1174,17 @@ class _PerformerProfileScreenState extends State<PerformerProfileScreen> {
     String? serverError,
     int maxLines = 1,
   }) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _darkBlue,
-          primary: _darkBlue,
-        ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword ? obscure : false,
-        validator: validator,
-        cursorColor: _darkBlue,
-        maxLines: isPassword ? 1 : maxLines,
-        style: TextStyle(fontSize: 14, color: _darkText),
-        onChanged: onChanged != null ? (_) => onChanged() : null,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Color(0xFF98A2B3)),
-          floatingLabelStyle: TextStyle(color: _darkBlue),
-          prefixIcon: Icon(icon, color: _darkBlue, size: 20),
-          errorText: serverError,
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    obscure
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: const Color(0xFF98A2B3),
-                    size: 20,
-                  ),
-                  onPressed: onToggleObscure,
-                )
-              : null,
-          filled: true,
-          fillColor: Colors.white,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFEAECF0)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkBlue, width: 1.5),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkRed),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkRed, width: 1.5),
-          ),
-        ),
-      ),
+    return FormHelpers.drawModernTextField(
+      controller: controller,
+      label: label,
+      icon: icon,
+      validator: validator,
+      isPassword: isPassword,
+      obscureText: isPassword ? obscure : false,
+      maxLines: isPassword ? 1 : maxLines,
+      serverError: serverError,
+      onChanged: onChanged,
+      onTogglePassword: isPassword ? onToggleObscure : null,
     );
   }
 

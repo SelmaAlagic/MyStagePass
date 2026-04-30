@@ -15,8 +15,11 @@ class NotificationProvider extends BaseProvider<Notification> {
     return Notification.fromJson(data);
   }
 
-  Future<List<Notification>> getForUser(int userId, {bool? isRead}) async {
-    var url = "${getBaseUrl()}api/Notification?UserID=$userId";
+  Future<List<Notification>> getForUser({
+    bool? isRead,
+    int pageSize = 10,
+  }) async {
+    var url = "${getBaseUrl()}api/Notification?PageSize=$pageSize";
 
     if (isRead != null) {
       url = "$url&IsRead=$isRead";
@@ -29,7 +32,6 @@ class NotificationProvider extends BaseProvider<Notification> {
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
       var notificationsList = data is List ? data : (data['result'] ?? []);
-
       return notificationsList
           .map<Notification>((json) => Notification.fromJson(json))
           .toList();
@@ -37,10 +39,8 @@ class NotificationProvider extends BaseProvider<Notification> {
     return [];
   }
 
-  Future<int> getUnreadCount(int userId) async {
-    final url = Uri.parse(
-      "${getBaseUrl()}api/Notification/unread-count/$userId",
-    );
+  Future<int> getUnreadCount() async {
+    final url = Uri.parse("${getBaseUrl()}api/Notification/unread-count");
     final headers = await createHeaders();
     final response = await http.get(url, headers: headers);
 
@@ -52,12 +52,9 @@ class NotificationProvider extends BaseProvider<Notification> {
     return 0;
   }
 
-  Future<void> markAllAsRead(int userId) async {
-    final url = Uri.parse(
-      "${getBaseUrl()}api/Notification/mark-all-as-read/$userId",
-    );
+  Future<void> markAllAsRead() async {
+    final url = Uri.parse("${getBaseUrl()}api/Notification/mark-all-as-read");
     final headers = await createHeaders();
-
     final response = await http.put(url, headers: headers);
 
     if (isValidResponse(response)) {
@@ -74,15 +71,15 @@ class NotificationProvider extends BaseProvider<Notification> {
     notifyListeners();
   }
 
-  Future<List<Notification>> getUnreadNotifications(int userId) async {
-    return await getForUser(userId, isRead: false);
+  Future<List<Notification>> getUnreadNotifications() async {
+    return await getForUser(isRead: false);
   }
 
-  Future<List<Notification>> getAllNotifications(int userId) async {
-    return await getForUser(userId);
+  Future<List<Notification>> getAllNotifications() async {
+    return await getForUser(pageSize: 100);
   }
 
-  Future<void> refreshUnreadCount(int userId) async {
-    await getUnreadCount(userId);
+  Future<void> refreshUnreadCount() async {
+    await getUnreadCount();
   }
 }

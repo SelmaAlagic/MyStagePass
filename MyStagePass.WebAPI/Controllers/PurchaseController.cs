@@ -10,22 +10,21 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles = "Customer")]
+	[Authorize(Roles = Roles.Customer)]
 	public class PurchaseController : BaseCRUDController<Purchase, PurchaseSearchObject, PurchaseInsertRequest, PurchaseUpdateRequest>
 	{
-		public PurchaseController(ILogger<BaseController<Purchase, PurchaseSearchObject>> logger, IPurchaseService service)
+		private readonly ICurrentUserService _currentUserService;
+
+		public PurchaseController(ILogger<BaseController<Purchase, PurchaseSearchObject>> logger, IPurchaseService service, ICurrentUserService currentUserService)
 			: base(logger, service)
 		{
+			_currentUserService=currentUserService;
 		}
 
 		[HttpGet]
 		public override async Task<PagedResult<Purchase>> Get([FromQuery] PurchaseSearchObject search)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
-			search.CustomerID = customerId;
+			search.CustomerID = _currentUserService.GetCustomerId();
 
 			if (search.DateFrom != null && search.DateTo != null && search.DateFrom > search.DateTo)
 			{
@@ -38,12 +37,7 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpGet("my-events")]
 		public async Task<PagedResult<Event>> GetMyEvents([FromQuery] PurchaseSearchObject search)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
-			search.CustomerID = customerId;
-
+			search.CustomerID = _currentUserService.GetCustomerId();
 			var eventService = _service as IPurchaseService;
 			return await eventService.GetCustomerEvents(search);
 		}
@@ -51,18 +45,14 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpPost]
 		public override async Task<Purchase> Insert([FromBody] PurchaseInsertRequest request)
 		{
-			var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-			request.CustomerID = userId;
+			request.CustomerID = _currentUserService.GetCustomerId();
 			return await base.Insert(request);
 		}
 
 		[HttpGet("{id}")]
 		public override async Task<Purchase> GetById(int id)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
+			int customerId = _currentUserService.GetCustomerId();
 			var purchase = await base.GetById(id);
 
 			if (purchase.CustomerID != customerId)
@@ -74,10 +64,7 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpDelete("{id}")]
 		public override async Task<Purchase> Delete(int id)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
+			int customerId = _currentUserService.GetCustomerId();
 			var purchase = await base.GetById(id);
 
 			if (purchase.CustomerID != customerId)

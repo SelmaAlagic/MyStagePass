@@ -14,11 +14,12 @@ namespace MyStagePass.Services.Services
 	{
 		private readonly INotificationService _notificationService;
 		private IRabbitMQProducer _rabbitMQProducer;
-
-		public PerformerService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService, IRabbitMQProducer rabbitMQProducer) : base(context, mapper)
+		private readonly ICurrentUserService _currentUserService;
+		public PerformerService(MyStagePassDbContext context, IMapper mapper, INotificationService notificationService, IRabbitMQProducer rabbitMQProducer, ICurrentUserService currentUserService) : base(context, mapper)
 		{
 			_notificationService = notificationService;
 			_rabbitMQProducer=rabbitMQProducer;
+			_currentUserService=currentUserService;
 		}
 
 		public override async Task BeforeInsert(Performer entity, PerformerInsertRequest insert)
@@ -104,7 +105,7 @@ namespace MyStagePass.Services.Services
 			return base.AddInclude(query, search);
 		}
 
-		public async Task<Model.Models.Performer> ApprovePerformer(int performerId, bool isApproved)
+		public async Task<Model.Models.Performer> ApprovePerformer(int performerId, bool isApproved, string? reason = null)
 		{
 			var entity = await _context.Performers
 				.Include(p => p.User)
@@ -118,6 +119,20 @@ namespace MyStagePass.Services.Services
 
 			entity.IsApproved = isApproved;
 
+			if (!isApproved)
+			{
+				entity.RejectionReason = reason;
+				entity.RejectedAt = DateTime.Now;
+				entity.RejectedByAdminID = _currentUserService.GetUserId();
+			}
+			else
+			{
+				entity.RejectionReason = null;
+				entity.RejectedAt = null;
+				entity.RejectedByAdminID = null;
+			}
+			string finalReason = string.IsNullOrWhiteSpace(reason) ? "No reason provided": reason;
+
 			var emailModel = new EmailModel
 			{
 				Sender = "noreply@mystagepass.com",
@@ -126,7 +141,7 @@ namespace MyStagePass.Services.Services
 							: "Your performer account has been rejected",
 				Content = isApproved
 		   ? $"Hello {entity.User.FirstName},\n\nYour performer account has been approved! You can now access all platform features."
-		   : $"Hello {entity.User.FirstName},\n\nUnfortunately, your performer account has been rejected. Please contact support for more information."
+		   : $"Hello {entity.User.FirstName},\n\nUnfortunately, your performer account has been rejected. Please contact support for more information.\n\nReason: {finalReason}"
 			};
 
 			_rabbitMQProducer.SendMessage(emailModel);
@@ -138,6 +153,13 @@ namespace MyStagePass.Services.Services
 
 		public override async Task<Model.Models.Performer> Update(int id, PerformerUpdateRequest update)
 		{
+			if (!_currentUserService.IsAdministrator())
+			{
+				int tokenPerformerId = _currentUserService.GetPerformerId();
+				if (tokenPerformerId != id)
+					throw new UnauthorizedAccessException("You can only update your own profile");
+			}
+
 			if (!string.IsNullOrEmpty(update.Password))
 			{
 				if (string.IsNullOrEmpty(update.CurrentPassword))

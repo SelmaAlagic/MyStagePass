@@ -71,13 +71,16 @@ namespace MyStagePass.Services.Services
 		{
 			foreach (var userId in userIds)
 			{
-				await Insert(new NotificationInsertRequest
+				var entity = new Notification
 				{
 					UserID = userId,
 					Title = title,
-					Message = message
-				});
+					Message = message,
+					CreatedAt = DateTime.UtcNow
+				};
+				await _context.Notifications.AddAsync(entity);
 			}
+			await _context.SaveChangesAsync(); 
 		}
 	}
 }

@@ -9,31 +9,27 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles = "Customer")]
+	[Authorize(Roles = Roles.Customer)]
 	public class TicketController : BaseController<Ticket, TicketSearchObject>
 	{
-		public TicketController(ILogger<BaseController<Ticket, TicketSearchObject>> logger, ITicketService service) : base(logger, service)
+		private readonly ICurrentUserService _currentUserService;
+
+		public TicketController(ILogger<BaseController<Ticket, TicketSearchObject>> logger, ITicketService service, ICurrentUserService currentUserService) : base(logger, service)
 		{
+			_currentUserService=currentUserService;
 		}
 
 		[HttpGet]
 		public override async Task<PagedResult<Ticket>> Get([FromQuery] TicketSearchObject search)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
-			search.CustomerID = customerId;
+			search.CustomerID = _currentUserService.GetCustomerId();
 			return await base.Get(search);
 		}
 
 		[HttpGet("{id}")]
 		public override async Task<Ticket> GetById(int id)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerID))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
+			int customerID = _currentUserService.GetCustomerId();
 			var ticket = await base.GetById(id);
 
 			if (ticket == null)

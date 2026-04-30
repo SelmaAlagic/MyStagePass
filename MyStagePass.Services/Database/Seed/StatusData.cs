@@ -9,7 +9,8 @@ namespace MyStagePass.Services.Database.Seed
 			entity.HasData(
 				new Status { StatusID = 1, StatusName = "Pending" },
 				new Status { StatusID = 2, StatusName = "Approved" },
-				new Status { StatusID = 3, StatusName = "Rejected" }
+				new Status { StatusID = 3, StatusName = "Rejected" },
+				new Status { StatusID = 4, StatusName = "Cancelled" }
 			);
 		}
 	}

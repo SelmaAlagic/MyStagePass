@@ -13,10 +13,16 @@ class PerformerProvider extends BaseProvider<Performer> {
     return Performer.fromJson(data);
   }
 
-  Future<Performer> approvePerformer(int id, bool isApproved) async {
+  Future<Performer> approvePerformer(
+    int id,
+    bool isApproved, {
+    String? reason,
+  }) async {
     final url = Uri.parse(
-      '${getBaseUrl()}$_performerEndpoint/$id/approve?isApproved=$isApproved',
+      '${getBaseUrl()}$_performerEndpoint/$id/approve?isApproved=$isApproved'
+      '${reason != null ? '&reason=${Uri.encodeComponent(reason)}' : ''}',
     );
+
     final headers = await createHeaders();
 
     final response = await http.put(url, headers: headers);

@@ -11,8 +11,10 @@ namespace MyStagePass.Services.Services
 {
 	public class CustomerService : BaseCRUDService<Model.Models.Customer, Customer, CustomerSearchObject, CustomerInsertRequest, CustomerUpdateRequest>, ICustomerService
 	{
-		public CustomerService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
+		private readonly ICurrentUserService _currentUserService;
+		public CustomerService(MyStagePassDbContext context, IMapper mapper, ICurrentUserService currentUserService) : base(context, mapper)
 		{
+			_currentUserService=currentUserService;
 		}
 		public override async Task BeforeInsert(Customer entity, CustomerInsertRequest insert)
 		{
@@ -53,6 +55,13 @@ namespace MyStagePass.Services.Services
 
 		public override async Task<Model.Models.Customer> Update(int id, CustomerUpdateRequest update)
 		{
+			if (!_currentUserService.IsAdministrator())
+			{
+				int tokenCustomerId = _currentUserService.GetCustomerId();
+				if (tokenCustomerId != id)
+					throw new UnauthorizedAccessException("You can only update your own profile");
+			}
+
 			if (!string.IsNullOrEmpty(update.Password))
 			{
 				if (string.IsNullOrEmpty(update.CurrentPassword))

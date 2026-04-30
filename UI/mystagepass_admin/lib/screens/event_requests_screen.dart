@@ -1,14 +1,27 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import 'dart:math';
-import '../models/Event/event.dart';
-import '../providers/event_provider.dart';
-import '../models/search_result.dart';
-import '../utils/alert_helpers.dart';
-import 'package:mystagepass_admin/screens/upcoming_events_screen.dart';
 import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import '../models/Event/event.dart';
+import '../models/search_result.dart';
+import '../providers/event_provider.dart';
+import '../utils/alert_helpers.dart';
+import 'event_management_screen.dart';
 import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
+
+const _navy = Color(0xFF1D2359);
+const _navyMid = Color(0xFF2D3A8C);
+const _white = Color(0xFFFFFFFF);
+const _bg = Color(0xFFF4F6FB);
+const _card = Color(0xFFFFFFFF);
+const _border = Color(0xFFECEFF8);
+const _t1 = Color(0xFF1E2642);
+const _t2 = Color(0xFF8A93B2);
+const _green = Color(0xFF22C55E);
+const _red = Color(0xFFEF4444);
 
 class EventRequestsScreen extends StatefulWidget {
   const EventRequestsScreen({super.key, required this.userId});
@@ -21,14 +34,15 @@ class EventRequestsScreen extends StatefulWidget {
 class _EventRequestsScreenState extends State<EventRequestsScreen> {
   List<Event> _events = [];
   bool _isLoading = false;
-  String _searchQuery = "";
-  String? _statusFilter = "All";
+  String _searchQuery = '';
+  String _statusFilter = 'All';
 
   int _currentPage = 1;
   int _totalPages = 1;
+  int _totalCount = 0;
   bool _hasPrevious = false;
   bool _hasNext = false;
-  final int _pageSize = 5;
+  final int _pageSize = 6;
 
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -48,29 +62,33 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   Future<void> _fetchEvents() async {
     if (_searchQuery.isNotEmpty && _searchQuery.length < 3) {
-      setState(() {
-        _events = [];
-        _currentPage = 1;
-        _totalPages = 1;
-        _hasPrevious = false;
-        _hasNext = false;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _events = [];
+          _currentPage = 1;
+          _totalPages = 1;
+          _totalCount = 0;
+          _hasPrevious = false;
+          _hasNext = false;
+          _isLoading = false;
+        });
+      }
       return;
     }
 
-    setState(() => _isLoading = true);
-    try {
-      var provider = Provider.of<EventProvider>(context, listen: false);
+    if (mounted) setState(() => _isLoading = true);
 
-      if (_statusFilter == "All") {
-        var pendingParams = {
+    try {
+      final provider = Provider.of<EventProvider>(context, listen: false);
+
+      if (_statusFilter == 'All') {
+        final pendingParams = {
           'Page': _currentPage - 1,
           'PageSize': _pageSize,
           'Status': 'pending',
         };
 
-        var rejectedParams = {
+        final rejectedParams = {
           'Page': _currentPage - 1,
           'PageSize': _pageSize,
           'Status': 'rejected',
@@ -81,10 +99,13 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           rejectedParams['searchTerm'] = _searchQuery;
         }
 
-        var pendingData = await provider.get(filter: pendingParams);
-        var rejectedData = await provider.get(filter: rejectedParams);
+        final pendingData = await provider.get(filter: pendingParams);
+        final rejectedData = await provider.get(filter: rejectedParams);
 
-        List<Event> allEvents = [...pendingData.result, ...rejectedData.result];
+        final allEvents = <Event>[
+          ...pendingData.result,
+          ...rejectedData.result,
+        ];
         allEvents.sort((a, b) {
           if (a.createdAt == null && b.createdAt == null) return 0;
           if (a.createdAt == null) return 1;
@@ -93,32 +114,51 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         });
 
         if (mounted) {
+          final totalCount = pendingData.meta.count + rejectedData.meta.count;
+
           setState(() {
-            _events = allEvents;
-            _totalPages = max(1, pendingData.meta.totalPages);
-            _currentPage = pendingData.meta.currentPage + 1;
-            _hasPrevious = pendingData.meta.hasPrevious;
-            _hasNext = pendingData.meta.hasNext || rejectedData.meta.hasNext;
+            final totalCount = pendingData.meta.count + rejectedData.meta.count;
+
+            final startIndex = (_currentPage - 1) * _pageSize;
+            final endIndex = min(startIndex + _pageSize, allEvents.length);
+
+            final pagedEvents = startIndex < allEvents.length
+                ? allEvents.sublist(startIndex, endIndex)
+                : <Event>[];
+
+            setState(() {
+              _events = pagedEvents;
+              _totalCount = totalCount;
+              _totalPages = max(1, (totalCount / _pageSize).ceil());
+              _hasPrevious = _currentPage > 1;
+              _hasNext = _currentPage < _totalPages;
+              _isLoading = false;
+            });
+            _totalCount = totalCount;
+            _totalPages = max(1, (totalCount / _pageSize).ceil());
+            _hasPrevious = _currentPage > 1;
+            _hasNext = _currentPage < _totalPages;
             _isLoading = false;
           });
         }
       } else {
-        var params = {
+        final params = {
           'Page': _currentPage - 1,
           'PageSize': _pageSize,
-          'Status': _statusFilter!.toLowerCase(),
+          'Status': _statusFilter.toLowerCase(),
         };
 
         if (_searchQuery.length >= 3) {
           params['searchTerm'] = _searchQuery;
         }
 
-        SearchResult<Event> data = await provider.get(filter: params);
+        final SearchResult<Event> data = await provider.get(filter: params);
 
         if (mounted) {
           setState(() {
             _events = data.result;
             _totalPages = max(1, data.meta.totalPages);
+            _totalCount = data.meta.count;
             _currentPage = data.meta.currentPage + 1;
             _hasPrevious = data.meta.hasPrevious;
             _hasNext = data.meta.hasNext;
@@ -129,23 +169,32 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        AlertHelpers.showError(context, "Failed to load event requests: $e");
+        AlertHelpers.showError(context, 'Failed to load event requests: $e');
       }
-      debugPrint("Error fetching events: $e");
+      debugPrint('Error fetching events: $e');
     }
   }
 
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _searchQuery = query.trim();
+  void _goToPage(int page) {
+    if (page < 1 || page > _totalPages) return;
+    _currentPage = page;
+    _fetchEvents();
+  }
 
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() => _currentPage = 1);
-      _fetchEvents();
-    });
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    setState(() => _searchQuery = value.trim());
+
+    if (_searchQuery.length >= 3 || _searchQuery.isEmpty) {
+      _debounce = Timer(const Duration(milliseconds: 450), () {
+        _currentPage = 1;
+        _fetchEvents();
+      });
+    }
   }
 
   void _onStatusFilterChanged(String? value) {
+    if (value == null) return;
     setState(() {
       _statusFilter = value;
       _currentPage = 1;
@@ -153,17 +202,28 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     _fetchEvents();
   }
 
+  PageRouteBuilder _fadeRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: const Duration(milliseconds: 250),
+      transitionsBuilder: (_, animation, __, child) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+    );
+  }
+
   Future<void> _handleApprove(Event event) async {
     if (event.eventId == null) {
       AlertHelpers.showError(
         context,
-        "Cannot approve event: Event ID is missing",
+        'Cannot approve event: Event ID is missing',
       );
       return;
     }
+
     try {
-      var provider = Provider.of<EventProvider>(context, listen: false);
-      await provider.updateStatus(event.eventId!, "approved");
+      final provider = Provider.of<EventProvider>(context, listen: false);
+      await provider.updateStatus(event.eventId!, 'approved');
       if (mounted) {
         AlertHelpers.showSuccess(
           context,
@@ -172,9 +232,10 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         _fetchEvents();
       }
     } catch (e) {
-      if (mounted)
-        AlertHelpers.showError(context, "Failed to approve event: $e");
-      debugPrint("Error approving event: $e");
+      if (mounted) {
+        AlertHelpers.showError(context, 'Failed to approve event: $e');
+      }
+      debugPrint('Error approving event: $e');
     }
   }
 
@@ -182,13 +243,14 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     if (event.eventId == null) {
       AlertHelpers.showError(
         context,
-        "Cannot reject event: Event ID is missing",
+        'Cannot reject event: Event ID is missing',
       );
       return;
     }
+
     try {
-      var provider = Provider.of<EventProvider>(context, listen: false);
-      await provider.updateStatus(event.eventId!, "rejected");
+      final provider = Provider.of<EventProvider>(context, listen: false);
+      await provider.updateStatus(event.eventId!, 'rejected');
       if (mounted) {
         AlertHelpers.showSuccess(
           context,
@@ -197,20 +259,22 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         _fetchEvents();
       }
     } catch (e) {
-      if (mounted)
-        AlertHelpers.showError(context, "Failed to reject event: $e");
-      debugPrint("Error rejecting event: $e");
+      if (mounted) {
+        AlertHelpers.showError(context, 'Failed to reject event: $e');
+      }
+      debugPrint('Error rejecting event: $e');
     }
   }
 
   void _showConfirmDialog(Event event, bool isApprove) {
-    String statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
-    bool isRejected = statusLower == 'rejected';
+    final statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
+    final isRejected = statusLower == 'rejected';
 
-    String title = isApprove
-        ? (isRejected ? "Reactivate Event" : "Approve Event")
-        : "Reject Event";
-    String message = isApprove
+    final title = isApprove
+        ? (isRejected ? 'Reactivate Event' : 'Approve Event')
+        : 'Reject Event';
+
+    final message = isApprove
         ? isRejected
               ? "Are you sure you want to reactivate '${event.eventName ?? 'this event'}'? This event will be visible again."
               : "Are you sure you want to approve '${event.eventName ?? 'this event'}'? The organizer will be notified."
@@ -221,9 +285,9 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       title,
       message,
       confirmButtonText: isApprove
-          ? (isRejected ? "Reactivate" : "Approve")
-          : "Reject",
-      cancelButtonText: "Cancel",
+          ? (isRejected ? 'Reactivate' : 'Approve')
+          : 'Reject',
+      cancelButtonText: 'Cancel',
       isDelete: !isApprove,
       onConfirm: () => isApprove ? _handleApprove(event) : _handleReject(event),
     );
@@ -234,461 +298,500 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     return SidebarLayout(
       userId: widget.userId,
       activeRouteKey: SidebarRoutes.events,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(40, 5, 40, 0),
-            child: _buildHeader(),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1180),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFilters(),
-                if (_searchQuery.isNotEmpty && _searchQuery.length < 3) ...[
-                  const SizedBox(height: 10),
-                  _buildSearchHint(),
-                ],
+                _buildPageHeader(),
+                const SizedBox(height: 20),
+                _buildMainCard(),
               ],
             ),
           ),
-
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(40, 24, 40, 24),
-              child: _buildTableStack(),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(40, 8, 40, 50),
-            child: Column(
-              children: [
-                if (_events.isNotEmpty) _buildPagination(),
-                const SizedBox(height: 12),
-                _buildBottomButtonsRow(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 1200),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.pending_actions, size: 36, color: Colors.white),
-            SizedBox(width: 12),
-            Text(
-              "Event Requests",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildFilters() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 1200),
-      child: Row(
-        children: [
-          Container(
-            width: 220,
-            height: 35,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              cursorColor: const Color.fromARGB(255, 29, 35, 93),
-              cursorWidth: 1.0,
-              textAlignVertical: TextAlignVertical.center,
-              style: const TextStyle(fontSize: 13, color: Colors.black),
-              decoration: InputDecoration(
-                hintText: "Search",
-                hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  size: 16,
-                  color: Colors.grey,
-                ),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                suffixIcon: _searchQuery.isNotEmpty && _searchQuery.length < 3
-                    ? const Icon(
-                        Icons.info_outline,
-                        size: 14,
-                        color: Colors.orange,
-                      )
-                    : null,
-              ),
-            ),
+  Widget _buildPageHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text(
+          'Event Requests',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            color: _t1,
           ),
-          const SizedBox(width: 10),
-          Container(
-            height: 35,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(hoverColor: const Color.fromARGB(192, 81, 136, 182)),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _statusFilter,
-                  dropdownColor: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                  style: const TextStyle(fontSize: 13, color: Colors.black),
-                  items: ["All", "Pending", "Rejected"]
-                      .map(
-                        (v) => DropdownMenuItem(
-                          value: v,
-                          child: Text(
-                            v,
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: _onStatusFilterChanged,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          'Review and manage pending and rejected event requests.',
+          style: TextStyle(fontSize: 13, color: _t2),
+        ),
+      ],
     );
   }
 
-  Widget _buildSearchHint() {
+  Widget _buildMainCard() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 1200),
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.orange[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange.shade200, width: 1),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline, size: 16, color: Colors.orange),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              "Enter at least 3 characters to search by event name or location",
-              style: TextStyle(fontSize: 12, color: Colors.orange[800]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTableStack() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 1200),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: _card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Stack(
-        alignment: Alignment.center,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          _buildFilterRow(),
+          _buildTable(),
+          if (!_isLoading && _events.isNotEmpty) _buildFooter(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterRow() {
+    final hasActiveFilters = _statusFilter != 'All' || _searchQuery.isNotEmpty;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildTableHeader(),
-              SizedBox(
-                height: 56.0 * 6,
-                child: _events.isEmpty && !_isLoading
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.inbox_outlined,
-                              size: 64,
-                              color: Colors.grey[300],
+              Container(
+                width: 240,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: _bg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: _searchQuery.isNotEmpty && _searchQuery.length < 3
+                        ? _navyMid.withOpacity(0.4)
+                        : _border,
+                  ),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: _onSearchChanged,
+                  cursorColor: _navy,
+                  cursorWidth: 1.0,
+                  style: const TextStyle(fontSize: 13, color: _t1),
+                  decoration: InputDecoration(
+                    hintText: 'Search requests...',
+                    hintStyle: const TextStyle(color: _t2, fontSize: 13),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 16,
+                      color: _t2,
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              _onSearchChanged('');
+                            },
+                            child: const Icon(
+                              Icons.close_rounded,
+                              size: 14,
+                              color: _t2,
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _searchQuery.isNotEmpty &&
-                                      _searchQuery.length >= 3
-                                  ? "No ${_statusFilter == 'All' ? '' : _statusFilter!.toLowerCase()} requests found for '$_searchQuery'"
-                                  : _statusFilter == 'All'
-                                  ? "No pending or rejected event requests"
-                                  : "No ${_statusFilter!.toLowerCase()} event requests",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _events.length,
-                        itemBuilder: (context, index) {
-                          int rowNumber =
-                              ((_currentPage - 1) * _pageSize) + index + 1;
-                          return _buildEventRow(rowNumber, _events[index]);
-                        },
-                      ),
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                  ),
+                ),
               ),
+              if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 11,
+                        color: _navyMid.withOpacity(0.6),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Type at least 3 characters',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: _navyMid.withOpacity(0.6),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
-          if (_isLoading)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: Color.fromARGB(255, 29, 35, 93),
+          const SizedBox(width: 10),
+          _StatusDropdown(
+            value: _statusFilter,
+            onChanged: _onStatusFilterChanged,
+          ),
+          if (hasActiveFilters) ...[
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _statusFilter = 'All';
+                  _searchQuery = '';
+                  _currentPage = 1;
+                });
+                _searchController.clear();
+                _fetchEvents();
+              },
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Container(
+                  height: 34,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: _bg,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: _border),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.filter_alt_off_rounded, size: 14, color: _t2),
+                      SizedBox(width: 5),
+                      Text(
+                        'Clear filters',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _t2,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
+          ],
+          const Spacer(),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                _fadeRoute(EventManagementScreen(userId: widget.userId)),
+              );
+            },
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Container(
+                height: 38,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: _bg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: _border),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.arrow_back_rounded, size: 16, color: _navyMid),
+                    SizedBox(width: 6),
+                    Text(
+                      'Event Management',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: _navyMid,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTable() {
+    return Column(
+      children: [
+        _buildTableHeader(),
+        if (_isLoading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Center(
+              child: CircularProgressIndicator(color: _navy, strokeWidth: 2),
+            ),
+          )
+        else if (_events.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 48),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.inbox_outlined,
+                  size: 36,
+                  color: _t2.withOpacity(0.4),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  _searchQuery.isNotEmpty
+                      ? 'No requests match "$_searchQuery"'
+                      : _statusFilter == 'All'
+                      ? 'No pending or rejected requests found'
+                      : 'No ${_statusFilter.toLowerCase()} requests found',
+                  style: const TextStyle(fontSize: 13, color: _t2),
+                ),
+              ],
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _events.length,
+            itemBuilder: (context, index) {
+              final rowNum = ((_currentPage - 1) * _pageSize) + index + 1;
+              return _buildEventRow(rowNum, _events[index], index);
+            },
+          ),
+      ],
     );
   }
 
   Widget _buildTableHeader() {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
-        color: Color(0xFFE8E8E8),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            _tableHeaderCell('#', width: 40),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Event Name', width: 200),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Event Date', width: 120),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Performer', width: 140),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Location', width: 200),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Status', width: 90),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Requested', width: 160),
-            _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-            _tableHeaderCell('Actions', width: 100),
-          ],
+        color: _bg,
+        border: Border(
+          top: BorderSide(color: _border),
+          bottom: BorderSide(color: _border),
         ),
+      ),
+      child: Row(
+        children: [
+          _th('#', width: 40),
+          _th('Event', flex: 3),
+          _th('Date', width: 110),
+          _th('Performer', flex: 2),
+          _th('Location', flex: 2),
+          _th('Requested', width: 140),
+          _th('Status', width: 110),
+          _th('Actions', width: 130),
+        ],
       ),
     );
   }
 
-  Widget _buildEventRow(int number, Event event) {
-    String loc = event.location?.locationName ?? event.locationName ?? "N/A";
-    String city = event.location?.city?.name ?? "";
-    String fullLocation = city.isNotEmpty && city != "N/A"
-        ? "$loc, $city"
-        : loc;
+  Widget _th(String label, {int? flex, double? width}) {
+    final w = Text(
+      label,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: _t2,
+      ),
+    );
+    if (flex != null) return Expanded(flex: flex, child: w);
+    return SizedBox(
+      width: width,
+      child: Center(child: w),
+    );
+  }
 
-    String statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
-    bool isPending = statusLower == 'pending';
-    bool isPastEvent =
+  Widget _buildEventRow(int number, Event event, int index) {
+    final isEven = index % 2 == 0;
+    final name = event.eventName ?? 'N/A';
+    final performerName = event.performer?.artistName ?? 'N/A';
+
+    final loc = event.location?.locationName ?? event.locationName ?? 'N/A';
+    final city = event.location?.city?.name ?? '';
+    final fullLocation = city.isNotEmpty && city != 'N/A' ? '$loc, $city' : loc;
+
+    final dateStr = event.eventDate != null
+        ? DateFormat('dd MMM yyyy').format(event.eventDate!)
+        : 'N/A';
+
+    final requestedStr = event.createdAt != null
+        ? DateFormat('dd MMM yyyy').format(event.createdAt!)
+        : 'N/A';
+
+    final statusLower = event.status?.statusName?.toLowerCase() ?? 'pending';
+    final isPending = statusLower == 'pending';
+    final isPastEvent =
         event.eventDate != null && event.eventDate!.isBefore(DateTime.now());
 
-    String createdAtStr = "N/A";
-    if (event.createdAt != null) {
-      createdAtStr = DateFormat('dd MMM yyyy - HH:mm').format(event.createdAt!);
-    }
-
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+    return _HoverRow(
+      isEven: isEven,
       child: Row(
         children: [
-          _tableCell(number.toString(), width: 40, isBold: true, center: true),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(
-            event.eventName ?? "N/A",
-            width: 200,
-            isGrey: event.eventName == null,
-            isItalic: event.eventName == null,
-          ),
-
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(
-            event.eventDate != null
-                ? DateFormat('dd MMM yyyy').format(event.eventDate!)
-                : "N/A",
-            width: 120,
-            isGrey: event.eventDate == null,
-            isItalic: event.eventDate == null,
-          ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(
-            event.performer?.artistName ?? "N/A",
-            width: 140,
-            isGrey: event.performer?.artistName == null,
-            isItalic: event.performer?.artistName == null,
-          ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          _tableCell(
-            fullLocation,
-            width: 200,
-            isGrey: loc == "N/A",
-            isItalic: loc == "N/A",
-          ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          Container(
-            width: 90,
-            alignment: Alignment.center,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 85),
-              child: _buildStatusBadge(statusLower),
+          SizedBox(
+            width: 40,
+            child: Text(
+              '$number',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: _t2,
+              ),
             ),
           ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          Container(
-            width: 160,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+          Expanded(
+            flex: 3,
             child: Text(
-              createdAtStr,
+              name,
               style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey[400],
-                height: 1.4,
+                fontSize: 13,
+                color: name == 'N/A' ? _t2 : _t1,
+                fontStyle: name == 'N/A' ? FontStyle.italic : FontStyle.normal,
+                fontWeight: FontWeight.w600,
               ),
               overflow: TextOverflow.ellipsis,
-              maxLines: 2,
             ),
           ),
-          _verticalDivider(const Color.fromARGB(77, 145, 156, 218)),
-          Container(
-            width: 100,
-            alignment: Alignment.center,
-            child: isPending
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Opacity(
-                        opacity: isPastEvent ? 0.35 : 1.0,
-                        child: InkWell(
-                          onTap: isPastEvent
-                              ? null
-                              : () => _showConfirmDialog(event, true),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.green[50],
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.green, width: 1),
-                            ),
-                            child: const Icon(
-                              Icons.check,
-                              size: 16,
-                              color: Colors.green,
-                            ),
+          SizedBox(
+            width: 110,
+            child: Center(
+              child: Text(
+                dateStr,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: dateStr == 'N/A' ? _t2 : _t1,
+                  fontStyle: dateStr == 'N/A'
+                      ? FontStyle.italic
+                      : FontStyle.normal,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              performerName,
+              style: TextStyle(
+                fontSize: 13,
+                color: performerName == 'N/A' ? _t2 : _t1,
+                fontStyle: performerName == 'N/A'
+                    ? FontStyle.italic
+                    : FontStyle.normal,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              fullLocation,
+              style: TextStyle(
+                fontSize: 13,
+                color: fullLocation == 'N/A' ? _t2 : _t2,
+                fontStyle: fullLocation == 'N/A'
+                    ? FontStyle.italic
+                    : FontStyle.normal,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 140,
+            child: Center(
+              child: Text(
+                requestedStr,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: requestedStr == 'N/A' ? _t2 : _t2,
+                  fontStyle: requestedStr == 'N/A'
+                      ? FontStyle.italic
+                      : FontStyle.normal,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 110,
+            child: Center(child: _buildStatusBadge(statusLower)),
+          ),
+          SizedBox(
+            width: 130,
+            child: Center(
+              child: isPending
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _ActionIconButton(
+                          icon: Icons.check_rounded,
+                          color: _green,
+                          bg: _green.withOpacity(0.1),
+                          enabled: !isPastEvent,
+                          onTap: () => _showConfirmDialog(event, true),
+                        ),
+                        const SizedBox(width: 8),
+                        _ActionIconButton(
+                          icon: Icons.close_rounded,
+                          color: _red,
+                          bg: _red.withOpacity(0.1),
+                          enabled: !isPastEvent,
+                          onTap: () => _showConfirmDialog(event, false),
+                        ),
+                      ],
+                    )
+                  : Opacity(
+                      opacity: isPastEvent ? 0.35 : 1,
+                      child: GestureDetector(
+                        onTap: isPastEvent
+                            ? null
+                            : () => _showConfirmDialog(event, true),
+                        child: Container(
+                          height: 28,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: _green.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: _green.withOpacity(0.35)),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Opacity(
-                        opacity: isPastEvent ? 0.35 : 1.0,
-                        child: InkWell(
-                          onTap: isPastEvent
-                              ? null
-                              : () => _showConfirmDialog(event, false),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.red[50],
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.red, width: 1),
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Opacity(
-                    opacity: isPastEvent ? 0.35 : 1.0,
-                    child: InkWell(
-                      onTap: isPastEvent
-                          ? null
-                          : () => _showConfirmDialog(event, true),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green[50],
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.green, width: 1),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.restore,
-                              size: 14,
-                              color: Colors.green,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              "Approve",
-                              style: TextStyle(
-                                color: Colors.green[800],
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(
+                                Icons.restore_rounded,
+                                size: 13,
+                                color: _green,
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 4),
+                              Text(
+                                'Approve',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: _green,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+            ),
           ),
         ],
       ),
@@ -696,51 +799,52 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   }
 
   Widget _buildStatusBadge(String status) {
-    Color bgColor;
-    Color borderColor;
-    Color textColor;
-    IconData icon;
+    Color fg;
+    Color bg;
+    Color border;
+    String label;
 
     if (status == 'pending') {
-      bgColor = const Color(0xFFFFF8E1);
-      borderColor = Colors.orange;
-      textColor = Colors.orange.shade800;
-      icon = Icons.access_time;
+      fg = const Color(0xFFB45309);
+      bg = const Color(0xFFFFF7ED);
+      border = const Color(0xFFFED7AA);
+      label = 'Pending';
     } else if (status == 'rejected') {
-      bgColor = const Color(0xFFFFEBEE);
-      borderColor = Colors.red;
-      textColor = Colors.red.shade800;
-      icon = Icons.cancel;
+      fg = const Color(0xFFB91C1C);
+      bg = const Color(0xFFFEF2F2);
+      border = const Color(0xFFFECACA);
+      label = 'Rejected';
     } else {
-      bgColor = Colors.grey.shade100;
-      borderColor = Colors.grey;
-      textColor = Colors.grey.shade800;
-      icon = Icons.help_outline;
+      fg = _t2;
+      bg = _bg;
+      border = _border;
+      label = 'Unknown';
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      width: 90,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor, width: 0.5),
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 10, color: textColor),
-          const SizedBox(width: 3),
-          Flexible(
-            child: Text(
-              status[0].toUpperCase() + status.substring(1),
-              style: TextStyle(
-                color: textColor,
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: fg),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: fg,
             ),
           ),
         ],
@@ -748,163 +852,396 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     );
   }
 
-  Widget _tableHeaderCell(String text, {int? flex, double? width}) {
-    Widget content = Center(
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color.fromARGB(249, 8, 18, 70),
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
-      ),
-    );
-    return flex != null
-        ? Expanded(flex: flex, child: content)
-        : SizedBox(width: width, child: content);
-  }
+  Widget _buildFooter() {
+    final from = ((_currentPage - 1) * _pageSize) + 1;
+    final to = ((_currentPage - 1) * _pageSize) + _events.length;
 
-  Widget _tableCell(
-    String text, {
-    int? flex,
-    double? width,
-    bool isBold = false,
-    bool center = false,
-    bool isGrey = false,
-    bool isItalic = false,
-  }) {
+    int startPage = (_currentPage - 2).clamp(1, _totalPages);
+    int endPage = (startPage + 4).clamp(1, _totalPages);
+    if (endPage - startPage < 4) {
+      startPage = (endPage - 4).clamp(1, _totalPages);
+    }
+
     return Container(
-      width: width,
-      child: flex != null
-          ? Expanded(
-              flex: flex,
-              child: _cellText(text, isBold, center, isGrey, isItalic),
-            )
-          : _cellText(text, isBold, center, isGrey, isItalic),
-    );
-  }
-
-  Widget _cellText(
-    String text,
-    bool isBold,
-    bool center,
-    bool isGrey,
-    bool isItalic,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Align(
-        alignment: center ? Alignment.center : Alignment.centerLeft,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isGrey
-                ? Colors.grey.shade500
-                : const Color.fromARGB(248, 0, 0, 1),
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: _border)),
       ),
-    );
-  }
-
-  Widget _verticalDivider(Color color) =>
-      VerticalDivider(color: color, thickness: 1, indent: 6, endIndent: 6);
-
-  Widget _buildPagination() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: _hasPrevious
-              ? () {
-                  setState(() => _currentPage--);
-                  _fetchEvents();
-                }
-              : null,
-          icon: Icon(
-            Icons.chevron_left,
-            size: 32,
-            color: _hasPrevious ? Colors.white : Colors.white38,
-          ),
-        ),
-        Text(
-          "$_currentPage of $_totalPages",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: Colors.white,
-          ),
-        ),
-        IconButton(
-          onPressed: _hasNext
-              ? () {
-                  setState(() => _currentPage++);
-                  _fetchEvents();
-                }
-              : null,
-          icon: Icon(
-            Icons.chevron_right,
-            size: 32,
-            color: _hasNext ? Colors.white : Colors.white38,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomButtonsRow() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 1200),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            label: const Text(
-              "Back",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-              elevation: 5,
-            ),
+          Text(
+            'Showing $from to $to of $_totalCount requests',
+            style: const TextStyle(fontSize: 12, color: _t2),
           ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      UpcomingEventsScreen(userId: widget.userId),
-                ),
-              );
-            },
-            icon: const Icon(Icons.upcoming, size: 20),
-            label: const Text(
-              "Upcoming Events",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color.fromARGB(255, 29, 35, 93),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+          const Spacer(),
+          Row(
+            children: [
+              _PagArrow(
+                icon: Icons.chevron_left_rounded,
+                enabled: _hasPrevious,
+                onTap: () => _goToPage(_currentPage - 1),
               ),
-              elevation: 5,
-            ),
+              const SizedBox(width: 4),
+              ...List.generate(endPage - startPage + 1, (i) {
+                final page = startPage + i;
+                final isActive = page == _currentPage;
+                return GestureDetector(
+                  onTap: () => _goToPage(page),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isActive ? _navyMid : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isActive ? _navyMid : _border,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$page',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isActive ? _white : _t1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(width: 4),
+              _PagArrow(
+                icon: Icons.chevron_right_rounded,
+                enabled: _hasNext,
+                onTap: () => _goToPage(_currentPage + 1),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _StatusDropdown extends StatefulWidget {
+  final String value;
+  final void Function(String?) onChanged;
+
+  const _StatusDropdown({required this.value, required this.onChanged});
+
+  @override
+  State<_StatusDropdown> createState() => _StatusDropdownState();
+}
+
+class _StatusDropdownState extends State<_StatusDropdown> {
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlay;
+  bool _isOpen = false;
+
+  void _toggle() => _isOpen ? _close() : _open();
+
+  void _open() {
+    _overlay = _buildOverlay();
+    Overlay.of(context).insert(_overlay!);
+    setState(() => _isOpen = true);
+  }
+
+  void _close() {
+    _overlay?.remove();
+    _overlay = null;
+    if (mounted) setState(() => _isOpen = false);
+  }
+
+  OverlayEntry _buildOverlay() {
+    return OverlayEntry(
+      builder: (ctx) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _close,
+        child: Stack(
+          children: [
+            Positioned.fill(child: Container(color: Colors.transparent)),
+            CompositedTransformFollower(
+              link: _layerLink,
+              offset: const Offset(0, 42),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: 168,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: _border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _statusOption(
+                        value: 'All',
+                        label: 'All Requests',
+                        icon: Icons.tune_rounded,
+                        color: _t2,
+                      ),
+                      _statusOption(
+                        value: 'Pending',
+                        label: 'Pending',
+                        icon: Icons.schedule_rounded,
+                        color: const Color(0xFFB45309),
+                      ),
+                      _statusOption(
+                        value: 'Rejected',
+                        label: 'Rejected',
+                        icon: Icons.cancel_rounded,
+                        color: const Color(0xFFB91C1C),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statusOption({
+    required String value,
+    required String label,
+    required IconData icon,
+    required Color color,
+  }) {
+    final isSelected = widget.value == value;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      child: Material(
+        color: isSelected ? _bg : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          hoverColor: _bg,
+          onTap: () {
+            _close();
+            widget.onChanged(value);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: Row(
+              children: [
+                Icon(icon, size: 14, color: color),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? _t1 : _t2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _overlay?.remove();
+    _overlay = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = widget.value != 'All';
+    final label = widget.value == 'All' ? 'All Requests' : widget.value;
+    final icon = switch (widget.value) {
+      'Pending' => Icons.schedule_rounded,
+      'Rejected' => Icons.cancel_rounded,
+      _ => Icons.tune_rounded,
+    };
+    final iconColor = switch (widget.value) {
+      'Pending' => const Color(0xFFB45309),
+      'Rejected' => const Color(0xFFB91C1C),
+      _ => const Color(0xFF8A93B2),
+    };
+
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: _toggle,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            height: 38,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: _isOpen || isActive
+                  ? const Color(0xFFE8EDFF)
+                  : const Color(0xFFF4F6FB),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: _isOpen || isActive
+                    ? const Color(0xFF2D3A8C).withOpacity(0.4)
+                    : const Color(0xFFECEFF8),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 14, color: iconColor),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: _isOpen || isActive
+                        ? const Color(0xFF2D3A8C)
+                        : const Color(0xFF1E2642),
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                AnimatedRotation(
+                  turns: _isOpen ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 150),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 16,
+                    color: _isOpen || isActive
+                        ? const Color(0xFF2D3A8C)
+                        : const Color(0xFF8A93B2),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HoverRow extends StatefulWidget {
+  final bool isEven;
+  final Widget child;
+
+  const _HoverRow({required this.isEven, required this.child});
+
+  @override
+  State<_HoverRow> createState() => _HoverRowState();
+}
+
+class _HoverRowState extends State<_HoverRow> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        height: 60,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: _hovered
+              ? const Color(0xFFEEF1FF)
+              : widget.isEven
+              ? _card
+              : const Color(0xFFFAFBFF),
+          border: const Border(bottom: BorderSide(color: _border, width: 0.5)),
+        ),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class _ActionIconButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final Color bg;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _ActionIconButton({
+    required this.icon,
+    required this.color,
+    required this.bg,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: enabled ? 1 : 0.35,
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        child: Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: color.withOpacity(0.35)),
+          ),
+          child: Icon(icon, size: 15, color: color),
+        ),
+      ),
+    );
+  }
+}
+
+class _PagArrow extends StatelessWidget {
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _PagArrow({
+    required this.icon,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: MouseRegion(
+        cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: enabled ? _bg : const Color(0xFFF8F9FD),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _border),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: enabled ? _t1 : _t2.withOpacity(0.5),
+          ),
+        ),
       ),
     );
   }

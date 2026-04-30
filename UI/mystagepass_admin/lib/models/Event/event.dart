@@ -18,11 +18,12 @@ class Event {
   int? vipPrice;
   int? premiumPrice;
   DateTime? createdAt;
-  @JsonKey(name: 'isCancelled')
-  bool? isCancelled;
   Performer? performer;
   Location? location;
   Status? status;
+  String? cancellationReason;
+  int? approvedByAdminId;
+  DateTime? statusChangedAt;
 
   Event({
     this.eventId,
@@ -34,11 +35,13 @@ class Event {
     this.regularPrice,
     this.vipPrice,
     this.premiumPrice,
-    this.isCancelled,
     this.performer,
     this.location,
     this.status,
     this.createdAt,
+    this.cancellationReason,
+    this.approvedByAdminId,
+    this.statusChangedAt,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);

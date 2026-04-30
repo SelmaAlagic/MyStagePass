@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/alert_helpers.dart';
 import '../utils/image_helpers.dart';
+import '../utils/form_helpers.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'login_screen.dart';
 
@@ -824,58 +825,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     VoidCallback? onChanged,
     String? serverError,
   }) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _darkBlue,
-          primary: _darkBlue,
-        ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword ? obscure : false,
-        validator: validator,
-        cursorColor: _darkBlue,
-        style: TextStyle(fontSize: 14, color: _darkText),
-        onChanged: onChanged != null ? (_) => onChanged() : null,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Color(0xFF98A2B3)),
-          floatingLabelStyle: TextStyle(color: _darkBlue),
-          prefixIcon: Icon(icon, color: _darkBlue, size: 20),
-          errorText: serverError,
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    obscure
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: const Color(0xFF98A2B3),
-                    size: 20,
-                  ),
-                  onPressed: onToggleObscure,
-                )
-              : null,
-          filled: true,
-          fillColor: Colors.white,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFEAECF0)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkBlue, width: 1.5),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkRed),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _darkRed, width: 1.5),
-          ),
-        ),
-      ),
+    return FormHelpers.drawModernTextField(
+      controller: controller,
+      label: label,
+      icon: icon,
+      validator: validator,
+      isPassword: isPassword,
+      obscureText: isPassword ? obscure : false,
+      serverError: serverError,
+      onChanged: onChanged,
+      onTogglePassword: isPassword ? onToggleObscure : null,
     );
   }
 

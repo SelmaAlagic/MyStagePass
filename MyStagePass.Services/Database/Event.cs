@@ -23,6 +23,9 @@ namespace MyStagePass.Services.Database
 		public int TotalScore { get; set; } 
 		public int RatingCount { get; set; } 
 		public float RatingAverage { get; set; }
+		public string? CancellationReason { get; set; }
+		public int? ApprovedByAdminID { get; set; }
+		public DateTime? StatusChangedAt { get; set; }
 		public virtual ICollection<CustomerFavoriteEvent> FavoritedByCustomers { get; set; } = new List<CustomerFavoriteEvent>();
 		public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
@@ -33,8 +36,6 @@ namespace MyStagePass.Services.Database
 		{
 			return TicketsAvailable >= requestedAmount;
 		}
-
-		public bool IsCancelled { get; set; } = false;
 
 		[NotMapped]
 		public string TimeStatus

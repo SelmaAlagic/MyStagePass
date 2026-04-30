@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyStagePass.Model.DTOs;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = Roles.Admin)]
 	public class ReportsController : ControllerBase
 	{
 		private readonly IReportService _reportService;

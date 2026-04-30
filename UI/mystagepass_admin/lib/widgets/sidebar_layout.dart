@@ -150,7 +150,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
     if (_userData == null) return;
     showDialog(
       context: context,
-      barrierColor: Colors.black87,
+      barrierColor: Colors.black.withOpacity(0.5),
       barrierDismissible: false,
       builder: (_) => Center(
         child: ConstrainedBox(

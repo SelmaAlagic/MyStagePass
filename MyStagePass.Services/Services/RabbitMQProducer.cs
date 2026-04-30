@@ -27,7 +27,7 @@ namespace MyStagePass.Services.Services
 				};
 				_connection = factory.CreateConnection();
 				_channel = _connection.CreateModel();
-				_channel.ExchangeDeclare("EmailExchange", ExchangeType.Direct);
+				_channel.ExchangeDeclare("EmailExchange", ExchangeType.Direct, durable:true);
 				_channel.QueueDeclare("EmailQueue", true, false, false, null);
 				_channel.QueueBind("EmailQueue", "EmailExchange", "email_queue", null);
 			}

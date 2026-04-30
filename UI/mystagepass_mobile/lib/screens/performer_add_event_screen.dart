@@ -6,6 +6,7 @@ import '../models/Location/location.dart';
 import '../models/City/city.dart';
 import '../models/search_result.dart';
 import '../providers/location_provider.dart';
+import '../utils/form_helpers.dart';
 
 class AddEventScreen extends StatefulWidget {
   final int userId;
@@ -31,7 +32,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
   TimeOfDay? _selectedTime;
   City? _selectedCity;
   Location? _selectedLocation;
-
+  String? _priceError;
   List<Location> _allLocations = [];
   List<City> _cities = [];
   List<Location> _filteredLocations = [];
@@ -413,12 +414,25 @@ class _AddEventScreenState extends State<AddEventScreen> {
         _selectedTime!.minute,
       );
 
+      final regular = int.tryParse(_regularController.text);
+      final vip = int.tryParse(_vipController.text);
+      final premium = int.tryParse(_premiumController.text);
+
+      if (regular == null ||
+          regular <= 0 ||
+          vip == null ||
+          vip <= 0 ||
+          premium == null ||
+          premium <= 0) {
+        _showErrorSnackbar("All ticket prices must be greater than 0.");
+        return;
+      }
       await provider.insert({
         'eventName': _nameController.text,
         'description': _descriptionController.text,
-        'regularPrice': int.parse(_regularController.text),
-        'vipPrice': int.parse(_vipController.text),
-        'premiumPrice': int.parse(_premiumController.text),
+        'regularPrice': regular,
+        'vipPrice': vip,
+        'premiumPrice': premium,
         'eventDate': eventDate.toIso8601String(),
         'locationID': _selectedLocation!.locationID,
       });
@@ -428,7 +442,16 @@ class _AddEventScreenState extends State<AddEventScreen> {
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnackbar("Failed to create event. Please try again.");
+
+      String errorMessage =
+          "Unable to create the event. Please check your details and try again.";
+
+      if (e.toString().contains("This location is already booked")) {
+        errorMessage =
+            "This venue is unavailable at the selected time. Please choose another time or location.";
+      }
+
+      _showErrorSnackbar(errorMessage);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -813,6 +836,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                               controller: _regularController,
                               label: "Regular",
                               color: _darkBlue,
+                              fieldKey: "regular",
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -821,6 +845,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                               controller: _vipController,
                               label: "VIP",
                               color: const Color(0xFF6A1B9A),
+                              fieldKey: "vip",
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -829,10 +854,22 @@ class _AddEventScreenState extends State<AddEventScreen> {
                               controller: _premiumController,
                               label: "Premium",
                               color: const Color(0xFF2E7D32),
+                              fieldKey: "premium",
                             ),
                           ),
                         ],
                       ),
+                      if (_priceError != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          _priceError!,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 32),
 
                       SizedBox(
@@ -953,47 +990,30 @@ class _AddEventScreenState extends State<AddEventScreen> {
     required String? Function(String?) validator,
     int maxLines = 1,
   }) {
-    return TextFormField(
+    return FormHelpers.drawModernTextField(
       controller: controller,
-      maxLines: maxLines,
+      label: label,
+      icon: icon,
       validator: validator,
-      style: TextStyle(fontSize: 14, color: _darkText),
-      cursorColor: _darkBlue,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Color(0xFF98A2B3)),
-        floatingLabelStyle: TextStyle(color: _darkBlue),
-        prefixIcon: Icon(icon, color: _darkBlue, size: 20),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 14,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEAECF0)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _darkBlue, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFB71C1C)),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFB71C1C), width: 1.5),
-        ),
-      ),
+      maxLines: maxLines,
     );
+  }
+
+  bool _isFieldInvalid(String key) {
+    final regular = int.tryParse(_regularController.text);
+    final vip = int.tryParse(_vipController.text);
+    final premium = int.tryParse(_premiumController.text);
+
+    return (key == "regular" && (regular == null || regular <= 0)) ||
+        (key == "vip" && (vip == null || vip <= 0)) ||
+        (key == "premium" && (premium == null || premium <= 0));
   }
 
   Widget _buildPriceField({
     required TextEditingController controller,
     required String label,
     required Color color,
+    required String fieldKey,
   }) {
     return TextFormField(
       controller: controller,
@@ -1002,8 +1022,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
       cursorColor: color,
       validator: (v) {
         if (v == null || v.isEmpty) return "Required";
-        if (int.tryParse(v) == null) return "Invalid";
+        final value = int.tryParse(v);
+        if (value == null) return "Invalid number";
         return null;
+      },
+      onChanged: (_) {
+        if (_priceError != null && _isFieldInvalid(fieldKey)) {
+          setState(() => _priceError = null);
+        }
       },
       decoration: InputDecoration(
         labelText: label,
@@ -1019,7 +1045,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: color.withOpacity(0.3)),
+          borderSide: BorderSide(
+            color: _priceError != null && _isFieldInvalid(fieldKey)
+                ? Colors.red
+                : color.withOpacity(0.3),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -1032,6 +1062,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Color(0xFFB71C1C), width: 1.5),
+        ),
+        errorStyle: const TextStyle(
+          color: Color(0xFFB71C1C),
+          fontWeight: FontWeight.w400,
+          fontSize: 12,
         ),
       ),
     );

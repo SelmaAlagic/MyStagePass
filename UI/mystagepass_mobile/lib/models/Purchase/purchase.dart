@@ -11,6 +11,8 @@ class Purchase {
   List<Ticket>? tickets;
   bool? isDeleted;
   int? total;
+  String? paymentIntentId;
+  bool? isRefunded;
 
   Purchase({
     this.purchaseID,
@@ -19,6 +21,8 @@ class Purchase {
     this.tickets,
     this.isDeleted,
     this.total,
+    this.isRefunded,
+    this.paymentIntentId,
   });
 
   factory Purchase.fromJson(Map<String, dynamic> json) =>

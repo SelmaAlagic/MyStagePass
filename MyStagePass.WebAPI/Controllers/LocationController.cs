@@ -11,7 +11,7 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles ="Admin")]
+	[Authorize(Roles =Roles.Admin)]
 	public class LocationController : BaseCRUDController<Location, LocationSearchObject, LocationInsertRequest, LocationUpdateRequest>
 	{
 		public LocationController(ILogger<BaseController<Location, LocationSearchObject>> logger, ILocationService service) : base(logger, service)

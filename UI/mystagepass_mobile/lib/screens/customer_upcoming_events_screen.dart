@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:intl/intl.dart';
-import 'package:mystagepass_mobile/providers/purchase_provider.dart';
 import 'package:provider/provider.dart';
 import '../models/Event/event.dart';
 import '../providers/event_provider.dart';
@@ -10,6 +8,7 @@ import '../providers/favorite_provider.dart';
 import '../providers/payment_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../utils/image_helpers.dart';
 
 class UpcomingEventsScreen extends StatefulWidget {
   final int userId;
@@ -63,7 +62,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
       final eventProvider = Provider.of<EventProvider>(context, listen: false);
       final filter = {
         'isUpcoming': true,
-        'status': 'Approved',
+        'includeCancelled': true,
         if (_searchController.text.isNotEmpty)
           'searchTerm': _searchController.text,
         if (_dateFrom != null) 'eventDateFrom': _dateFrom!.toIso8601String(),
@@ -484,28 +483,18 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                              final purchaseProvider =
-                                  Provider.of<PurchaseProvider>(
-                                    context,
-                                    listen: false,
-                                  );
                               final paymentProvider =
                                   Provider.of<PaymentProvider>(
                                     context,
                                     listen: false,
                                   );
 
-                              Navigator.pop(context);
-
                               try {
-                                final amountInCents = (totalPrice * 51).round();
-
                                 final clientSecret = await paymentProvider
                                     .createPaymentIntent(
                                       eventId: event.eventID!,
                                       numberOfTickets: numberOfTickets,
                                       ticketType: selectedTicketType,
-                                      amountInCents: amountInCents,
                                     );
 
                                 await Stripe.instance.initPaymentSheet(
@@ -519,13 +508,14 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
 
                                 await Stripe.instance.presentPaymentSheet();
 
-                                await purchaseProvider.insert({
-                                  'eventID': event.eventID,
-                                  'customerID': 0,
-                                  'numberOfTickets': numberOfTickets,
-                                  'ticketType': selectedTicketType,
-                                });
+                                final paymentIntentId = clientSecret.split(
+                                  '_secret_',
+                                )[0];
 
+                                await paymentProvider.verifyAndPurchase(
+                                  paymentIntentId,
+                                );
+                                Navigator.pop(context);
                                 _showSuccessSnackBar(
                                   "Payment successful! Tickets will appear shortly.",
                                 );
@@ -536,9 +526,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                                   e.error.localizedMessage ?? "Payment failed.",
                                 );
                               } catch (e) {
-                                _showErrorSnackBar(
-                                  "Something went wrong. Please try again.",
-                                );
+                                print("PAYMENT ERROR: $e");
+                                _showErrorSnackBar(e.toString());
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -1182,6 +1171,39 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                 ),
               ),
             ),
+            if (event.status?.statusName?.toLowerCase() == 'cancelled')
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey.withOpacity(0.50),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(255, 233, 42, 42),
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "CANCELLED",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Color.fromARGB(255, 233, 42, 42),
+                          letterSpacing: 3,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: Column(
@@ -1193,19 +1215,11 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: event.performer?.user?.image != null
-                            ? Image.memory(
-                                base64Decode(event.performer!.user!.image!),
-                                width: 46,
-                                height: 46,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                'assets/images/NoProfileImage.png',
-                                width: 46,
-                                height: 46,
-                                fit: BoxFit.cover,
-                              ),
+                        child: ImageHelpers.getImage(
+                          event.performer?.user?.image,
+                          width: 46,
+                          height: 46,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -1237,8 +1251,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                if (event.ratingAverage != null &&
-                                    event.ratingAverage! > 0) ...[
+                                if (event.performer?.averageRating != null &&
+                                    event.performer!.averageRating! > 0) ...[
                                   const SizedBox(width: 8),
                                   const Icon(
                                     Icons.star_rounded,
@@ -1247,7 +1261,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                                   ),
                                   const SizedBox(width: 2),
                                   Text(
-                                    event.ratingAverage!.toStringAsFixed(1),
+                                    event.performer!.averageRating!
+                                        .toStringAsFixed(1),
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
@@ -1377,43 +1392,64 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final authProvider = Provider.of<AuthProvider>(
-                              context,
-                              listen: false,
-                            );
-                            if (authProvider.currentUser == null)
-                              await authProvider.fetchMyProfile();
-                            _showPurchaseModal(context, event);
-                          },
-                          icon: const Icon(
-                            Icons.shopping_cart_rounded,
-                            size: 15,
-                          ),
-                          label: const Text(
-                            "Buy Tickets",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                        if (event.status?.statusName?.toLowerCase() ==
+                            'cancelled')
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.cancel_outlined,
+                                size: 13,
+                                color: Colors.redAccent,
+                              ),
+                              const SizedBox(width: 5),
+                              const Text(
+                                "This event has been cancelled",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              final authProvider = Provider.of<AuthProvider>(
+                                context,
+                                listen: false,
+                              );
+                              if (authProvider.currentUser == null)
+                                await authProvider.fetchMyProfile();
+                              _showPurchaseModal(context, event);
+                            },
+                            icon: const Icon(
+                              Icons.shopping_cart_rounded,
+                              size: 15,
+                            ),
+                            label: const Text(
+                              "Buy Tickets",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2E7D32),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 14,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2E7D32),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 14,
-                            ),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),

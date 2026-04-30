@@ -4,6 +4,7 @@ import 'package:mystagepass_mobile/providers/event_provider.dart';
 import 'package:provider/provider.dart';
 import '../models/Event/event.dart';
 import '../providers/performer_provider.dart';
+import '../utils/form_helpers.dart';
 import '../widgets/performer_nav_bar.dart';
 
 class PerformerEventsScreen extends StatefulWidget {
@@ -169,6 +170,60 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 3),
       ),
+    );
+  }
+
+  void _showErrorOverModal(String message) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (dialogContext) {
+        Future.delayed(const Duration(seconds: 3), () {
+          if (Navigator.of(dialogContext).canPop())
+            Navigator.of(dialogContext).pop();
+        });
+
+        return SafeArea(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Material(
+                color: Colors.redAccent,
+                elevation: 6,
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Text(
+                          message,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -555,6 +610,27 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                                   : () async {
                                       if (!formKey.currentState!.validate())
                                         return;
+                                      final regular = int.tryParse(
+                                        regularController.text,
+                                      );
+                                      final vip = int.tryParse(
+                                        vipController.text,
+                                      );
+                                      final premium = int.tryParse(
+                                        premiumController.text,
+                                      );
+
+                                      if (regular == null ||
+                                          regular <= 0 ||
+                                          vip == null ||
+                                          vip <= 0 ||
+                                          premium == null ||
+                                          premium <= 0) {
+                                        _showErrorOverModal(
+                                          "All ticket prices must be greater than 0.",
+                                        );
+                                        return;
+                                      }
                                       setModalState(() => isLoading = true);
                                       try {
                                         final provider =
@@ -637,8 +713,8 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                                         _updateEventLocally(updatedEvent);
                                       } catch (e) {
                                         setModalState(() => isLoading = false);
-                                        _showErrorSnackbar(
-                                          "Failed to update event. Please try again.",
+                                        _showErrorOverModal(
+                                          "Selected date and time is already occupied.",
                                         );
                                       }
                                     },
@@ -707,40 +783,12 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
     String? Function(String?)? validator,
     int maxLines = 1,
   }) {
-    return TextFormField(
+    return FormHelpers.drawModernTextField(
       controller: controller,
-      maxLines: maxLines,
+      label: label,
+      icon: icon,
       validator: validator,
-      style: const TextStyle(fontSize: 13, color: Color(0xFF2D3142)),
-      cursorColor: const Color(0xFF1D235D),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-        floatingLabelStyle: const TextStyle(color: Color(0xFF1D235D)),
-        prefixIcon: Icon(icon, size: 18, color: const Color(0xFF1D235D)),
-        filled: true,
-        fillColor: const Color(0xFFF5F6F8),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 12,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1D235D), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5),
-        ),
-      ),
+      maxLines: maxLines,
     );
   }
 
@@ -773,6 +821,11 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: color, width: 1.5),
+        ),
+        errorStyle: const TextStyle(
+          color: Color(0xFFB71C1C),
+          fontWeight: FontWeight.w400,
+          fontSize: 12,
         ),
       ),
     );
@@ -869,6 +922,43 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                       ),
                     ],
                     const Spacer(),
+                    if (_selectedStatus != 'All' || _selectedTime != 'All') ...[
+                      GestureDetector(
+                        onTap: _clearFilters,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.red.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.close_rounded,
+                                size: 15,
+                                color: Colors.red[400],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Clear",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.red[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     GestureDetector(
                       onTap: () =>
                           setState(() => _filtersVisible = !_filtersVisible),
@@ -970,6 +1060,16 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                                 _applyFilters();
                               }),
                             ),
+                            const SizedBox(width: 8),
+                            _filterChip(
+                              "Cancelled",
+                              "Cancelled",
+                              _selectedStatus,
+                              (v) => setState(() {
+                                _selectedStatus = v;
+                                _applyFilters();
+                              }),
+                            ),
                           ],
                         ),
                       ),
@@ -1017,33 +1117,6 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 100,
-                            child: OutlinedButton(
-                              onPressed: _clearFilters,
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                ),
-                                side: BorderSide(color: Colors.grey[300]!),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                "Clear",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -1150,7 +1223,7 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      height: 210,
+      height: canEdit ? 210 : 155,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -1174,13 +1247,13 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.black.withOpacity(0.25),
-                    Colors.black.withOpacity(0.72),
+                    Colors.black.withOpacity(0.78),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1191,7 +1264,7 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                         child: Text(
                           event.eventName ?? "Event",
                           style: const TextStyle(
-                            fontSize: 17,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                             shadows: [
@@ -1205,7 +1278,9 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                       _buildStatusBadge(status),
                     ],
                   ),
+
                   const SizedBox(height: 6),
+
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -1226,7 +1301,9 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                       ),
                     ),
                   ),
+
                   const Spacer(),
+
                   _buildInfoRow(
                     Icons.calendar_today_rounded,
                     Colors.grey[400]!,
@@ -1250,72 +1327,55 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                       event.location!.locationName!,
                     ),
                   ],
-                  const SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.white.withOpacity(0.7),
-                          width: 1,
+
+                  if (canEdit) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.white.withOpacity(0.7),
+                            width: 1,
+                          ),
                         ),
                       ),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          ElevatedButton.icon(
+                            onPressed: () => _showEditModal(context, event),
+                            icon: const Icon(
+                              Icons.edit_rounded,
+                              size: 13,
+                              color: Color(0xFF08084A),
+                            ),
+                            label: const Text(
+                              "Edit Event",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF08084A),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFEEF0FF),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 10,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            if (isPastEvent) {
-                              _showErrorSnackbar(
-                                "You cannot edit an event that has already passed.",
-                              );
-                              return;
-                            }
-                            if (!isApproved) {
-                              _showErrorSnackbar(
-                                "You cannot edit an event that is not approved.",
-                              );
-                              return;
-                            }
-                            _showEditModal(context, event);
-                          },
-                          icon: Icon(
-                            Icons.edit_rounded,
-                            size: 13,
-                            color: canEdit
-                                ? const Color(0xFF08084A)
-                                : const Color(0xFF08084A).withOpacity(0.35),
-                          ),
-                          label: Text(
-                            "Edit Event",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: canEdit
-                                  ? const Color(0xFF08084A)
-                                  : const Color(0xFF08084A).withOpacity(0.35),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: canEdit
-                                ? const Color(0xFFEEF0FF)
-                                : const Color(0xFFEEF0FF).withOpacity(0.4),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 6,
-                              horizontal: 10,
-                            ),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -1336,6 +1396,10 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
       case "rejected":
         color = Colors.red;
         icon = Icons.cancel_rounded;
+        break;
+      case "cancelled":
+        color = Colors.redAccent;
+        icon = Icons.block_rounded;
         break;
       case "pending":
       default:

@@ -15,6 +15,7 @@ Performer _$PerformerFromJson(Map<String, dynamic> json) => Performer(
   json['artistName'] as String?,
   json['bio'] as String?,
   (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  (json['averageRating'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$PerformerToJson(Performer instance) => <String, dynamic>{
@@ -24,4 +25,5 @@ Map<String, dynamic> _$PerformerToJson(Performer instance) => <String, dynamic>{
   'bio': instance.bio,
   'genres': instance.genres,
   'user': instance.user,
+  'averageRating': instance.averageRating,
 };

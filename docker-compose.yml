@@ -23,19 +23,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 120s
 
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: mystagepass-rabbitmq
+    hostname: mystagepass-rabbitmq
+    user: "999:999"
     ports:
       - "5672:5672"
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_ERLANG_COOKIE: "mystagepass-secret-cookie"
     networks:
       - mystagepass-network
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -99,6 +104,7 @@ services:
 
 volumes:
   sqldata:
+  rabbitmq-data:
 
 networks:
   mystagepass-network:

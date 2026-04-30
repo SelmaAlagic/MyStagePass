@@ -10,35 +10,28 @@ namespace MyStagePass.WebAPI.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize(Roles = "Customer")]
+	[Authorize(Roles = Roles.Customer)]
 	public class CustomerFavoriteEventController : BaseCRUDController<Model.Models.CustomerFavoriteEvent, CustomerFavoriteEventSearchObject, CustomerFavoriteEventInsertRequest, CustomerFavoriteEventUpdateRequest>
 	{
 		private readonly ICustomerFavoriteEventService _favoriteService;
-		public CustomerFavoriteEventController(ILogger<BaseController<Model.Models.CustomerFavoriteEvent, CustomerFavoriteEventSearchObject>> logger, ICustomerFavoriteEventService service) : base(logger, service)
+		private readonly ICurrentUserService _currentUserService;
+		public CustomerFavoriteEventController(ILogger<BaseController<Model.Models.CustomerFavoriteEvent, CustomerFavoriteEventSearchObject>> logger, ICustomerFavoriteEventService service, ICurrentUserService currentUserService) : base(logger, service)
 		{
 			_favoriteService = service;
+			_currentUserService=currentUserService;	
 		}
 
 		[HttpGet]
 		public override async Task<PagedResult<CustomerFavoriteEvent>> Get([FromQuery] CustomerFavoriteEventSearchObject search)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
-			search.CustomerID = customerId;
-
+			search.CustomerID = _currentUserService.GetCustomerId();
 			return await base.Get(search);
 		}
 
 		[HttpPost("toggle/{eventId}")]
 		public async Task<IActionResult> Toggle(int eventId)
 		{
-			var customerIdClaim = User.FindFirst("CustomerID")?.Value;
-			if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
-				throw new UnauthorizedAccessException("Customer not authenticated");
-
+			int customerId = _currentUserService.GetCustomerId();
 			bool isFavorited = await _favoriteService.ToggleFavorite(customerId, eventId);
 			return Ok(new { isFavorited });
 		}

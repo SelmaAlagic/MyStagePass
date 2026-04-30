@@ -18,6 +18,7 @@ Recommendations _$RecommendationsFromJson(Map<String, dynamic> json) =>
         (k, e) => MapEntry(k, (e as num).toInt()),
       ),
       similarityScore: (json['similarityScore'] as num?)?.toDouble(),
+      recommendationReason: json['recommendationReason'] as String?,
     );
 
 Map<String, dynamic> _$RecommendationsToJson(Recommendations instance) =>
@@ -28,4 +29,5 @@ Map<String, dynamic> _$RecommendationsToJson(Recommendations instance) =>
       'cityName': instance.cityName,
       'ticketPrices': instance.ticketPrices,
       'similarityScore': instance.similarityScore,
+      'recommendationReason': instance.recommendationReason,
     };

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
 using MyStagePass.Services.Interfaces;
@@ -26,7 +27,7 @@ namespace MyStagePass.Services.Services
 			var entity = await query.FirstOrDefaultAsync(s => s.StatusID == id);
 
 			if (entity == null)
-				throw new Exception("Status not found");
+				throw new UserException("Status not found");
 
 			return _mapper.Map<Model.Models.Status>(entity);
 		}

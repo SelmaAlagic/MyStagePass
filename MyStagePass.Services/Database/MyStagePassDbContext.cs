@@ -151,6 +151,11 @@ namespace MyStagePass.Services.Database
 
 			modelBuilder.Entity<Event>(entity =>
 			{
+				entity.HasOne(e => e.Performer)
+					.WithMany(p => p.Events)
+					.HasForeignKey(e => e.PerformerID)
+					.OnDelete(DeleteBehavior.Restrict);
+
 				entity.HasOne(c => c.Status)
 					.WithMany(co => co.Events)
 					.HasForeignKey(n => n.StatusID);

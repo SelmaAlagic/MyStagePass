@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/Event/event.dart';
 import '../providers/event_provider.dart';
-import '../models/search_result.dart';
 import 'dart:async';
 import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 import 'event_requests_screen.dart';
 import 'upcoming_events_screen.dart';
+import '../utils/image_helpers.dart';
 
 const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
@@ -64,13 +64,16 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       final params = <String, String>{
         'Page': (_currentPage - 1).toString(),
         'PageSize': _pageSize.toString(),
-        'Status': 'approved',
       };
       if (_searchQuery.isNotEmpty && _searchQuery.length >= 3) {
         params['searchTerm'] = _searchQuery;
       }
-      if (_statusFilter != null) {
-        params['IsUpcoming'] = (_statusFilter == 'Upcoming').toString();
+      if (_statusFilter == 'Upcoming') {
+        params['IsUpcoming'] = 'true';
+      } else if (_statusFilter == 'Ended') {
+        params['IsUpcoming'] = 'false';
+      } else if (_statusFilter == 'Cancelled') {
+        params['Status'] = 'Cancelled';
       }
       final data = await provider.get(filter: params);
       if (mounted) {
@@ -111,6 +114,16 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       context: context,
       barrierColor: Colors.black54,
       builder: (context) => _EventDetailDialog(event: event),
+    );
+  }
+
+  PageRouteBuilder _fadeRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: const Duration(milliseconds: 250),
+      transitionsBuilder: (_, animation, __, child) {
+        return FadeTransition(opacity: animation, child: child);
+      },
     );
   }
 
@@ -356,12 +369,9 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => EventRequestsScreen(userId: widget.userId),
-              ),
-            ).then((_) => _fetchEvents()),
+            onTap: () => Navigator.of(context).pushReplacement(
+              _fadeRoute(EventRequestsScreen(userId: widget.userId)),
+            ),
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: Container(
@@ -508,7 +518,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   Widget _buildEventRow(int number, Event event, int index) {
     final isEven = index % 2 == 0;
     final isUpcoming = event.eventDate?.isAfter(DateTime.now()) ?? false;
-    final isCancelled = event.isCancelled ?? false;
+    final isCancelled = event.status?.statusName?.toLowerCase() == 'cancelled';
     final dateStr = event.eventDate != null
         ? DateFormat('dd MMM yyyy').format(event.eventDate!)
         : 'N/A';
@@ -559,6 +569,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                   ],
                 ),
               ),
+
               SizedBox(
                 width: 130,
                 child: Center(
@@ -786,7 +797,7 @@ class EventDetailDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUpcoming = event.eventDate?.isAfter(DateTime.now()) ?? false;
-    final isCancelled = event.isCancelled ?? false;
+    final isCancelled = event.status?.statusName?.toLowerCase() == 'cancelled';
     final isPast = !isUpcoming;
 
     final dateStr = event.eventDate != null
@@ -914,9 +925,12 @@ class EventDetailDialog extends StatelessWidget {
                               ),
                               child: ClipOval(
                                 child: hasImage
-                                    ? Image.network(
-                                        user!.image!,
-                                        fit: BoxFit.cover,
+                                    ? ClipOval(
+                                        child: ImageHelpers.getImage(
+                                          user!.image!,
+                                          height: 52,
+                                          width: 52,
+                                        ),
                                       )
                                     : Container(
                                         color: _navyMid.withOpacity(0.12),
@@ -1116,18 +1130,32 @@ class EventDetailDialog extends StatelessWidget {
                         ),
                       ],
                     ),
-
-                    if (event.status != null) ...[
+                    if (isCancelled) ...[
                       const SizedBox(height: 16),
-                      _sectionTitle('Status'),
-                      const SizedBox(height: 8),
-                      _detailBlock([
-                        _detailRow(
-                          Icons.info_rounded,
-                          'Current Status',
-                          event.status!.statusName ?? 'N/A',
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: _red.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: _red.withOpacity(0.25)),
                         ),
-                      ]),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.info_rounded, color: _red, size: 16),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'This event has been cancelled. All ticket holders have been notified and refunds have been processed.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: _red,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ],
                 ),
@@ -1461,6 +1489,12 @@ class _StatusFilterDropdownState extends State<_StatusFilterDropdown> {
                           _green,
                         ),
                         _dropItem('Ended', 'Ended', Icons.history_rounded, _t2),
+                        _dropItem(
+                          'Cancelled',
+                          'Cancelled',
+                          Icons.cancel_outlined,
+                          _red,
+                        ),
                       ],
                     ),
                   ),

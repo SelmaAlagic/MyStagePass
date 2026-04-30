@@ -32,7 +32,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
         context,
         listen: false,
       );
-      notificationProvider.refreshUnreadCount(widget.userId);
+      notificationProvider.refreshUnreadCount();
     });
   }
 

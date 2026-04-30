@@ -81,7 +81,7 @@ namespace MyStagePass.Services.Services
 			   .FirstOrDefaultAsync(u => u.UserID == id);
 
 			if (entity == null)
-				return null;
+				throw new UserException("User not found");
 
 			return _mapper.Map<Model.Models.User>(entity);
 		}
