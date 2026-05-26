@@ -24,7 +24,8 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpGet]
 		public override async Task<PagedResult<Event>> Get([FromQuery] EventSearchObject search)
 		{
-			search.IncludeCancelled = true;
+			if (!search.IncludeCancelled.HasValue)
+				search.IncludeCancelled = false;
 			return await base.Get(search);
 		}
 

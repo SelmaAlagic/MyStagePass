@@ -58,6 +58,9 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("CountryID")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -73,84 +76,98 @@ namespace MyStagePass.Services.Migrations
                         {
                             CityID = 1,
                             CountryID = 1,
+                            IsActive = true,
                             Name = "Sarajevo"
                         },
                         new
                         {
                             CityID = 2,
                             CountryID = 1,
+                            IsActive = true,
                             Name = "Banja Luka"
                         },
                         new
                         {
                             CityID = 3,
                             CountryID = 1,
+                            IsActive = true,
                             Name = "Tuzla"
                         },
                         new
                         {
                             CityID = 4,
                             CountryID = 1,
+                            IsActive = true,
                             Name = "Zenica"
                         },
                         new
                         {
                             CityID = 5,
                             CountryID = 1,
+                            IsActive = true,
                             Name = "Mostar"
                         },
                         new
                         {
                             CityID = 6,
                             CountryID = 1,
+                            IsActive = true,
                             Name = "Bihać"
                         },
                         new
                         {
                             CityID = 7,
                             CountryID = 2,
+                            IsActive = true,
                             Name = "Zagreb"
                         },
                         new
                         {
                             CityID = 8,
                             CountryID = 2,
+                            IsActive = true,
                             Name = "Split"
                         },
                         new
                         {
                             CityID = 9,
                             CountryID = 3,
+                            IsActive = true,
                             Name = "Skoplje"
                         },
                         new
                         {
                             CityID = 10,
                             CountryID = 4,
+                            IsActive = true,
                             Name = "Podgorica"
                         },
                         new
                         {
                             CityID = 11,
                             CountryID = 4,
+                            IsActive = true,
                             Name = "Budva"
                         },
                         new
                         {
                             CityID = 12,
                             CountryID = 4,
+                            IsActive = true,
                             Name = "Ulcinj"
                         },
                         new
                         {
                             CityID = 13,
                             CountryID = 5,
+                            IsActive = true,
                             Name = "Beograd"
                         },
                         new
                         {
                             CityID = 14,
                             CountryID = 5,
+                            IsActive = true,
                             Name = "Novi Sad"
                         });
                 });
@@ -162,6 +179,9 @@ namespace MyStagePass.Services.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CountryID"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -175,26 +195,31 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             CountryID = 1,
+                            IsActive = true,
                             Name = "Bosnia and Herzegovina"
                         },
                         new
                         {
                             CountryID = 2,
+                            IsActive = true,
                             Name = "Croatia"
                         },
                         new
                         {
                             CountryID = 3,
+                            IsActive = true,
                             Name = "North Macedonia"
                         },
                         new
                         {
                             CountryID = 4,
+                            IsActive = true,
                             Name = "Montenegro"
                         },
                         new
                         {
                             CountryID = 5,
+                            IsActive = true,
                             Name = "Serbia"
                         });
                 });
@@ -963,6 +988,9 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("CityID")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LocationName")
                         .HasColumnType("nvarchar(max)");
 
@@ -979,6 +1007,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Titova 1",
                             Capacity = 15000,
                             CityID = 1,
+                            IsActive = true,
                             LocationName = "Arena Sarajevo"
                         },
                         new
@@ -987,6 +1016,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Skenderija 3",
                             Capacity = 5000,
                             CityID = 1,
+                            IsActive = true,
                             LocationName = "Skenderija Hall"
                         },
                         new
@@ -995,6 +1025,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Zetra 10",
                             Capacity = 12000,
                             CityID = 1,
+                            IsActive = true,
                             LocationName = "Zetra Olympic Hall"
                         },
                         new
@@ -1003,6 +1034,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Trg Krajine 5",
                             Capacity = 8000,
                             CityID = 2,
+                            IsActive = true,
                             LocationName = "Banja Luka Arena"
                         },
                         new
@@ -1011,6 +1043,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Teodora Kolokotronisa",
                             Capacity = 10000,
                             CityID = 2,
+                            IsActive = true,
                             LocationName = "Kastel Fortress"
                         },
                         new
@@ -1019,6 +1052,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Stadionska 1",
                             Capacity = 7000,
                             CityID = 3,
+                            IsActive = true,
                             LocationName = "Tuzla Stadium"
                         },
                         new
@@ -1027,6 +1061,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Bosne Srebrene",
                             Capacity = 5000,
                             CityID = 3,
+                            IsActive = true,
                             LocationName = "Mejdan Hall"
                         },
                         new
@@ -1035,6 +1070,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Bulevar Kulina bana",
                             Capacity = 15000,
                             CityID = 4,
+                            IsActive = true,
                             LocationName = "Bilino Polje"
                         },
                         new
@@ -1043,6 +1079,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Aleja šehida",
                             Capacity = 6200,
                             CityID = 4,
+                            IsActive = true,
                             LocationName = "Arena Zenica"
                         },
                         new
@@ -1051,6 +1088,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Mostarska 15",
                             Capacity = 4000,
                             CityID = 5,
+                            IsActive = true,
                             LocationName = "Mostar Music Hall"
                         },
                         new
@@ -1059,6 +1097,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Bijeli Brijeg",
                             Capacity = 9000,
                             CityID = 5,
+                            IsActive = true,
                             LocationName = "Stadion pod Bijelim Brijegom"
                         },
                         new
@@ -1067,6 +1106,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Luke bb",
                             Capacity = 3000,
                             CityID = 6,
+                            IsActive = true,
                             LocationName = "Dvorana Luke"
                         },
                         new
@@ -1075,6 +1115,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Borići",
                             Capacity = 8000,
                             CityID = 6,
+                            IsActive = true,
                             LocationName = "Stadion pod Borićima"
                         },
                         new
@@ -1083,6 +1124,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Avenija Dubrovnik 15",
                             Capacity = 16000,
                             CityID = 7,
+                            IsActive = true,
                             LocationName = "Zagreb Arena"
                         },
                         new
@@ -1091,6 +1133,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Trg sportova 11",
                             Capacity = 7000,
                             CityID = 7,
+                            IsActive = true,
                             LocationName = "Dom Sportova"
                         },
                         new
@@ -1099,6 +1142,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Dom Sportova 1",
                             Capacity = 12000,
                             CityID = 8,
+                            IsActive = true,
                             LocationName = "Split Arena"
                         },
                         new
@@ -1107,6 +1151,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "8. Mediteranskih igara 2",
                             Capacity = 34000,
                             CityID = 8,
+                            IsActive = true,
                             LocationName = "Stadion Poljud"
                         },
                         new
@@ -1115,6 +1160,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Bulevar 8. Septemvri",
                             Capacity = 10000,
                             CityID = 9,
+                            IsActive = true,
                             LocationName = "Boris Trajkovski Arena"
                         },
                         new
@@ -1123,6 +1169,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Aminta Treti",
                             Capacity = 33000,
                             CityID = 9,
+                            IsActive = true,
                             LocationName = "National Arena Toshe Proeski"
                         },
                         new
@@ -1131,6 +1178,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Trg Republike 2",
                             Capacity = 9000,
                             CityID = 10,
+                            IsActive = true,
                             LocationName = "Podgorica Sports Center"
                         },
                         new
@@ -1139,6 +1187,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Vaka Đurovića",
                             Capacity = 15000,
                             CityID = 10,
+                            IsActive = true,
                             LocationName = "Stadion pod Goricom"
                         },
                         new
@@ -1147,6 +1196,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Topliš bb",
                             Capacity = 5000,
                             CityID = 11,
+                            IsActive = true,
                             LocationName = "Top Hill"
                         },
                         new
@@ -1155,6 +1205,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Plaža Jaz",
                             Capacity = 30000,
                             CityID = 11,
+                            IsActive = true,
                             LocationName = "Jaz Beach Arena"
                         },
                         new
@@ -1163,6 +1214,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Velika Plaža",
                             Capacity = 20000,
                             CityID = 12,
+                            IsActive = true,
                             LocationName = "Velika Plaža Stage"
                         },
                         new
@@ -1171,6 +1223,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Bulevar Teuta",
                             Capacity = 3000,
                             CityID = 12,
+                            IsActive = true,
                             LocationName = "Ulcinj Open Hall"
                         },
                         new
@@ -1179,6 +1232,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Ušće 5",
                             Capacity = 18000,
                             CityID = 13,
+                            IsActive = true,
                             LocationName = "Belgrade Arena"
                         },
                         new
@@ -1187,6 +1241,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Milentija Popovića 9",
                             Capacity = 4000,
                             CityID = 13,
+                            IsActive = true,
                             LocationName = "Sava Centar"
                         },
                         new
@@ -1195,6 +1250,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Sutjeska 2",
                             Capacity = 11000,
                             CityID = 14,
+                            IsActive = true,
                             LocationName = "SPENS Hall"
                         },
                         new
@@ -1203,6 +1259,7 @@ namespace MyStagePass.Services.Migrations
                             Address = "Petrovaradin",
                             Capacity = 40000,
                             CityID = 14,
+                            IsActive = true,
                             LocationName = "Petrovaradin Fortress"
                         });
                 });

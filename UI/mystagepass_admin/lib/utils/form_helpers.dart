@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
 const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
@@ -16,87 +14,6 @@ const _t2 = Color(0xFF8A93B2);
 const _green = Color(0xFF22C55E);
 
 class FormHelpers {
-  static Widget drawStringContainer(
-    String hint,
-    String propertyName, {
-    bool obscureText = false,
-    int minLength = 5,
-    int maxLength = 40,
-    List<String? Function(String?)> customValidators = const [],
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      alignment: Alignment.centerLeft,
-      constraints: const BoxConstraints(maxHeight: 81, maxWidth: 300),
-      decoration: BoxDecoration(
-        color: _white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: FormBuilderTextField(
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: 'Field is required'),
-            FormBuilderValidators.minLength(minLength),
-            FormBuilderValidators.maxLength(maxLength),
-            ...customValidators,
-          ]),
-          name: propertyName,
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            label: Text(hint),
-            labelStyle: const TextStyle(color: _t2),
-            border: InputBorder.none,
-            hintText: '$hint*',
-          ),
-        ),
-      ),
-    );
-  }
-
-  static Widget drawNumericContainer(
-    String hint,
-    String propertyName, {
-    bool allowNegative = false,
-    bool integer = false,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      alignment: Alignment.centerLeft,
-      constraints: const BoxConstraints(maxHeight: 81, maxWidth: 300),
-      decoration: BoxDecoration(
-        color: _white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: FormBuilderTextField(
-          keyboardType: TextInputType.number,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: 'Field is required'),
-            FormBuilderValidators.numeric(),
-            integer
-                ? FormBuilderValidators.integer()
-                : FormBuilderValidators.numeric(),
-            !allowNegative
-                ? FormBuilderValidators.positiveNumber()
-                : FormBuilderValidators.numeric(),
-            FormBuilderValidators.min(0),
-          ]),
-          name: propertyName,
-          decoration: InputDecoration(
-            label: Text(hint),
-            labelStyle: const TextStyle(color: _t2),
-            border: InputBorder.none,
-            hintText: '$hint*',
-          ),
-        ),
-      ),
-    );
-  }
-
   static Widget drawProgressIndicator() {
     return const Center(
       child: Padding(
@@ -360,35 +277,6 @@ class FormHelpers {
     );
   }
 
-  static Widget drawSimpleDialogHeader({
-    required String title,
-    required IconData icon,
-  }) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: _blue50,
-            shape: BoxShape.circle,
-            border: Border.all(color: _blue100, width: 2),
-          ),
-          child: Icon(icon, size: 32, color: _blue),
-        ),
-        const SizedBox(height: 14),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: _t1,
-          ),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
   static Widget drawFormRow({
     required List<Widget> children,
     double spacing = 14,
@@ -400,42 +288,6 @@ class FormHelpers {
           if (i > 0) SizedBox(width: spacing),
           Expanded(child: children[i]),
         ],
-      ],
-    );
-  }
-
-  static Widget drawFormSection({
-    required String title,
-    required Widget child,
-    double topPadding = 20,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 3,
-              height: 16,
-              decoration: BoxDecoration(
-                color: _blue,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: _t1,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        child,
-        SizedBox(height: topPadding),
       ],
     );
   }

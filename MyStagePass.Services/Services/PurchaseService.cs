@@ -63,12 +63,6 @@ namespace MyStagePass.Services.Services
 				foreach (var ticket in entity.Tickets)
 				{
 					ticket.IsDeleted = true;
-
-					var ev = await _context.Events.FindAsync(ticket.EventID);
-					if (ev != null && ev.TicketsSold > 0)
-					{
-						ev.TicketsSold -= 1;
-					}
 				}
 			}
 

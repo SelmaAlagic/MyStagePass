@@ -14,9 +14,11 @@ namespace MyStagePass.WebAPI.Controllers
 	public class CustomerController : BaseCRUDController<Customer, CustomerSearchObject, CustomerInsertRequest, CustomerUpdateRequest>
 	{
 		private readonly ICustomerService _customerService;
+		private readonly ICurrentUserService _currentUserService;
 		public CustomerController(ILogger<BaseController<Customer, CustomerSearchObject>> logger, ICustomerService service, ICurrentUserService currentUserService) : base(logger, service)
 		{
 			_customerService = service;
+			_currentUserService = currentUserService;
 		}
 
 		[AllowAnonymous]
@@ -30,6 +32,10 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpPut("{id}")]
 		public override async Task<Customer> Update(int id, [FromBody] CustomerUpdateRequest update)
 		{
+			var isAdmin = User.IsInRole(Roles.Admin);
+			if (!isAdmin && _currentUserService.GetCustomerId() != id)
+				throw new UnauthorizedAccessException("You can only update your own profile.");
+
 			return await _customerService.Update(id, update);
 		}
 	}

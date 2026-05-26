@@ -13,8 +13,8 @@
 		public byte[]? Image {  get; set; }
 		public bool IsActive { get; set; } = true;
 		public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-		public ICollection<Performer> Performers { get; set; } = new List<Performer>();
-		public ICollection<Customer> Customers { get; set; } = new List<Customer>();
+		public virtual ICollection<Performer> Performers { get; set; } = new List<Performer>();
+		public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 		public virtual ICollection<Admin> Admins { get; set; } = new List<Admin>();
 	}
 }

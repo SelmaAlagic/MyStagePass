@@ -23,7 +23,23 @@ class UserProvider extends BaseProvider<User> {
       final data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw Exception('Failed to deactivate user: ${response.statusCode}');
+      String message;
+      try {
+        final body = jsonDecode(response.body);
+        final errors = body['errors'] as Map<String, dynamic>?;
+        if (errors != null && errors.isNotEmpty) {
+          final firstKey = errors.keys.first;
+          final msgs = errors[firstKey] as List<dynamic>;
+          message = msgs.isNotEmpty
+              ? msgs.first.toString()
+              : 'Failed to deactivate user';
+        } else {
+          message = 'Failed to deactivate user';
+        }
+      } catch (_) {
+        message = 'Failed to deactivate user';
+      }
+      throw Exception(message);
     }
   }
 

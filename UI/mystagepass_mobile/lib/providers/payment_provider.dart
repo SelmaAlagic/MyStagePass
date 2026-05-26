@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'base_provider.dart';
+import '../models/payment/payment_intent_response.dart';
 
 class PaymentProvider extends BaseProvider {
   PaymentProvider() : super("api/Payment");
 
-  Future<String> createPaymentIntent({
+  Future<PaymentIntentResponse> createPaymentIntent({
     required int eventId,
     required int numberOfTickets,
     required int ticketType,
@@ -24,7 +25,7 @@ class PaymentProvider extends BaseProvider {
 
     if (isValidResponse(response)) {
       final data = jsonDecode(response.body);
-      return data['clientSecret'];
+      return PaymentIntentResponse.fromJson(data);
     } else {
       throw Exception("Failed to create payment intent");
     }
@@ -42,7 +43,7 @@ class PaymentProvider extends BaseProvider {
     if (!isValidResponse(response)) {
       final errorBody = jsonDecode(response.body);
       final errorMsg = errorBody['errors']?['error']?[0] ?? response.body;
-      throw Exception(errorMsg); // ← bacit će stvarnu poruku sa servera
+      throw Exception(errorMsg);
     }
   }
 }

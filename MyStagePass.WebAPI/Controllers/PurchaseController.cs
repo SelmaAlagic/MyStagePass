@@ -42,13 +42,12 @@ namespace MyStagePass.WebAPI.Controllers
 			return await eventService.GetCustomerEvents(search);
 		}
 
-		[HttpPost]
+		[NonAction]
 		public override async Task<Purchase> Insert([FromBody] PurchaseInsertRequest request)
 		{
-			request.CustomerID = _currentUserService.GetCustomerId();
-			return await base.Insert(request);
+			throw new UnauthorizedAccessException("Direct purchase is not allowed. Use /api/Payment/verify-and-purchase.");
 		}
-
+	
 		[HttpGet("{id}")]
 		public override async Task<Purchase> GetById(int id)
 		{

@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:provider/provider.dart';
-
 import '../models/Event/event.dart';
-import '../models/search_result.dart';
 import '../providers/event_provider.dart';
 import '../utils/alert_helpers.dart';
 import 'event_management_screen.dart';
@@ -35,7 +33,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   List<Event> _events = [];
   bool _isLoading = false;
   String _searchQuery = '';
-  String _statusFilter = 'All';
+  String _statusFilter = 'Pending';
 
   int _currentPage = 1;
   int _totalPages = 1;
@@ -81,97 +79,32 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     try {
       final provider = Provider.of<EventProvider>(context, listen: false);
 
-      if (_statusFilter == 'All') {
-        final pendingParams = {
-          'Page': _currentPage - 1,
-          'PageSize': _pageSize,
-          'Status': 'pending',
-        };
+      final params = <String, dynamic>{
+        'Page': _currentPage - 1,
+        'PageSize': _pageSize,
+        'Status': _statusFilter.toLowerCase(),
+      };
 
-        final rejectedParams = {
-          'Page': _currentPage - 1,
-          'PageSize': _pageSize,
-          'Status': 'rejected',
-        };
+      if (_searchQuery.length >= 3) params['searchTerm'] = _searchQuery;
 
-        if (_searchQuery.length >= 3) {
-          pendingParams['searchTerm'] = _searchQuery;
-          rejectedParams['searchTerm'] = _searchQuery;
-        }
+      final data = await provider.get(filter: params);
 
-        final pendingData = await provider.get(filter: pendingParams);
-        final rejectedData = await provider.get(filter: rejectedParams);
-
-        final allEvents = <Event>[
-          ...pendingData.result,
-          ...rejectedData.result,
-        ];
-        allEvents.sort((a, b) {
-          if (a.createdAt == null && b.createdAt == null) return 0;
-          if (a.createdAt == null) return 1;
-          if (b.createdAt == null) return -1;
-          return b.createdAt!.compareTo(a.createdAt!);
+      if (mounted) {
+        setState(() {
+          _events = data.result;
+          _totalPages = max(1, data.meta.totalPages);
+          _totalCount = data.meta.count;
+          _currentPage = data.meta.currentPage + 1;
+          _hasPrevious = data.meta.hasPrevious;
+          _hasNext = data.meta.hasNext;
+          _isLoading = false;
         });
-
-        if (mounted) {
-          final totalCount = pendingData.meta.count + rejectedData.meta.count;
-
-          setState(() {
-            final totalCount = pendingData.meta.count + rejectedData.meta.count;
-
-            final startIndex = (_currentPage - 1) * _pageSize;
-            final endIndex = min(startIndex + _pageSize, allEvents.length);
-
-            final pagedEvents = startIndex < allEvents.length
-                ? allEvents.sublist(startIndex, endIndex)
-                : <Event>[];
-
-            setState(() {
-              _events = pagedEvents;
-              _totalCount = totalCount;
-              _totalPages = max(1, (totalCount / _pageSize).ceil());
-              _hasPrevious = _currentPage > 1;
-              _hasNext = _currentPage < _totalPages;
-              _isLoading = false;
-            });
-            _totalCount = totalCount;
-            _totalPages = max(1, (totalCount / _pageSize).ceil());
-            _hasPrevious = _currentPage > 1;
-            _hasNext = _currentPage < _totalPages;
-            _isLoading = false;
-          });
-        }
-      } else {
-        final params = {
-          'Page': _currentPage - 1,
-          'PageSize': _pageSize,
-          'Status': _statusFilter.toLowerCase(),
-        };
-
-        if (_searchQuery.length >= 3) {
-          params['searchTerm'] = _searchQuery;
-        }
-
-        final SearchResult<Event> data = await provider.get(filter: params);
-
-        if (mounted) {
-          setState(() {
-            _events = data.result;
-            _totalPages = max(1, data.meta.totalPages);
-            _totalCount = data.meta.count;
-            _currentPage = data.meta.currentPage + 1;
-            _hasPrevious = data.meta.hasPrevious;
-            _hasNext = data.meta.hasNext;
-            _isLoading = false;
-          });
-        }
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
-        AlertHelpers.showError(context, 'Failed to load event requests: $e');
+        String msg = e.toString().replaceFirst('Exception: ', '').trim();
+        SnackHelpers.showError(context, msg);
       }
-      debugPrint('Error fetching events: $e');
     }
   }
 
@@ -213,19 +146,11 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   }
 
   Future<void> _handleApprove(Event event) async {
-    if (event.eventId == null) {
-      AlertHelpers.showError(
-        context,
-        'Cannot approve event: Event ID is missing',
-      );
-      return;
-    }
-
     try {
       final provider = Provider.of<EventProvider>(context, listen: false);
       await provider.updateStatus(event.eventId!, 'approved');
       if (mounted) {
-        AlertHelpers.showSuccess(
+        SnackHelpers.showSuccess(
           context,
           "Event '${event.eventName ?? 'Unknown'}' has been approved successfully!",
         );
@@ -233,26 +158,18 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AlertHelpers.showError(context, 'Failed to approve event: $e');
+        SnackHelpers.showError(context, 'Failed to approve event: $e');
       }
       debugPrint('Error approving event: $e');
     }
   }
 
   Future<void> _handleReject(Event event) async {
-    if (event.eventId == null) {
-      AlertHelpers.showError(
-        context,
-        'Cannot reject event: Event ID is missing',
-      );
-      return;
-    }
-
     try {
       final provider = Provider.of<EventProvider>(context, listen: false);
       await provider.updateStatus(event.eventId!, 'rejected');
       if (mounted) {
-        AlertHelpers.showSuccess(
+        SnackHelpers.showSuccess(
           context,
           "Event '${event.eventName ?? 'Unknown'}' has been rejected.",
         );
@@ -260,7 +177,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AlertHelpers.showError(context, 'Failed to reject event: $e');
+        SnackHelpers.showError(context, 'Failed to reject event: $e');
       }
       debugPrint('Error rejecting event: $e');
     }
@@ -364,7 +281,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   }
 
   Widget _buildFilterRow() {
-    final hasActiveFilters = _statusFilter != 'All' || _searchQuery.isNotEmpty;
+    final hasActiveFilters =
+        _statusFilter != 'Pending' || _searchQuery.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
@@ -455,7 +373,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _statusFilter = 'All';
+                  _statusFilter = 'Pending';
                   _searchQuery = '';
                   _currentPage = 1;
                 });
@@ -990,12 +908,6 @@ class _StatusDropdownState extends State<_StatusDropdown> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _statusOption(
-                        value: 'All',
-                        label: 'All Requests',
-                        icon: Icons.tune_rounded,
-                        color: _t2,
-                      ),
-                      _statusOption(
                         value: 'Pending',
                         label: 'Pending',
                         icon: Icons.schedule_rounded,
@@ -1069,18 +981,23 @@ class _StatusDropdownState extends State<_StatusDropdown> {
   @override
   Widget build(BuildContext context) {
     final isActive = widget.value != 'All';
-    final label = widget.value == 'All' ? 'All Requests' : widget.value;
+    final label = switch (widget.value) {
+      'Pending' => 'Pending',
+      'Rejected' => 'Rejected',
+      _ => 'Pending',
+    };
+
     final icon = switch (widget.value) {
       'Pending' => Icons.schedule_rounded,
       'Rejected' => Icons.cancel_rounded,
-      _ => Icons.tune_rounded,
+      _ => Icons.schedule_rounded,
     };
+
     final iconColor = switch (widget.value) {
       'Pending' => const Color(0xFFB45309),
       'Rejected' => const Color(0xFFB91C1C),
-      _ => const Color(0xFF8A93B2),
+      _ => const Color(0xFFB45309),
     };
-
     return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(

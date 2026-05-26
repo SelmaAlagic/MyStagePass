@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MyStagePass.WebAPI.Filters;
+using DotNetEnv;
 
+Env.Load(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".env"));
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddSwaggerGen(c =>
 {
 	c.SwaggerDoc("v1", new OpenApiInfo
@@ -65,7 +68,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
 			ValidateIssuerSigningKey = true,
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET_KEY"))),
 			ValidateIssuer = false,
 			ValidateAudience = false
 		};
@@ -79,11 +82,23 @@ builder.Services.AddControllers(x =>
 builder.Services.AddScoped<ErrorFilter>();
 builder.Services.AddAuthorization();
 
+
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (string.IsNullOrEmpty(connectionString))
-	throw new InvalidOperationException("Connection string not configured.");
-builder.Services.AddDatabaseServices(connectionString);
+var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+if (string.IsNullOrWhiteSpace(dbName))
+	throw new InvalidOperationException("DB_NAME missing");
+if (string.IsNullOrWhiteSpace(dbPassword))
+	throw new InvalidOperationException("DB_PASSWORD missing");
+
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+var trustedConnection = Environment.GetEnvironmentVariable("DB_TRUSTED_CONNECTION") ?? "False";
+var connectionString = trustedConnection == "True"
+	? $"Server={dbHost};Database={dbName};Trusted_Connection=True;TrustServerCertificate=True;"
+	: $"Server={dbHost};Database={dbName};User Id=sa;Password={dbPassword};TrustServerCertificate=True;";
+
+builder.Services.AddDbContext<MyStagePassDbContext>(options => options.UseSqlServer(connectionString));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -124,7 +139,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+Stripe.StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

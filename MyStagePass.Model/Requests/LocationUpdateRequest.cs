@@ -14,5 +14,7 @@ namespace MyStagePass.Model.Requests
 		public string? Address { get; set;}
 
 		public int? CityID { get; set; }
+
+		public bool? IsActive { get; set; }
 	}
 }

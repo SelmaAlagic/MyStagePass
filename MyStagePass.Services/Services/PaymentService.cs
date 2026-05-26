@@ -43,6 +43,9 @@ namespace MyStagePass.Services.Services
 			if (request.NumberOfTickets > remainingTickets)
 				throw new UserException($"Only {remainingTickets} ticket(s) remaining for this event.");
 
+			if (!Enum.IsDefined(typeof(Model.Models.TicketType), request.TicketType))
+				throw new UserException("Invalid ticket type. Must be 0 (Regular), 1 (Premium) or 2 (VIP).");
+
 			var ticketType = (Model.Models.TicketType)request.TicketType;
 
 			long singlePrice = ticketType switch
@@ -79,9 +82,9 @@ namespace MyStagePass.Services.Services
 
 			return new PaymentIntentResponse
 			{
+				PaymentIntentId = intent.Id,
 				ClientSecret = intent.ClientSecret,
-				AmountInKM = singlePrice * request.NumberOfTickets,
-				AmountInCents = totalAmount
+				AmountInEur = singlePrice * request.NumberOfTickets,
 			};
 		}
 

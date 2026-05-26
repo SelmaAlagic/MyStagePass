@@ -389,6 +389,7 @@ namespace MyStagePass.Services.Services
 
 			return new EventRecommendation
 			{
+				EventID = ev.EventID,
 				EventName = ev.EventName,
 				PerformerName = ev.Performer?.ArtistName ?? "",
 				EventDate = ev.EventDate,

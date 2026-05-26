@@ -11,6 +11,7 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
   locationName: json['locationName'] as String?,
   capacity: (json['capacity'] as num?)?.toInt(),
   address: json['address'] as String?,
+  isActive: json['isActive'] as bool?,
   cityId: (json['cityID'] as num?)?.toInt(),
   city: json['city'] == null
       ? null
@@ -22,6 +23,7 @@ Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
   'locationName': instance.locationName,
   'capacity': instance.capacity,
   'address': instance.address,
+  'isActive': instance.isActive,
   'cityID': instance.cityId,
   'city': instance.city,
 };

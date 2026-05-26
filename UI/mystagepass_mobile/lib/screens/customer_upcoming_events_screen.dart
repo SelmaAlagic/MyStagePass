@@ -490,17 +490,24 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                                   );
 
                               try {
-                                final clientSecret = await paymentProvider
+                                final response = await paymentProvider
                                     .createPaymentIntent(
                                       eventId: event.eventID!,
                                       numberOfTickets: numberOfTickets,
                                       ticketType: selectedTicketType,
                                     );
-
+                                if (response.clientSecret == null ||
+                                    response.paymentIntentId == null) {
+                                  _showErrorSnackBar(
+                                    "Payment error. Please try again.",
+                                  );
+                                  return;
+                                }
                                 await Stripe.instance.initPaymentSheet(
                                   paymentSheetParameters:
                                       SetupPaymentSheetParameters(
-                                        paymentIntentClientSecret: clientSecret,
+                                        paymentIntentClientSecret:
+                                            response.clientSecret!,
                                         merchantDisplayName: "MyStagePass",
                                         style: ThemeMode.light,
                                       ),
@@ -508,13 +515,10 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
 
                                 await Stripe.instance.presentPaymentSheet();
 
-                                final paymentIntentId = clientSecret.split(
-                                  '_secret_',
-                                )[0];
-
                                 await paymentProvider.verifyAndPurchase(
-                                  paymentIntentId,
+                                  response.paymentIntentId!,
                                 );
+
                                 Navigator.pop(context);
                                 _showSuccessSnackBar(
                                   "Payment successful! Tickets will appear shortly.",

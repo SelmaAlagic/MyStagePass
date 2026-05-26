@@ -8,6 +8,7 @@ import '../providers/notification_provider.dart';
 import '../widgets/notification_widget.dart';
 import '../utils/image_helpers.dart';
 import '../widgets/performer_nav_bar.dart';
+import 'dart:async';
 
 class PerformerHomeScreen extends StatefulWidget {
   final int userId;
@@ -20,6 +21,7 @@ class PerformerHomeScreen extends StatefulWidget {
 
 class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
   bool _showNotifications = false;
+  Timer? _notificationTimer;
 
   @override
   void initState() {
@@ -38,7 +40,21 @@ class _PerformerHomeScreenState extends State<PerformerHomeScreen> {
       context,
       listen: false,
     );
+    _notificationTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) {
+        Provider.of<NotificationProvider>(
+          context,
+          listen: false,
+        ).refreshUnreadCount();
+      }
+    });
     notificationProvider.refreshUnreadCount();
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    super.dispose();
   }
 
   void _toggleNotifications() {

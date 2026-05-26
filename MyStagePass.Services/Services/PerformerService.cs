@@ -68,17 +68,8 @@ namespace MyStagePass.Services.Services
 				await _notificationService.NotifyUser(admin.UserID, "New Performer Registration", $"New performer '{insert.FirstName} {insert.LastName}' is waiting for approval!");
 			}
 		}
-
-		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
+		public override IQueryable<Performer> AddFilter(IQueryable<Performer> query, PerformerSearchObject? search = null)
 		{
-			if (search.isUserIncluded == true)
-			{
-				query = query.Include("User");
-			}
-
-			query = query.Include(p=> p.Events).Include(p=>p.User)
-						 .Include(p => p.Genres).ThenInclude(pg => pg.Genre);
-
 			if (!string.IsNullOrWhiteSpace(search?.searchTerm))
 			{
 				string term = search.searchTerm.ToLower();
@@ -89,18 +80,21 @@ namespace MyStagePass.Services.Services
 			}
 
 			if (search?.IsPending == true)
-			{
 				query = query.Where(p => p.IsApproved == null);
-			}
 			else if (search?.IsApproved != null)
-			{
 				query = query.Where(p => p.IsApproved == search.IsApproved);
+
+			return base.AddFilter(query, search);
+		}
+		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
+		{
+			if (search.isUserIncluded == true)
+			{
+				query = query.Include("User");
 			}
 
-			if (search?.GenreID != null)
-			{
-				query = query.Where(p => p.Genres.Any(pg => pg.GenreID == search.GenreID.Value));
-			}
+			query = query.Include(p=> p.Events).Include(p=>p.User)
+						 .Include(p => p.Genres).ThenInclude(pg => pg.Genre);
 
 			return base.AddInclude(query, search);
 		}

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mystagepass_admin/screens/reports_screen.dart';
+import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mystagepass_admin/screens/event_management_screen.dart';
@@ -152,12 +153,15 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _showEditProfileDialog() {
     if (_userData == null) {
-      _snack('Loading user data...', ok: false);
+      SnackHelpers.showError(
+        context,
+        'Something went wrong. Please try again later.',
+      );
       return;
     }
     showDialog(
       context: context,
-      barrierColor: Colors.black87,
+      barrierColor: Colors.black.withOpacity(0.5),
       barrierDismissible: false,
       builder: (_) => Center(
         child: ConstrainedBox(
@@ -189,40 +193,6 @@ class _HomeScreenState extends State<HomeScreen>
           (r) => false,
         );
       },
-    );
-  }
-
-  void _snack(String msg, {required bool ok}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              ok ? Icons.check_circle_rounded : Icons.error_rounded,
-              color: _white,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                msg,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: _white,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: ok ? _green : Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      ),
     );
   }
 
@@ -1553,18 +1523,6 @@ class _EditProfileDialogState extends State<EditProfileDialog>
         });
         return;
       }
-      if (!hasCon) {
-        _snack('Please confirm your new password', ok: false);
-        return;
-      }
-      if (_newPwC.text.length < 6) {
-        _snack('New password must be at least 6 characters', ok: false);
-        return;
-      }
-      if (_newPwC.text != _confirmPwC.text) {
-        _snack('Passwords do not match', ok: false);
-        return;
-      }
     }
 
     setState(() => _isLoading = true);
@@ -1586,7 +1544,7 @@ class _EditProfileDialogState extends State<EditProfileDialog>
       if (!mounted) return;
       widget.onSaved();
       Navigator.pop(context);
-      _snack('Profile updated successfully!', ok: true);
+      SnackHelpers.showSuccess(context, 'Profile updated successfully!');
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -1601,43 +1559,9 @@ class _EditProfileDialogState extends State<EditProfileDialog>
           _pwExpanded = true;
         });
       } else {
-        _snack(err, ok: false);
+        SnackHelpers.showError(context, err);
       }
     }
-  }
-
-  void _snack(String msg, {required bool ok}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              ok ? Icons.check_circle_rounded : Icons.error_rounded,
-              color: _white,
-              size: 18,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                msg,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: _white,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: ok ? _green : Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 
   @override

@@ -41,5 +41,35 @@ namespace MyStagePass.Services.Services
 
 			return report;
 		}
+
+		public async Task<CancelledEventsReportDto> GetCancelledEventsReport(int cityId)
+		{
+			var city = await _context.Cities.FindAsync(cityId);
+
+			var cancelledEvents = await _context.Events
+				.Include(e => e.Location).ThenInclude(l => l.City)
+				.Include(e => e.Tickets).ThenInclude(t => t.Purchase)
+				.Where(e => e.Location.CityID == cityId && e.StatusID == Status.CancelledID)
+				.ToListAsync();
+
+			var items = cancelledEvents.Select(e => new CancelledEventItem
+			{
+				EventName = e.EventName,
+				LocationName = e.Location.LocationName,
+				EventDate = e.EventDate,
+				TicketsSold = e.TicketsSold,
+				RefundsNeeded = e.Tickets.Count(t => t.PurchaseID != 0),
+				TotalRefundAmount = e.Tickets.Where(t => t.PurchaseID != 0).Sum(t => (decimal)t.Price)
+			}).ToList();
+
+			return new CancelledEventsReportDto
+			{
+				CityName = city?.Name ?? "N/A",
+				TotalCancelledEvents = items.Count,
+				TotalTicketsSold = items.Sum(i => i.TicketsSold),
+				TotalRefundsNeeded = items.Sum(i => i.RefundsNeeded),
+				Events = items
+			};
+		}
 	}
 }

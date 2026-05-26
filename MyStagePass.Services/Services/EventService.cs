@@ -25,13 +25,11 @@ namespace MyStagePass.Services.Services
 
 		public override async Task BeforeInsert(Event entity, EventInsertRequest insert)
 		{
-			if (insert.RegularPrice <= 0 || insert.VipPrice <= 0 || insert.PremiumPrice <= 0)
-				throw new UserException("Ticket prices must be greater than 0.");
-
 			var location = await _context.Locations.FirstOrDefaultAsync(l => l.LocationID == insert.LocationID);
-			if (location != null)
-				entity.TotalTickets = location.Capacity;
+			if (location == null)
+				throw new UserException("Location does not exist.");
 
+			entity.TotalTickets = location.Capacity;
 			await ValidateLocationAvailability(insert.LocationID, insert.EventDate);
 
 			entity.StatusID = Status.PendingID;
@@ -392,6 +390,7 @@ namespace MyStagePass.Services.Services
 				catch (Stripe.StripeException ex)
 				{
 					_logger.LogError(ex, "Refund failed for purchase {PurchaseID}", purchase.PurchaseID);
+					purchase.IsRefunded = false;
 				}
 			}
 
@@ -418,16 +417,24 @@ namespace MyStagePass.Services.Services
 
 			foreach (var customer in customerEmails)
 			{
+				var customerPurchase = purchases.FirstOrDefault(p =>
+					activeTickets.Any(t => t.PurchaseID == p.PurchaseID &&
+										   t.Purchase.Customer.User.Email == customer.Email));
+
+				var refundText = customerPurchase?.IsRefunded == true
+					? "A full refund has been initiated and will appear on your account within 5-10 business days."
+					: "We were unable to process your refund automatically. Our support team will contact you shortly.";
+
 				var emailModel = new EmailModel
 				{
 					Sender = "noreply@mystagepass.com",
 					Recipient = customer.Email,
-					Subject = $"Event Cancelled – Refund Processed: {entity.EventName}",
+					Subject = $"Event Cancelled: {entity.EventName}",
 					Content =
 						$"Dear {customer.FirstName},\n\n" +
-						$"The event '{entity.EventName}' for which you purchased tickets has been cancelled.\n\n" +
+						$"The event '{entity.EventName}' has been cancelled.\n\n" +
 						$"Reason: {cancelReasonText}\n\n" +
-						$"A full refund has been initiated and will appear on your account within 5-10 business days.\n\n" +
+						$"{refundText}\n\n" + 
 						$"We apologize for the inconvenience.\n\n" +
 						$"Best regards,\nMyStagePass Team"
 				};

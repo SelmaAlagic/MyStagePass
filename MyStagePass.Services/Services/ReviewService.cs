@@ -23,10 +23,20 @@ namespace MyStagePass.Services.Services
 			if (eventEntity.EventDate > DateTime.UtcNow)
 				throw new UserException("Cannot review an event that hasn't happened yet.");
 
+			var hasPurchase = await _context.Tickets
+			   .AnyAsync(t => t.EventID == request.EventID
+						   && t.Purchase.CustomerID == request.CustomerID
+						   && !t.IsDeleted);
+			if (!hasPurchase)
+				throw new UserException("You can only review events for which you have purchased a ticket.");
+
+			var existingReview = await _context.Reviews
+			   .AnyAsync(r => r.EventID == request.EventID && r.CustomerID == request.CustomerID);
+			if (existingReview)
+				throw new UserException("You have already submitted a review for this event.");
+
 			var review = _mapper.Map<Review>(request);
-
 			review.CreatedAt = DateTime.UtcNow;
-
 			_context.Reviews.Add(review);
 
 			eventEntity.TotalScore += request.RatingValue;

@@ -9,6 +9,7 @@ import 'package:mystagepass_admin/screens/login_screen.dart';
 import 'package:mystagepass_admin/utils/alert_helpers.dart';
 import 'package:mystagepass_admin/models/User/user.dart';
 import 'package:mystagepass_admin/screens/admin_home_screen.dart';
+import 'dart:async';
 
 const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
@@ -28,6 +29,8 @@ class SidebarRoutes {
   static const events = 'events';
   static const performers = 'performers';
   static const reports = 'reports';
+  static const referenceData = 'reference_data';
+  static const genres = 'genres';
 }
 
 class SidebarLayout extends StatefulWidget {
@@ -61,12 +64,23 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   bool _isLoadingUserData = true;
   User? _userData;
   final UserProvider _userProvider = UserProvider();
+  Timer? _notificationTimer;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _loadNotificationCount();
+
+    _notificationTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) _loadNotificationCount();
+    });
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadUserData() async {
@@ -643,6 +657,20 @@ class _Sidebar extends StatelessWidget {
                     label: 'Reports & Stats',
                     isActive: activeRouteKey == SidebarRoutes.reports,
                     onTap: () => onNavigate(SidebarRoutes.reports),
+                  ),
+                  const SizedBox(height: 2),
+                  _NavItem(
+                    icon: Icons.public_rounded,
+                    label: 'Global Administration',
+                    isActive: activeRouteKey == SidebarRoutes.referenceData,
+                    onTap: () => onNavigate(SidebarRoutes.referenceData),
+                  ),
+                  const SizedBox(height: 2),
+                  _NavItem(
+                    icon: Icons.music_note_rounded,
+                    label: 'Genres',
+                    isActive: activeRouteKey == SidebarRoutes.genres,
+                    onTap: () => onNavigate(SidebarRoutes.genres),
                   ),
                 ],
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mystagepass_admin/providers/admin_provider.dart';
+import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:provider/provider.dart';
 import '../models/User/user.dart';
 import '../providers/user_provider.dart';
@@ -128,7 +129,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       highlightText: fullName,
       onConfirm: () async {
         if (user.userId == null) {
-          if (mounted) AlertHelpers.showError(context, 'User has no valid ID');
+          if (mounted)
+            SnackHelpers.showError(context, 'Cannot deactivate user.');
           return;
         }
         try {
@@ -137,11 +139,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             listen: false,
           ).deactivate(user.userId!);
           if (mounted) {
-            AlertHelpers.showSuccess(context, 'User successfully deactivated');
+            SnackHelpers.showSuccess(context, 'User successfully deactivated');
             await _fetchUsers();
           }
         } catch (e) {
-          if (mounted) AlertHelpers.showError(context, 'Error: $e');
+          if (mounted) {
+            String msg = e.toString().replaceFirst('Exception: ', '').trim();
+            SnackHelpers.showError(context, msg);
+          }
         }
       },
     );
@@ -164,12 +169,13 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             listen: false,
           ).restore(user.userId!);
           if (mounted) {
-            AlertHelpers.showSuccess(context, 'User successfully restored');
+            SnackHelpers.showSuccess(context, 'User successfully restored');
             await _fetchUsers();
           }
         } catch (e) {
           if (mounted) {
-            AlertHelpers.showError(context, 'Error restoring user: $e');
+            String msg = e.toString().replaceFirst('Exception: ', '').trim();
+            SnackHelpers.showError(context, msg);
           }
         }
       },
@@ -1231,22 +1237,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                         await provider.insert(newUser);
                                         if (mounted) {
                                           Navigator.pop(context);
-                                          ScaffoldMessenger.of(
+                                          SnackHelpers.showSuccess(
                                             context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: const Text(
-                                                'Admin successfully added',
-                                              ),
-                                              backgroundColor: _green,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              margin: const EdgeInsets.all(16),
-                                            ),
+                                            'Admin added successfully!',
                                           );
                                           _currentPage = 1;
                                           _fetchUsers();
@@ -1283,20 +1276,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                             () => passwordError = msg,
                                           );
                                         } else {
-                                          ScaffoldMessenger.of(
+                                          SnackHelpers.showError(
                                             context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Error: $msg'),
-                                              backgroundColor: _red,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              margin: const EdgeInsets.all(16),
-                                            ),
+                                            'Something went wrong. Please try again.',
                                           );
                                         }
                                       }

@@ -15,6 +15,24 @@ namespace MyStagePass.Services.Services
 		{
 		}
 
+		public override async Task BeforeInsert(Database.Location entity, LocationInsertRequest insert)
+		{
+			var cityExists = await _context.Cities.AnyAsync(c => c.CityID == insert.CityID);
+			if (!cityExists)
+				throw new UserException("City does not exist.");
+
+			var exists = await _context.Locations
+				.AnyAsync(x =>
+					x.CityID == insert.CityID &&
+					x.Address.ToLower() == insert.Address.ToLower() &&
+					x.LocationName.ToLower() == insert.LocationName.ToLower());
+
+			if (exists)
+				throw new UserException("Location with this name and address already exists in this city.");
+
+			await base.BeforeInsert(entity, insert);
+		}
+
 		public override IQueryable<Database.Location> AddInclude(IQueryable<Database.Location> query, LocationSearchObject? search = null)
 		{
 			return query.Include(l => l.Events).Include(l=>l.City);
@@ -31,28 +49,61 @@ namespace MyStagePass.Services.Services
 			if (!string.IsNullOrWhiteSpace(search.Address))
 				query = query.Where(l => l.Address!.ToLower().Contains(search.Address.ToLower()));
 
-			if (search.CapacityFrom != null)
-				query = query.Where(l => l.Capacity >= search.CapacityFrom);
+			if (search?.CityID.HasValue == true)
+				query = query.Where(l => l.CityID == search.CityID.Value);
 
-			if (search.CapacityTo != null)
-				query = query.Where(l => l.Capacity <= search.CapacityTo);
+			if (search?.IsActive.HasValue == true)
+				query = query.Where(l => l.IsActive == search.IsActive.Value);
 
 			return query;
 		}
-		public override async Task BeforeInsert(Database.Location entity, LocationInsertRequest insert)
+
+		public override async Task<Model.Models.Location> Update(int id, LocationUpdateRequest update)
 		{
-			if (string.IsNullOrWhiteSpace(insert.LocationName))
-				throw new UserException("Location name is required.");
+			var entity = await _context.Locations.FindAsync(id);
+			if (entity == null)
+				throw new UserException("Location not found");
 
-			if (string.IsNullOrWhiteSpace(insert.Address))
-				throw new UserException("Address is required.");
+			var newName = !string.IsNullOrWhiteSpace(update.LocationName) ? update.LocationName : entity.LocationName;
+			var newAddress = !string.IsNullOrWhiteSpace(update.Address) ? update.Address : entity.Address;
+			var newCityId = update.CityID ?? entity.CityID;
 
-			if (insert.Capacity <= 0)
-				throw new UserException("Capacity must be greater than zero.");
+			var exists = await _context.Locations
+				.AnyAsync(x =>
+					x.LocationName.ToLower() == newName.ToLower() &&
+					x.Address.ToLower() == newAddress.ToLower() &&
+					x.CityID == newCityId &&
+					x.LocationID != id);
+			if (exists)
+				throw new UserException("Location with this name and address already exists in this city.");
 
-			var cityExists = await _context.Cities.AnyAsync(c => c.CityID == insert.CityID);
-			if (!cityExists)
-				throw new UserException("City does not exist.");
+			if (!string.IsNullOrWhiteSpace(update.LocationName))
+				entity.LocationName = update.LocationName;
+			if (!string.IsNullOrWhiteSpace(update.Address))
+				entity.Address = update.Address;
+			if (update.Capacity.HasValue)
+				entity.Capacity = update.Capacity.Value;
+			if (update.CityID.HasValue)
+				entity.CityID = update.CityID.Value;
+			if (update.IsActive.HasValue)
+				entity.IsActive = update.IsActive.Value;
+
+			await _context.SaveChangesAsync();
+			return _mapper.Map<Model.Models.Location>(entity);
+		}
+
+		public override async Task<Model.Models.Location> Delete(int id)
+		{
+			var entity = await _context.Locations
+				.Include(l => l.Events)
+				.FirstOrDefaultAsync(l => l.LocationID == id);
+			if (entity == null)
+				throw new UserException("Location not found");
+			if (entity.Events != null && entity.Events.Any())
+				throw new UserException("Cannot delete location that has events assigned to it.");
+			entity.IsActive = false; 
+			await _context.SaveChangesAsync();
+			return _mapper.Map<Model.Models.Location>(entity);
 		}
 	}
 }

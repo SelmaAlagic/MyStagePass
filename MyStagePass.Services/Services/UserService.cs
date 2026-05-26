@@ -126,11 +126,26 @@ namespace MyStagePass.Services.Services
 			return _mapper.Map<Model.Models.User>(entity);
 		}
 
-		public override async Task<Model.Models.User> Delete(int id) 
+		public override async Task<Model.Models.User> Delete(int id)
 		{
-			var entity = await _context.Users.FirstOrDefaultAsync(u => u.UserID == id);
+			var entity = await _context.Users
+				.Include(u => u.Performers)
+					.ThenInclude(p => p.Events)
+				.FirstOrDefaultAsync(u => u.UserID == id);
+
 			if (entity == null)
 				throw new UserException("User not found");
+
+			var performer = entity.Performers?.FirstOrDefault();
+			if (performer != null)
+			{
+				var hasUpcomingApprovedEvents = performer.Events.Any(e =>
+					e.EventDate > DateTime.UtcNow &&
+					e.StatusID == Status.ApprovedID);
+
+				if (hasUpcomingApprovedEvents)
+					throw new UserException("Cannot deactivate this performer because they have upcoming approved events!");
+			}
 
 			entity.IsActive = false;
 			await _context.SaveChangesAsync();
@@ -232,7 +247,7 @@ namespace MyStagePass.Services.Services
             };
 
 			var key = new SymmetricSecurityKey(
-				Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"])
+				Encoding.UTF8.GetBytes(_configuration["JWT_SECRET_KEY"])
 			);
 
 			if (userRole == "Performer" && user.Performers != null && user.Performers.Any())

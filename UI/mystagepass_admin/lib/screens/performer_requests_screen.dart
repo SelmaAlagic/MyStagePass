@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 import 'package:provider/provider.dart';
 import '../models/Performer/performer.dart';
@@ -123,7 +124,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
       final provider = Provider.of<PerformerProvider>(context, listen: false);
       await provider.approvePerformer(performerId, isApproved);
       if (mounted) {
-        AlertHelpers.showSuccess(
+        SnackHelpers.showSuccess(
           context,
           isApproved
               ? 'Performer successfully approved.'
@@ -132,7 +133,10 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
         _fetchPerformers();
       }
     } catch (e) {
-      if (mounted) AlertHelpers.showError(context, 'Error: $e');
+      if (mounted) {
+        String msg = e.toString().replaceFirst('Exception: ', '').trim();
+        SnackHelpers.showError(context, msg);
+      }
     }
   }
 
@@ -593,7 +597,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // ── Header ──────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
                     decoration: const BoxDecoration(
@@ -651,13 +654,11 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
                     ),
                   ),
 
-                  // ── Body ────────────────────────────────────────────
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Info banner
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -691,8 +692,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
                           ),
                         ),
                         const SizedBox(height: 14),
-
-                        // Reason label
                         const Text(
                           'Rejection Reason',
                           style: TextStyle(
@@ -702,8 +701,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
                           ),
                         ),
                         const SizedBox(height: 6),
-
-                        // Reason text field
                         Container(
                           decoration: BoxDecoration(
                             color: _bg,
@@ -733,7 +730,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
                           ),
                         ),
 
-                        // Error text
                         if (_fieldError != null) ...[
                           const SizedBox(height: 5),
                           Row(
@@ -758,8 +754,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
                       ],
                     ),
                   ),
-
-                  // ── Footer ──────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
                     decoration: const BoxDecoration(
@@ -820,7 +814,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
                                 reason: reason,
                               );
                               if (mounted) {
-                                AlertHelpers.showSuccess(
+                                SnackHelpers.showSuccess(
                                   context,
                                   'Performer rejected successfully.',
                                 );

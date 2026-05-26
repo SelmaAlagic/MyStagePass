@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/Event/event.dart';
@@ -8,7 +9,6 @@ import '../providers/location_provider.dart';
 import 'dart:async';
 import '../widgets/sidebar_layout.dart';
 import 'event_management_screen.dart';
-import '../utils/alert_helpers.dart';
 import '../utils/image_helpers.dart';
 
 const _navy = Color(0xFF1D2359);
@@ -161,7 +161,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
       await provider.cancelEvent(event.eventId!, reason);
 
       if (mounted) {
-        AlertHelpers.showSuccess(
+        SnackHelpers.showSuccess(
           context,
           'Event "${event.eventName}" has been cancelled successfully.',
         );
@@ -169,7 +169,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AlertHelpers.showError(context, 'Failed to cancel event: $e');
+        String msg = e.toString().replaceFirst('Exception: ', '').trim();
+        SnackHelpers.showError(context, msg);
       }
     }
   }
@@ -1858,7 +1859,6 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // ── Header ──────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
                     decoration: const BoxDecoration(
@@ -1916,13 +1916,11 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                     ),
                   ),
 
-                  // ── Body ────────────────────────────────────────────
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Info banner
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -1957,7 +1955,6 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                         ),
                         const SizedBox(height: 14),
 
-                        // Reason label
                         const Text(
                           'Cancellation Reason',
                           style: TextStyle(
@@ -1968,7 +1965,6 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
 
-                        // Reason text field
                         Container(
                           decoration: BoxDecoration(
                             color: _bg,
@@ -1998,7 +1994,6 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                           ),
                         ),
 
-                        // Error text
                         if (_fieldError != null) ...[
                           const SizedBox(height: 5),
                           Row(
@@ -2024,7 +2019,6 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                     ),
                   ),
 
-                  // ── Footer ──────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
                     decoration: const BoxDecoration(

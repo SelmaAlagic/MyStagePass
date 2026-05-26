@@ -23,5 +23,11 @@ namespace MyStagePass.WebAPI.Controllers
 		{
 			return await _reportService.GetMonthlyReportData(month, year);
 		}
+
+		[HttpGet("cancelled")]
+		public async Task<CancelledEventsReportDto> GetCancelled(int cityId)
+		{
+			return await _reportService.GetCancelledEventsReport(cityId);
+		}
 	}
 }

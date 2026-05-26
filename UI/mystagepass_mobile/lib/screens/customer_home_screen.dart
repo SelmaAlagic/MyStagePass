@@ -8,6 +8,7 @@ import '../widgets/notification_widget.dart';
 import '../utils/image_helpers.dart';
 import 'customer_my_events_screen.dart';
 import 'customer_upcoming_events_screen.dart';
+import 'dart:async';
 
 class CustomerHomeScreen extends StatefulWidget {
   final int userId;
@@ -20,6 +21,7 @@ class CustomerHomeScreen extends StatefulWidget {
 
 class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   bool _showNotifications = false;
+  Timer? _notificationTimer;
 
   @override
   void initState() {
@@ -32,8 +34,22 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
         context,
         listen: false,
       );
+      _notificationTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+        if (mounted) {
+          Provider.of<NotificationProvider>(
+            context,
+            listen: false,
+          ).refreshUnreadCount();
+        }
+      });
       notificationProvider.refreshUnreadCount();
     });
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    super.dispose();
   }
 
   void _toggleNotifications() {

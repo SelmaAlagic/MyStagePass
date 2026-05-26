@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MyStagePass.Model.Requests
 {
 	public class CustomerFavoriteEventInsertRequest
 	{
-		[Required]
+		[JsonIgnore]
 		public int CustomerID { get; set; }
 
 		[Required]

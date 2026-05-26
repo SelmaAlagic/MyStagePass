@@ -28,6 +28,9 @@ namespace MyStagePass.WebAPI.Controllers
 			return await base.Get(search);
 		}
 
+		[NonAction]
+		public override async Task<CustomerFavoriteEvent> Insert([FromBody] CustomerFavoriteEventInsertRequest request) => throw new UnauthorizedAccessException("Use /toggle/{eventId} instead.");
+
 		[HttpPost("toggle/{eventId}")]
 		public async Task<IActionResult> Toggle(int eventId)
 		{

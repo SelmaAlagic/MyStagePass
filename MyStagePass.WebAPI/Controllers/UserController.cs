@@ -22,11 +22,21 @@ namespace MyStagePass.WebAPI.Controllers
 			_currentUserService=currentUserService;
 		}
 
+		[HttpPut("{id}")]
+		public override async Task<User> Update(int id, [FromBody] UserUpdateRequest request)
+		{
+			var isAdmin = User.IsInRole(Roles.Admin);
+			if (!isAdmin && _currentUserService.GetUserId() != id)
+				throw new UnauthorizedAccessException("You can only update your own profile.");
+
+			return await base.Update(id, request);
+		}
+
 		[Authorize(Roles = Roles.Admin)]
 		[HttpDelete("deactivate/{id}")]
 		public override async Task<User> Delete(int id)
 		{
-			return await _service.Delete(id);
+			return await _userService.Delete(id);
 		}
 
 		[Authorize(Roles = Roles.Admin)]

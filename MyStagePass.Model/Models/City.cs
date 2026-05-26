@@ -8,6 +8,7 @@ namespace MyStagePass.Model.Models
         public string Name { get; set; }
         public int CountryID { get; set; }
         public virtual Country Country { get; set; } = null!;
+		public bool IsActive { get; set; } = true;
 		public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
 	}
 }

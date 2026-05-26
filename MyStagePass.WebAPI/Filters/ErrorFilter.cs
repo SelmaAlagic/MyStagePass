@@ -21,6 +21,11 @@ namespace MyStagePass.WebAPI.Filters
 				context.ModelState.AddModelError("error", context.Exception.Message);
 				context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 			}
+			else if (context.Exception is UnauthorizedAccessException) 
+			{
+				context.ModelState.AddModelError("error", context.Exception.Message);
+				context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden; 
+			}
 			else
 			{
 				_logger.LogError(context.Exception, "Unhandled exception");

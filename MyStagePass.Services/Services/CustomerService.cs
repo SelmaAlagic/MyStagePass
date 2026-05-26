@@ -33,14 +33,8 @@ namespace MyStagePass.Services.Services
 			entity.User.Password = PasswordHelper.GenerateHash(entity.User.Salt, insert.Password);
 		}
 
-		public override IQueryable<Customer> AddInclude(IQueryable<Customer> query, CustomerSearchObject? search = null)
+		public override IQueryable<Customer> AddFilter(IQueryable<Customer> query, CustomerSearchObject? search = null)
 		{
-			if (search.isUserIncluded == true)
-			{
-				query = query.Include("User");
-			}
-
-			query = query.Include(c => c.FavoriteEvents);
 
 			if (!string.IsNullOrWhiteSpace(search?.searchTerm))
 			{
@@ -49,6 +43,19 @@ namespace MyStagePass.Services.Services
 					(p.User.FirstName != null && p.User.FirstName.ToLower().StartsWith(term)) ||
 					(p.User.LastName != null && p.User.LastName.ToLower().StartsWith(term)));
 			}
+
+			return base.AddFilter(query, search);
+		}
+
+		public override IQueryable<Customer> AddInclude(IQueryable<Customer> query, CustomerSearchObject? search = null)
+		{
+			if (search.isUserIncluded == true)
+			{
+				query = query.Include("User");
+			}
+
+			query = query.Include(c => c.FavoriteEvents)
+				 .Include(c => c.User);
 
 			return base.AddInclude(query, search);
 		}

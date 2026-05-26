@@ -104,7 +104,7 @@ namespace MyStagePass.Services.Services
 			CreateMap<Model.Requests.EventUpdateRequest, Database.Event>().ForMember(dest => dest.PerformerID, opt => opt.Ignore()).ForMember(dest => dest.LocationID, opt => opt.Ignore())
 				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-			CreateMap<Database.Location, Model.Models.Location>().ForMember(dest => dest.Events, opt => opt.MapFrom(src => src.Events.Where(e => e.EventDate >= DateTime.UtcNow).ToList()));
+			CreateMap<Database.Location, Model.Models.Location>().ForMember(dest => dest.Events, opt => opt.MapFrom(src => src.Events.Where(e => e.EventDate >= DateTime.UtcNow && e.StatusID == Status.ApprovedID).ToList()));
 			CreateMap<LocationInsertRequest, Database.Location>();
 			CreateMap<LocationUpdateRequest, Database.Location>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
@@ -123,13 +123,21 @@ namespace MyStagePass.Services.Services
 			CreateMap<CustomerFavoriteEventInsertRequest, Database.CustomerFavoriteEvent>();
 
 			CreateMap<Database.City, Model.Models.City>();
+			CreateMap<CountryInsertRequest, Database.Country>();
+			CreateMap<CountryUpdateRequest, Database.Country>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
 			CreateMap<Database.Country, Model.Models.Country>();
+			CreateMap<CityInsertRequest, Database.City>();
+			CreateMap<CityUpdateRequest, Database.City>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 			CreateMap<Database.Notification, Model.Models.Notification>();
 			CreateMap<NotificationInsertRequest, Database.Notification>();
 
 			CreateMap<Database.Performer, Model.Models.Performer>().ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Genres.Select(pg => pg.Genre.Name).ToList()));
 			CreateMap<Database.Genre, Model.Models.Genre>().ForMember(dest => dest.Performers, opt => opt.MapFrom(src => src.Performers.Select(pg => pg.Performer.ArtistName).ToList()));
+			CreateMap<GenreInsertRequest, Database.Genre>();
+			CreateMap<GenreUpdateRequest, Database.Genre>()
+				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 		}
 	}
 }

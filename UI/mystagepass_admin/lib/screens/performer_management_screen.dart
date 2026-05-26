@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_admin/models/Genre/genre.dart';
+import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:provider/provider.dart';
 import '../models/Performer/performer.dart';
 import '../providers/performer_provider.dart';
-import '../providers/user_provider.dart';
 import 'performer_requests_screen.dart';
 import 'dart:async';
 import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
-import '../utils/alert_helpers.dart';
 
 const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
@@ -37,7 +37,6 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
   bool _isLoading = false;
   String _searchQuery = '';
   String? _statusFilter;
-
   int _currentPage = 1;
   int _totalPages = 1;
   int _totalCount = 0;
@@ -99,8 +98,6 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           params['IsApproved'] = 'true';
         } else if (_statusFilter == 'Rejected') {
           params['IsApproved'] = 'false';
-        } else if (_statusFilter == 'Pending') {
-          params['IsPending'] = 'true';
         }
       }
       final data = await provider.get(filter: params);
@@ -143,38 +140,6 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       transitionDuration: const Duration(milliseconds: 250),
       transitionsBuilder: (_, animation, __, child) =>
           FadeTransition(opacity: animation, child: child),
-    );
-  }
-
-  void _showDeactivateConfirm(Performer performer) {
-    final name =
-        performer.artistName ?? performer.user?.fullName ?? 'this performer';
-    AlertHelpers.showConfirmationAlert(
-      context,
-      'Deactivate Performer',
-      'Are you sure you want to deactivate "$name"? Their account will be deactivated immediately.',
-      confirmButtonText: 'Deactivate',
-      cancelButtonText: 'Cancel',
-      isDelete: true,
-      onConfirm: () async {
-        try {
-          final provider = Provider.of<UserProvider>(context, listen: false);
-          await provider.deactivate(performer.user!.userId!);
-          if (mounted) {
-            AlertHelpers.showSuccess(
-              context,
-              'Performer "$name" has been deactivated successfully.',
-            );
-            _fetchPerformers();
-          }
-        } catch (e) {
-          if (mounted)
-            AlertHelpers.showError(
-              context,
-              'Failed to deactivate performer: $e',
-            );
-        }
-      },
     );
   }
 
@@ -508,20 +473,21 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                                         );
 
                                         if (mounted) {
-                                          Navigator.pop(ctx);
-                                          AlertHelpers.showSuccess(
+                                          SnackHelpers.showSuccess(
                                             context,
-                                            'Performer successfully updated.',
+                                            'Performer updated successfully!',
                                           );
                                           _fetchPerformers();
                                         }
                                       } catch (e) {
                                         setModal(() => isSubmitting = false);
-                                        if (mounted)
-                                          AlertHelpers.showError(
-                                            context,
-                                            'Failed to update performer: $e',
-                                          );
+                                        if (mounted) {
+                                          String msg = e
+                                              .toString()
+                                              .replaceFirst('Exception: ', '')
+                                              .trim();
+                                          SnackHelpers.showError(context, msg);
+                                        }
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
@@ -1172,21 +1138,36 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
 
   Widget _buildActionsRow(Performer performer) {
     if (performer.isApproved != true) return const SizedBox.shrink();
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ActionIconBtn(
-          icon: Icons.edit_outlined,
-          color: _navyMid,
-          onTap: () => _showEditModal(performer),
-        ),
-        const SizedBox(width: 6),
-        _ActionIconBtn(
-          icon: Icons.block_rounded,
-          color: _red,
-          onTap: () => _showDeactivateConfirm(performer),
-        ),
-      ],
+
+    if (performer.user?.isActive == false) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: _red,
+            ),
+          ),
+          const SizedBox(width: 5),
+          const Text(
+            'Inactive',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: _red,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return _ActionIconBtn(
+      icon: Icons.edit_outlined,
+      color: _navyMid,
+      onTap: () => _showEditModal(performer),
     );
   }
 
@@ -1343,12 +1324,6 @@ class _StatusFilterDropdownState extends State<_StatusFilterDropdown> {
                         value: 'Rejected',
                         icon: Icons.cancel_rounded,
                         color: const Color(0xFFB91C1C),
-                      ),
-                      _dropdownOption(
-                        label: 'Pending',
-                        value: 'Pending',
-                        icon: Icons.schedule_rounded,
-                        color: _pendingFg,
                       ),
                     ],
                   ),
@@ -1595,6 +1570,198 @@ class _PagArrow extends StatelessWidget {
             icon,
             size: 18,
             color: enabled ? _t1 : _t2.withOpacity(0.5),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GenreFilterDropdown extends StatefulWidget {
+  final List<Genre> genres;
+  final String? value;
+  final ValueChanged<String?> onChanged;
+  const _GenreFilterDropdown({
+    required this.genres,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  State<_GenreFilterDropdown> createState() => _GenreFilterDropdownState();
+}
+
+class _GenreFilterDropdownState extends State<_GenreFilterDropdown> {
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlay;
+  bool _isOpen = false;
+
+  void _toggle() => _isOpen ? _close() : _open();
+
+  void _open() {
+    _overlay = _buildOverlay();
+    Overlay.of(context).insert(_overlay!);
+    setState(() => _isOpen = true);
+  }
+
+  void _close() {
+    _overlay?.remove();
+    _overlay = null;
+    if (mounted) setState(() => _isOpen = false);
+  }
+
+  OverlayEntry _buildOverlay() {
+    return OverlayEntry(
+      builder: (ctx) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _close,
+        child: Stack(
+          children: [
+            Positioned.fill(child: Container(color: Colors.transparent)),
+            CompositedTransformFollower(
+              link: _layerLink,
+              offset: const Offset(0, 42),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: 180,
+                  constraints: const BoxConstraints(maxHeight: 280),
+                  decoration: BoxDecoration(
+                    color: _white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: _border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _option(null, 'All Genres'),
+                        ...widget.genres.map(
+                          (g) => _option(g.name, g.name ?? ''),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _option(String? value, String label) {
+    final isSelected = widget.value == value;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      child: Material(
+        color: isSelected ? _bg : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          hoverColor: _bg,
+          onTap: () {
+            _close();
+            widget.onChanged(value);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.music_note_rounded,
+                  size: 14,
+                  color: isSelected ? _navyMid : _t2,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isSelected ? _t1 : _t2,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  const Icon(Icons.check_rounded, size: 14, color: _navyMid),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _overlay?.remove();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = widget.value != null;
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: _toggle,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            height: 38,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: _isOpen || isActive ? const Color(0xFFE8EDFF) : _bg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: _isOpen || isActive
+                    ? _navyMid.withOpacity(0.4)
+                    : _border,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.music_note_rounded,
+                  size: 14,
+                  color: isActive ? _navyMid : _t2,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  widget.value ?? 'Genre',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: _isOpen || isActive ? _navyMid : _t1,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                AnimatedRotation(
+                  turns: _isOpen ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 150),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 16,
+                    color: _isOpen || isActive ? _navyMid : _t2,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -16,6 +16,7 @@ namespace MyStagePass.Model.Requests
 
 		[MinLength(6)]
 		public string? Password { get; set; }
+
 		[MinLength(6)]
 		public string? PasswordConfirm { get; set; }
 		public string? Image { get; set; }

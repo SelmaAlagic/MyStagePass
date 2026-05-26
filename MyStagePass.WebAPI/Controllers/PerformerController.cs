@@ -41,14 +41,11 @@ namespace MyStagePass.WebAPI.Controllers
 		[HttpPut("{id}")]
 		public override async Task<Performer> Update(int id, [FromBody] PerformerUpdateRequest update)
 		{
-			return await _performerService.Update(id, update);
-		}
+			var isAdmin = User.IsInRole(Roles.Admin);
+			if (!isAdmin && _currentUserService.GetPerformerId() != id)
+				throw new UnauthorizedAccessException("You can only update your own profile.");
 
-		[Authorize(Roles = Roles.Admin)]
-		[HttpDelete("{id}")]
-		public override async Task<Performer> Delete(int id)
-		{
-			return await base.Delete(id);
+			return await _performerService.Update(id, update);
 		}
 
 		[Authorize(Roles = Roles.Performer)]

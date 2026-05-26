@@ -4,6 +4,7 @@ part 'recommendations.g.dart';
 
 @JsonSerializable()
 class Recommendations {
+  int? eventID;
   String? eventName;
   String? performerName;
   DateTime? eventDate;
@@ -13,6 +14,7 @@ class Recommendations {
   String? recommendationReason;
 
   Recommendations({
+    this.eventID,
     this.eventName,
     this.performerName,
     this.eventDate,

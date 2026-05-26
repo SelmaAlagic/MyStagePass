@@ -2,7 +2,9 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 using MyStagePass.Subscriber;
+using DotNetEnv;
 
+Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 var factory = new ConnectionFactory
 {
 	HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST"),

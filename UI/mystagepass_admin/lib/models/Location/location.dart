@@ -10,6 +10,7 @@ class Location {
   String? locationName;
   int? capacity;
   String? address;
+  bool? isActive;
   @JsonKey(name: 'cityID')
   int? cityId;
 
@@ -20,6 +21,7 @@ class Location {
     this.locationName,
     this.capacity,
     this.address,
+    this.isActive,
     this.cityId,
     this.city,
   });

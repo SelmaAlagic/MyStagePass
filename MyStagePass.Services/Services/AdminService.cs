@@ -17,23 +17,15 @@ namespace MyStagePass.Services.Services
 
 		public override async Task BeforeInsert(Admin entity, AdminInsertRequest insert)
 		{
-			if (string.IsNullOrWhiteSpace(insert.Password))
-				throw new UserException("Password is required.");
-
-			if (string.IsNullOrWhiteSpace(insert.PasswordConfirm))
-				throw new UserException("Password confirmation is required.");
 
 			if (insert.Password != insert.PasswordConfirm)
 				throw new UserException("Password and confirmation do not match.");
-
-			if (insert.Password.Length < 6)
-				throw new UserException("Password must be at least 6 characters long.");
 
 			if (await _context.Users.AnyAsync(u => u.Username == insert.Username))
 				throw new UserException($"Username '{insert.Username}' already exists.");
 
 			if (await _context.Users.AnyAsync(u => u.Email == insert.Email))
-				throw new UserException($"Email '{insert.Email}' is already registered.");
+				throw new UserException($"Email is already registered.");
 
 			User user = _mapper.Map<User>(insert);
 			entity.User = user;

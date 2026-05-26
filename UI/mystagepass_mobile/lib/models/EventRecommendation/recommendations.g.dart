@@ -8,6 +8,7 @@ part of 'recommendations.dart';
 
 Recommendations _$RecommendationsFromJson(Map<String, dynamic> json) =>
     Recommendations(
+      eventID: (json['eventID'] as num?)?.toInt(),
       eventName: json['eventName'] as String?,
       performerName: json['performerName'] as String?,
       eventDate: json['eventDate'] == null
@@ -23,6 +24,7 @@ Recommendations _$RecommendationsFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$RecommendationsToJson(Recommendations instance) =>
     <String, dynamic>{
+      'eventID': instance.eventID,
       'eventName': instance.eventName,
       'performerName': instance.performerName,
       'eventDate': instance.eventDate?.toIso8601String(),

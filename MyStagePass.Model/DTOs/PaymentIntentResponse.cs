@@ -2,8 +2,8 @@
 {
 	public class PaymentIntentResponse
 	{
+		public string PaymentIntentId { get; set; } = string.Empty;
 		public string ClientSecret { get; set; } = string.Empty;
-		public long AmountInKM { get; set; }
-		public long AmountInCents { get; set; }
+		public long AmountInEur { get; set; }
 	}
 }

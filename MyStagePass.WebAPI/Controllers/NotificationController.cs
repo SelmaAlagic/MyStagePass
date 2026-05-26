@@ -22,6 +22,14 @@ namespace MyStagePass.WebAPI.Controllers
 			_notificationService=service;
 			_currentUserService=currentUserService;
 		}
+		[NonAction]
+		public override async Task<Notification> Insert([FromBody] NotificationInsertRequest request) => throw new UnauthorizedAccessException("Not allowed.");
+
+		[NonAction]
+		public override async Task<Notification> Update(int id, [FromBody] NotificationUpdateRequest request) => throw new UnauthorizedAccessException("Not allowed.");
+
+		[NonAction]
+		public override async Task<Notification> Delete(int id)	=> throw new UnauthorizedAccessException("Not allowed.");
 
 		[HttpPut("mark-all-as-read")]
 		public async Task<IActionResult> MarkAllAsRead()
