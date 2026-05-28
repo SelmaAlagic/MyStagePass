@@ -55,10 +55,10 @@ namespace MyStagePass.WebAPI.Controllers
 
 		[Authorize(Roles = Roles.Admin)]
 		[HttpPut("{id}/status")]
-		public async Task<IActionResult> ApproveEvent(int id, [FromQuery] string newStatus)
+		public async Task<IActionResult> ApproveEvent(int id, [FromQuery] string newStatus, [FromQuery] string? reason = null)
 		{
 			var eventService = _service as IEventService;
-			await eventService.UpdateAdminStatus(id, newStatus);
+			await eventService.UpdateAdminStatus(id, newStatus, reason);
 			return Ok($"Event status updated to {newStatus} successfully!");
 		}
 

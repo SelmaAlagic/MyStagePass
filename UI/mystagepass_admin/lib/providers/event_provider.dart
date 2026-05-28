@@ -12,15 +12,18 @@ class EventProvider extends BaseProvider<Event> {
     return Event.fromJson(data);
   }
 
-  Future<void> updateStatus(int id, String status) async {
-    final url = Uri.parse(
-      '${getBaseUrl()}api/Event/$id/status?newStatus=$status',
-    );
+  Future<void> updateStatus(int id, String status, {String? reason}) async {
+    var urlStr = '${getBaseUrl()}api/Event/$id/status?newStatus=$status';
+    if (reason != null) {
+      urlStr += '&reason=${Uri.encodeComponent(reason)}';
+    }
+    final url = Uri.parse(urlStr);
+
     final headers = await createHeaders();
     final response = await http.put(url, headers: headers);
 
     if (!isValidResponse(response)) {
-      throw Exception("Greška pri izmjeni statusa");
+      throw Exception(response.body);
     }
   }
 
@@ -30,11 +33,10 @@ class EventProvider extends BaseProvider<Event> {
     );
 
     final headers = await createHeaders();
-
     final response = await http.put(url, headers: headers);
 
     if (!isValidResponse(response)) {
-      throw Exception("Greška pri otkazivanju eventa");
+      throw Exception(response.body);
     }
   }
 }

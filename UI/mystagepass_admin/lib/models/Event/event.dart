@@ -24,6 +24,8 @@ class Event {
   String? cancellationReason;
   int? approvedByAdminId;
   DateTime? statusChangedAt;
+  int? ticketsAvailable;
+  String? statusChangedByAdminName;
 
   Event({
     this.eventId,
@@ -42,6 +44,8 @@ class Event {
     this.cancellationReason,
     this.approvedByAdminId,
     this.statusChangedAt,
+    this.ticketsAvailable,
+    this.statusChangedByAdminName,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);

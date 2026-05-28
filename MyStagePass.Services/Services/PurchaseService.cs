@@ -47,29 +47,6 @@ namespace MyStagePass.Services.Services
 			return query;
 		}
 
-		public override async Task<Model.Models.Purchase> Delete(int id)
-		{
-			var entity = await _context.Purchases
-				.Include(p => p.Tickets)
-				.FirstOrDefaultAsync(p => p.PurchaseID == id);
-
-			if (entity == null)
-				throw new UserException("Purchase not found");
-
-			entity.IsDeleted = true;
-
-			if (entity.Tickets != null)
-			{
-				foreach (var ticket in entity.Tickets)
-				{
-					ticket.IsDeleted = true;
-				}
-			}
-
-			await _context.SaveChangesAsync();
-			return _mapper.Map<Model.Models.Purchase>(entity);
-		}
-
 		public override async Task<Model.Models.Purchase> Insert(PurchaseInsertRequest request)
 		{
 			var customer = await _context.Customers
@@ -155,10 +132,10 @@ namespace MyStagePass.Services.Services
 				await transaction.RollbackAsync();
 				throw; 
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				await transaction.RollbackAsync();
-				throw new UserException("Error during purchase: " + ex.Message);
+				throw new UserException("An unexpected error occurred. Please try again.");
 			}
 		}
 
@@ -216,6 +193,16 @@ namespace MyStagePass.Services.Services
 			var entity = await _context.Purchases
 				.FirstOrDefaultAsync(p => p.PaymentIntentId == paymentIntentId);
 			return entity == null ? null : _mapper.Map<Model.Models.Purchase>(entity);
+		}
+
+		public override Task<Model.Models.Purchase> Delete(int id)
+		{
+			throw new UserException("Purchases cannot be deleted.");
+		}
+
+		public override Task<Model.Models.Purchase> Update(int id, PurchaseUpdateRequest request)
+		{
+			throw new UserException("Purchases cannot be updated.");
 		}
 	}
 }

@@ -18,7 +18,6 @@ const _bg = Color(0xFFF4F6FB);
 const _border = Color(0xFFECEFF8);
 const _t1 = Color(0xFF1E2642);
 const _t2 = Color(0xFF8A93B2);
-const _blue100 = Color(0xFFE8EDFF);
 const _red = Color(0xFFEF4444);
 const _green = Color(0xFF22C55E);
 const _card = Color(0xFFFFFFFF);
@@ -31,6 +30,7 @@ class SidebarRoutes {
   static const reports = 'reports';
   static const referenceData = 'reference_data';
   static const genres = 'genres';
+  static const statuses = 'statuses';
 }
 
 class SidebarLayout extends StatefulWidget {
@@ -671,6 +671,13 @@ class _Sidebar extends StatelessWidget {
                     label: 'Genres',
                     isActive: activeRouteKey == SidebarRoutes.genres,
                     onTap: () => onNavigate(SidebarRoutes.genres),
+                  ),
+                  const SizedBox(height: 2),
+                  _NavItem(
+                    icon: Icons.flag_rounded,
+                    label: 'Statuses',
+                    isActive: activeRouteKey == SidebarRoutes.statuses,
+                    onTap: () => onNavigate(SidebarRoutes.statuses),
                   ),
                 ],
               ),

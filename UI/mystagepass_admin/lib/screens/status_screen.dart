@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mystagepass_admin/models/Genre/genre.dart';
-import 'package:mystagepass_admin/providers/genre_provider.dart';
-import 'package:mystagepass_admin/utils/snack_helpers.dart';
-import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
+import 'package:intl/intl.dart';
+import '../models/Status/status.dart';
+import '../models/Event/event.dart';
+import '../providers/status_provider.dart';
+import '../widgets/sidebar_layout.dart';
 
 const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
@@ -15,16 +16,24 @@ const _t1 = Color(0xFF1E2642);
 const _t2 = Color(0xFF8A93B2);
 const _red = Color(0xFFEF4444);
 const _green = Color(0xFF22C55E);
+const _amber = Color(0xFFF59E0B);
+const _blue = Color(0xFF3B82F6);
 
-class GenresScreen extends StatelessWidget {
+const _rowHeight = 50.0;
+const _pageSize = 5;
+const _headerHeight = 47.0;
+const _footerHeight = 48.0;
+const _panelBodyHeight = _rowHeight * _pageSize + _headerHeight + _footerHeight;
+
+class StatusScreen extends StatelessWidget {
   final int userId;
-  const GenresScreen({super.key, required this.userId});
+  const StatusScreen({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
     return SidebarLayout(
       userId: userId,
-      activeRouteKey: SidebarRoutes.genres,
+      activeRouteKey: SidebarRoutes.statuses,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(28, 24, 28, 40),
         child: Center(
@@ -35,7 +44,7 @@ class GenresScreen extends StatelessWidget {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 24),
-                const _GenresBody(),
+                const _StatusBody(),
               ],
             ),
           ),
@@ -49,16 +58,17 @@ class GenresScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Genres',
+          'Statuses',
           style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w800,
             color: _t1,
           ),
         ),
+        SizedBox(height: 4),
         SizedBox(height: 2),
         Text(
-          'Manage music genres and browse their associated performers.',
+          'View event statuses and browse their associated events.',
           style: TextStyle(fontSize: 13, color: _t2),
         ),
       ],
@@ -66,15 +76,15 @@ class GenresScreen extends StatelessWidget {
   }
 }
 
-class _GenresBody extends StatefulWidget {
-  const _GenresBody();
+class _StatusBody extends StatefulWidget {
+  const _StatusBody();
 
   @override
-  State<_GenresBody> createState() => _GenresBodyState();
+  State<_StatusBody> createState() => _StatusBodyState();
 }
 
-class _GenresBodyState extends State<_GenresBody> {
-  Genre? _selectedGenre;
+class _StatusBodyState extends State<_StatusBody> {
+  Status? _selectedStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -82,41 +92,40 @@ class _GenresBodyState extends State<_GenresBody> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: _GenresTable(
-            selectedGenre: _selectedGenre,
-            onGenreSelected: (g) => setState(() => _selectedGenre = g),
+          child: _StatusTable(
+            selectedStatus: _selectedStatus,
+            onStatusSelected: (s) => setState(() => _selectedStatus = s),
           ),
         ),
         const SizedBox(width: 16),
-        Expanded(child: _PerformersPanel(genre: _selectedGenre)),
+        Expanded(child: _EventsPanel(status: _selectedStatus)),
       ],
     );
   }
 }
 
-class _GenresTable extends StatefulWidget {
-  final Genre? selectedGenre;
-  final void Function(Genre) onGenreSelected;
+class _StatusTable extends StatefulWidget {
+  final Status? selectedStatus;
+  final void Function(Status) onStatusSelected;
 
-  const _GenresTable({
-    required this.selectedGenre,
-    required this.onGenreSelected,
+  const _StatusTable({
+    required this.selectedStatus,
+    required this.onStatusSelected,
   });
 
   @override
-  State<_GenresTable> createState() => _GenresTableState();
+  State<_StatusTable> createState() => _StatusTableState();
 }
 
-class _GenresTableState extends State<_GenresTable> {
-  final _provider = GenreProvider();
+class _StatusTableState extends State<_StatusTable> {
+  final _provider = StatusProvider();
 
-  List<Genre> _items = [];
+  List<Status> _items = [];
   bool _loading = true;
   int _currentPage = 1;
   int _totalPages = 1;
   int _totalCount = 0;
   bool _hasPrev = false, _hasNext = false;
-  final int _pageSize = 7;
 
   final TextEditingController _search = TextEditingController();
   String _searchQuery = '';
@@ -155,8 +164,7 @@ class _GenresTableState extends State<_GenresTable> {
         _hasNext = res.meta.hasNext;
         _loading = false;
       });
-    } catch (e) {
-      debugPrint('GenresTable _load error: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() => _loading = false);
     }
@@ -171,41 +179,6 @@ class _GenresTableState extends State<_GenresTable> {
         _currentPage = 1;
         _load();
       });
-    }
-  }
-
-  Future<void> _showAdd() async {
-    final nameCtrl = TextEditingController();
-
-    final result = await showDialog<String>(
-      context: context,
-      barrierColor: Colors.black.withOpacity(0.35),
-      builder: (ctx) => _GenreDialog(
-        title: 'Add Genre',
-        controller: nameCtrl,
-        onSave: () => Navigator.pop(ctx, nameCtrl.text.trim()),
-        onCancel: () => Navigator.pop(ctx),
-      ),
-    );
-
-    if (result == null || result.isEmpty) return;
-
-    try {
-      await _provider.insert({'name': result});
-
-      if (mounted) {
-        SnackHelpers.showSuccess(context, 'Genre added successfully!');
-      }
-
-      _currentPage = 1;
-      _load();
-    } catch (e) {
-      if (mounted) {
-        if (mounted) {
-          String msg = e.toString().replaceFirst('Exception: ', '').trim();
-          SnackHelpers.showError(context, msg);
-        }
-      }
     }
   }
 
@@ -232,9 +205,9 @@ class _GenresTableState extends State<_GenresTable> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Genres',
-                  style: const TextStyle(
+                const Text(
+                  'Statuses',
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: _t1,
@@ -312,43 +285,6 @@ class _GenresTableState extends State<_GenresTable> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _showAdd,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Container(
-                      height: 34,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: _navyMid,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _navy.withOpacity(0.2),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.add_rounded, size: 15, color: _white),
-                          SizedBox(width: 5),
-                          Text(
-                            'Add Genre',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: _white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -398,7 +334,7 @@ class _GenresTableState extends State<_GenresTable> {
                 ),
                 Expanded(
                   child: Text(
-                    'Genre Name',
+                    'Status Name',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -410,7 +346,7 @@ class _GenresTableState extends State<_GenresTable> {
                   width: 100,
                   child: Center(
                     child: Text(
-                      'Performers',
+                      'Events',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -425,20 +361,20 @@ class _GenresTableState extends State<_GenresTable> {
           if (_loading)
             _loadingWidget()
           else if (_items.isEmpty)
-            _emptyWidget('No genres found')
+            _emptyWidget('No statuses found')
           else
             ..._items.asMap().entries.map((e) {
               final idx = e.key;
               final item = e.value;
-              final performerCount = item.performers?.length ?? 0;
-              final isSelected = widget.selectedGenre?.genreId == item.genreId;
-              return _GenreRow(
+              final isSelected =
+                  widget.selectedStatus?.statusId == item.statusId;
+              return _StatusRow(
                 index: (_currentPage - 1) * _pageSize + idx + 1,
-                genre: item,
-                performerCount: performerCount,
+                status: item,
+                eventCount: item.events?.length ?? 0,
                 isEven: idx % 2 == 0,
                 isSelected: isSelected,
-                onTap: () => widget.onGenreSelected(item),
+                onTap: () => widget.onStatusSelected(item),
               );
             }),
           _PaginationFooter(
@@ -460,29 +396,46 @@ class _GenresTableState extends State<_GenresTable> {
   }
 }
 
-class _GenreRow extends StatefulWidget {
+class _StatusRow extends StatefulWidget {
   final int index;
-  final Genre genre;
-  final int performerCount;
+  final Status status;
+  final int eventCount;
   final bool isEven;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _GenreRow({
+  const _StatusRow({
     required this.index,
-    required this.genre,
-    required this.performerCount,
+    required this.status,
+    required this.eventCount,
     required this.isEven,
     required this.isSelected,
     required this.onTap,
   });
 
   @override
-  State<_GenreRow> createState() => _GenreRowState();
+  State<_StatusRow> createState() => _StatusRowState();
 }
 
-class _GenreRowState extends State<_GenreRow> {
+class _StatusRowState extends State<_StatusRow> {
   bool _hovered = false;
+
+  Color _dotColor(String? name) {
+    switch (name?.toLowerCase()) {
+      case 'approved':
+        return _green;
+      case 'pending':
+        return _amber;
+      case 'cancelled':
+        return _red;
+      case 'rejected':
+        return _red;
+      case 'sold out':
+        return _blue;
+      default:
+        return _t2;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -502,7 +455,7 @@ class _GenreRowState extends State<_GenreRow> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 120),
-          height: 50,
+          height: _rowHeight,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: bg,
@@ -530,15 +483,28 @@ class _GenreRowState extends State<_GenreRow> {
                 ),
               ),
               Expanded(
-                child: Text(
-                  widget.genre.name ?? 'N/A',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: widget.isSelected
-                        ? FontWeight.w700
-                        : FontWeight.w600,
-                    color: widget.isSelected ? _navyMid : _t1,
-                  ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _dotColor(widget.status.statusName),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 9),
+                    Text(
+                      widget.status.statusName ?? 'N/A',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: widget.isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
+                        color: widget.isSelected ? _navyMid : _t1,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
@@ -550,14 +516,12 @@ class _GenreRowState extends State<_GenreRow> {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: widget.isSelected
-                          ? _navyMid.withOpacity(0.15)
-                          : _navyMid.withOpacity(0.07),
+                      color: _navyMid.withOpacity(0.07),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${widget.performerCount}',
-                      style: TextStyle(
+                      '${widget.eventCount}',
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: _navyMid,
@@ -574,9 +538,41 @@ class _GenreRowState extends State<_GenreRow> {
   }
 }
 
-class _PerformersPanel extends StatelessWidget {
-  final Genre? genre;
-  const _PerformersPanel({required this.genre});
+class _EventsPanel extends StatefulWidget {
+  final Status? status;
+  const _EventsPanel({required this.status});
+
+  @override
+  State<_EventsPanel> createState() => _EventsPanelState();
+}
+
+class _EventsPanelState extends State<_EventsPanel> {
+  int _currentPage = 1;
+
+  @override
+  void didUpdateWidget(_EventsPanel old) {
+    super.didUpdateWidget(old);
+    if (old.status?.statusId != widget.status?.statusId) {
+      _currentPage = 1;
+    }
+  }
+
+  Color _dotColor(String? name) {
+    switch (name?.toLowerCase()) {
+      case 'approved':
+        return _green;
+      case 'pending':
+        return _amber;
+      case 'cancelled':
+        return _red;
+      case 'rejected':
+        return _red;
+      case 'sold out':
+        return _blue;
+      default:
+        return _t2;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -594,13 +590,15 @@ class _PerformersPanel extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: genre == null ? _buildEmpty() : _buildList(genre!),
+      child: widget.status == null
+          ? _buildEmpty()
+          : _buildContent(widget.status!),
     );
   }
 
   Widget _buildEmpty() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 24),
+    return SizedBox(
+      height: _panelBodyHeight + 56,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -620,7 +618,7 @@ class _PerformersPanel extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Select a genre',
+              'Select a status',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -629,7 +627,7 @@ class _PerformersPanel extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             const Text(
-              'Click on any genre from the list\nto view its performers here.',
+              'Click on any status from the list\nto view its events here.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: _t2, height: 1.5),
             ),
@@ -639,10 +637,31 @@ class _PerformersPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildList(Genre genre) {
-    final performers = genre.performers ?? [];
+  Widget _buildContent(Status status) {
+    final allEvents = status.events ?? [];
+    final totalCount = allEvents.length;
+    final totalPages = totalCount == 0 ? 1 : (totalCount / _pageSize).ceil();
+    final hasPrev = _currentPage > 1;
+    final hasNext = _currentPage < totalPages;
+
+    final safePage = _currentPage.clamp(1, totalPages);
+    if (safePage != _currentPage) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _currentPage = safePage);
+      });
+    }
+
+    final paged = allEvents
+        .skip((safePage - 1) * _pageSize)
+        .take(_pageSize)
+        .toList();
+
+    final from = totalCount == 0 ? 0 : (safePage - 1) * _pageSize + 1;
+    final to = (safePage - 1) * _pageSize + paged.length;
+
+    final headerColor = _dotColor(status.statusName);
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
@@ -662,27 +681,36 @@ class _PerformersPanel extends StatelessWidget {
                   color: Colors.white.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
-                  Icons.music_note_rounded,
-                  color: _white,
-                  size: 15,
-                ),
+                child: const Icon(Icons.event_rounded, color: _white, size: 15),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      genre.name ?? '',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: _white,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: headerColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 7),
+                        Text(
+                          status.statusName ?? '',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: _white,
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
-                      '${performers.length} performer${performers.length == 1 ? '' : 's'}',
+                      '$totalCount event${totalCount == 1 ? '' : 's'}',
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.white.withOpacity(0.6),
@@ -694,181 +722,164 @@ class _PerformersPanel extends StatelessWidget {
             ],
           ),
         ),
-        if (performers.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.person_off_rounded,
-                    size: 32,
-                    color: _t2.withOpacity(0.4),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'No performers in this genre',
-                    style: TextStyle(fontSize: 13, color: _t2),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          ...performers.asMap().entries.map((e) {
-            final idx = e.key;
-            final name = e.value;
-            final isEven = idx % 2 == 0;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-              decoration: BoxDecoration(
-                color: isEven ? _card : const Color(0xFFFAFBFF),
-                border: const Border(
-                  bottom: BorderSide(color: _border, width: 0.5),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: _navyMid.withOpacity(0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : '?',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: _navyMid,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: _t1,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _green.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: _green.withOpacity(0.2)),
-                    ),
-                    child: const Text(
-                      'Performer',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: _green,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-      ],
-    );
-  }
-}
-
-class _GenreDialog extends StatefulWidget {
-  final String title;
-  final TextEditingController controller;
-  final VoidCallback onSave;
-  final VoidCallback onCancel;
-
-  const _GenreDialog({
-    required this.title,
-    required this.controller,
-    required this.onSave,
-    required this.onCancel,
-  });
-
-  @override
-  State<_GenreDialog> createState() => _GenreDialogState();
-}
-
-class _GenreDialogState extends State<_GenreDialog> {
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 380),
-        child: Container(
-          decoration: BoxDecoration(
-            color: _white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.12),
-                blurRadius: 32,
-                offset: const Offset(0, 8),
-              ),
-            ],
+        Container(
+          height: _headerHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: const BoxDecoration(
+            color: _bg,
+            border: Border(bottom: BorderSide(color: _border)),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: const Row(
             children: [
-              _dialogHeader(
-                title: widget.title,
-                icon: Icons.music_note_rounded,
-                onCancel: widget.onCancel,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _fieldLabel('Genre Name *'),
-                      const SizedBox(height: 8),
-                      _validatedField(
-                        controller: widget.controller,
-                        hint: 'Enter genre name...',
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty)
-                            return 'Genre name is required';
-                          if (v.trim().length < 3)
-                            return 'Minimum 3 characters';
-                          return null;
-                        },
-                      ),
-                    ],
+              SizedBox(
+                width: 40,
+                child: Center(
+                  child: Text(
+                    '#',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: _t2,
+                    ),
                   ),
                 ),
               ),
-              _dialogFooter(
-                onCancel: widget.onCancel,
-                onSave: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    widget.onSave();
-                  }
-                },
+              Expanded(
+                child: Text(
+                  'Event Name',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _t2,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 130,
+                child: Center(
+                  child: Text(
+                    'Date',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: _t2,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
         ),
-      ),
+        SizedBox(
+          height: _rowHeight * _pageSize,
+          child: totalCount == 0
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.event_busy_rounded,
+                        size: 32,
+                        color: _t2.withOpacity(0.4),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'No events with this status',
+                        style: TextStyle(fontSize: 13, color: _t2),
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
+                  children: [
+                    ...paged.asMap().entries.map((e) {
+                      final idx = e.key;
+                      final event = e.value;
+                      final isEven = idx % 2 == 0;
+                      final globalIdx = (safePage - 1) * _pageSize + idx + 1;
+                      final dateStr = event.eventDate != null
+                          ? DateFormat('dd MMM yyyy').format(event.eventDate!)
+                          : 'N/A';
+
+                      return Container(
+                        height: _rowHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: isEven ? _card : const Color(0xFFFAFBFF),
+                          border: const Border(
+                            bottom: BorderSide(color: _border, width: 0.5),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 40,
+                              child: Center(
+                                child: Text(
+                                  '$globalIdx',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: _t2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                event.eventName ?? 'N/A',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: _t1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 130,
+                              child: Center(
+                                child: Text(
+                                  dateStr,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: _t2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    ...List.generate(
+                      _pageSize - paged.length,
+                      (i) => Container(
+                        height: _rowHeight,
+                        decoration: BoxDecoration(
+                          color: (paged.length + i) % 2 == 0
+                              ? _card
+                              : const Color(0xFFFAFBFF),
+                          border: const Border(
+                            bottom: BorderSide(color: _border, width: 0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+        _PaginationFooter(
+          from: from,
+          to: to,
+          total: totalCount,
+          currentPage: safePage,
+          totalPages: totalPages,
+          hasPrev: hasPrev,
+          hasNext: hasNext,
+          onPage: (p) => setState(() => _currentPage = p),
+        ),
+      ],
     );
   }
 }
@@ -891,13 +902,14 @@ class _PaginationFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (total == 0) return const SizedBox.shrink();
+    if (total == 0) return const SizedBox(height: _footerHeight);
     int startPage = (currentPage - 2).clamp(1, totalPages);
     int endPage = (startPage + 4).clamp(1, totalPages);
     if (endPage - startPage < 4) startPage = (endPage - 4).clamp(1, totalPages);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      height: _footerHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: _border)),
       ),
@@ -997,178 +1009,17 @@ class _PagArrow extends StatelessWidget {
   }
 }
 
-Widget _dialogHeader({
-  required String title,
-  required IconData icon,
-  required VoidCallback onCancel,
-}) {
-  return Container(
-    padding: const EdgeInsets.fromLTRB(20, 18, 16, 18),
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        colors: [_navy, _navyMid],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    child: Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(7),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: _white, size: 16),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: _white,
-          ),
-        ),
-        const Spacer(),
-        GestureDetector(
-          onTap: onCancel,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: const Icon(Icons.close_rounded, color: _white, size: 14),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _dialogFooter({
-  required VoidCallback onCancel,
-  required VoidCallback onSave,
-}) {
-  return Container(
-    padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-    decoration: const BoxDecoration(
-      color: _bg,
-      border: Border(top: BorderSide(color: _border)),
-      borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-    ),
-    child: Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: onCancel,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              side: const BorderSide(color: _border, width: 1.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              foregroundColor: _t2,
-            ),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: onSave,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _navyMid,
-              foregroundColor: _white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              'Save',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _fieldLabel(String text) => Text(
-  text,
-  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _t2),
+Widget _loadingWidget() => const Center(
+  child: CircularProgressIndicator(color: _navy, strokeWidth: 2),
 );
 
-Widget _validatedField({
-  required TextEditingController controller,
-  required String hint,
-  required String? Function(String?) validator,
-}) {
-  return TextFormField(
-    controller: controller,
-    autofocus: true,
-    cursorColor: _navy,
-    cursorWidth: 1.0,
-    validator: validator,
-    style: const TextStyle(fontSize: 14, color: _t1),
-    decoration: InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: _t2),
-      filled: true,
-      fillColor: _bg,
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: _border),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: _border),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: _navyMid, width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: _red),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: _red, width: 1.5),
-      ),
-      errorStyle: const TextStyle(fontSize: 11, color: _red),
-    ),
-  );
-}
-
-Widget _loadingWidget() => const Padding(
-  padding: EdgeInsets.symmetric(vertical: 48),
-  child: Center(child: CircularProgressIndicator(color: _navy, strokeWidth: 2)),
-);
-
-Widget _emptyWidget(String message) => Padding(
-  padding: const EdgeInsets.symmetric(vertical: 48),
-  child: Center(
-    child: Column(
-      children: [
-        Icon(Icons.inbox_rounded, size: 32, color: _t2.withOpacity(0.4)),
-        const SizedBox(height: 10),
-        Text(message, style: const TextStyle(fontSize: 13, color: _t2)),
-      ],
-    ),
+Widget _emptyWidget(String message) => Center(
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(Icons.inbox_rounded, size: 32, color: _t2.withOpacity(0.4)),
+      const SizedBox(height: 10),
+      Text(message, style: const TextStyle(fontSize: 13, color: _t2)),
+    ],
   ),
 );

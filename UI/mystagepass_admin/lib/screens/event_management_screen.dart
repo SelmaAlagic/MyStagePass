@@ -472,46 +472,25 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
       ),
       child: Row(
         children: [
-          _th('#', width: 40),
-          _th('Performer/Event', flex: 3),
-          _th('Date', width: 130),
-          _th('Location', flex: 2),
-          _th('Tickets Sold', width: 110),
-          SizedBox(
-            width: 150,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Status',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _t2,
-                  ),
-                ),
-                const SizedBox(width: 6),
-              ],
-            ),
-          ),
+          SizedBox(width: 36, child: _thLabel('#')),
+          Expanded(flex: 2, child: _thLabel('Performer/Event')),
+          Expanded(flex: 2, child: _thLabel('Date')),
+          Expanded(flex: 3, child: _thLabel('Location')),
+          Expanded(flex: 2, child: Center(child: _thLabel('Tickets Sold'))),
+          Expanded(flex: 2, child: Center(child: _thLabel('Status'))),
         ],
       ),
     );
   }
 
-  Widget _th(String label, {int? flex, double? width}) {
-    final w = Text(
+  Widget _thLabel(String label) {
+    return Text(
       label,
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: _t2,
       ),
-    );
-    if (flex != null) return Expanded(flex: flex, child: w);
-    return SizedBox(
-      width: width,
-      child: Center(child: w),
     );
   }
 
@@ -535,7 +514,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           child: Row(
             children: [
               SizedBox(
-                width: 40,
+                width: 36,
                 child: Text(
                   '$number',
                   style: const TextStyle(
@@ -546,7 +525,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                 ),
               ),
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -569,26 +548,23 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                   ],
                 ),
               ),
-
-              SizedBox(
-                width: 130,
-                child: Center(
-                  child: Text(
-                    dateStr,
-                    style: const TextStyle(fontSize: 13, color: _t1),
-                  ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  dateStr,
+                  style: const TextStyle(fontSize: 13, color: _t1),
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Text(
                   fullLocation,
                   style: const TextStyle(fontSize: 13, color: _t2),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              SizedBox(
-                width: 110,
+              Expanded(
+                flex: 2,
                 child: Center(
                   child: Text(
                     '${event.ticketsSold ?? 0}',
@@ -600,8 +576,8 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 150,
+              Expanded(
+                flex: 2,
                 child: Center(
                   child: _buildStatusBadge(isUpcoming, isCancelled),
                 ),
@@ -616,7 +592,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   Widget _buildStatusBadge(bool isUpcoming, bool isCancelled) {
     Color fg, bg, border;
     String label;
-    IconData dotOrIcon;
 
     if (isCancelled) {
       fg = const Color(0xFFB91C1C);
@@ -778,82 +753,63 @@ class _HoverRowState extends State<_HoverRow> {
   }
 }
 
-class EventDetailDialog extends StatelessWidget {
+class _EventDetailDialog extends StatelessWidget {
   final Event event;
-  final String mode;
-  final VoidCallback? onCancel;
-  final VoidCallback? onApprove;
-  final VoidCallback? onReject;
-
-  const EventDetailDialog({
-    super.key,
-    required this.event,
-    this.mode = 'view',
-    this.onCancel,
-    this.onApprove,
-    this.onReject,
-  });
+  const _EventDetailDialog({required this.event});
 
   @override
   Widget build(BuildContext context) {
-    final isUpcoming = event.eventDate?.isAfter(DateTime.now()) ?? false;
     final isCancelled = event.status?.statusName?.toLowerCase() == 'cancelled';
-    final isPast = !isUpcoming;
-
+    final isUpcoming = event.eventDate?.isAfter(DateTime.now()) ?? false;
     final dateStr = event.eventDate != null
-        ? DateFormat('dd MMM yyyy – HH:mm').format(event.eventDate!)
+        ? DateFormat('dd MMM yyyy · HH:mm').format(event.eventDate!)
         : 'N/A';
     final loc = event.location?.locationName ?? event.locationName ?? 'N/A';
     final city = event.location?.city?.name ?? '';
-    final fullLocation = city.isNotEmpty ? '$loc, $city' : loc;
-
+    final fullLoc = city.isNotEmpty ? '$loc, $city' : loc;
     final performer = event.performer;
     final user = performer?.user;
     final hasImage = user?.image != null && user!.image!.isNotEmpty;
     final initials = _initials(user?.firstName, user?.lastName);
     final genres = performer?.genres ?? [];
     final rating = performer?.averageRating;
-
-    final email = performer?.user?.email;
-    final phone = performer?.user?.phoneNumber;
-
-    final statusName = event.status?.statusName?.toLowerCase() ?? 'pending';
-    final isRejected = statusName == 'rejected';
+    final approvedBy = event.statusChangedByAdminName;
+    final cancelReason = event.cancellationReason;
 
     return Dialog(
       backgroundColor: _white,
       surfaceTintColor: _white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
+        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 620),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+              padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [_navy, _navyMid],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(7),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                     ),
                     child: const Icon(
                       Icons.event_rounded,
                       color: _white,
-                      size: 17,
+                      size: 15,
                     ),
                   ),
-                  const SizedBox(width: 11),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -861,84 +817,101 @@ class EventDetailDialog extends StatelessWidget {
                         Text(
                           event.eventName ?? 'Event Details',
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 14,
                             fontWeight: FontWeight.w800,
                             color: _white,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        Text(
-                          performer?.artistName ?? '',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.white.withOpacity(0.5),
+                        if (performer?.artistName?.isNotEmpty == true)
+                          Text(
+                            performer!.artistName!,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white.withOpacity(0.55),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
+                  if (isCancelled) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _red.withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'CANCELLED',
+                        style: TextStyle(
+                          color: _white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 28,
-                      height: 28,
+                      width: 26,
+                      height: 26,
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(7),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Icon(
                         Icons.close_rounded,
                         color: _white,
-                        size: 14,
+                        size: 13,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (performer != null) ...[
-                      _sectionTitle('Performer'),
-                      const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF4F6FB),
-                          borderRadius: BorderRadius.circular(12),
+                          color: _bg,
+                          borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: _border),
                         ),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 52,
-                              height: 52,
+                              width: 42,
+                              height: 42,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                border: Border.all(color: _border, width: 2),
+                                border: Border.all(color: _border, width: 1.5),
                               ),
                               child: ClipOval(
                                 child: hasImage
-                                    ? ClipOval(
-                                        child: ImageHelpers.getImage(
-                                          user!.image!,
-                                          height: 52,
-                                          width: 52,
-                                        ),
+                                    ? ImageHelpers.getImage(
+                                        user!.image!,
+                                        height: 42,
+                                        width: 42,
                                       )
                                     : Container(
-                                        color: _navyMid.withOpacity(0.12),
+                                        color: _navyMid.withOpacity(0.1),
                                         child: Center(
                                           child: Text(
                                             initials,
                                             style: const TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w700,
                                               color: _navyMid,
                                             ),
@@ -947,7 +920,7 @@ class EventDetailDialog extends StatelessWidget {
                                       ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -958,17 +931,19 @@ class EventDetailDialog extends StatelessWidget {
                                         child: Text(
                                           performer.artistName ?? 'N/A',
                                           style: const TextStyle(
-                                            fontSize: 14,
+                                            fontSize: 13,
                                             fontWeight: FontWeight.w700,
                                             color: _t1,
                                           ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      if (rating != null)
+                                      if (rating != null) ...[
+                                        const SizedBox(width: 6),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 3,
+                                            horizontal: 6,
+                                            vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFFFF8E1),
@@ -984,14 +959,14 @@ class EventDetailDialog extends StatelessWidget {
                                             children: [
                                               const Icon(
                                                 Icons.star_rounded,
-                                                size: 12,
+                                                size: 11,
                                                 color: Color(0xFFF59E0B),
                                               ),
-                                              const SizedBox(width: 3),
+                                              const SizedBox(width: 2),
                                               Text(
                                                 rating.toStringAsFixed(1),
                                                 style: const TextStyle(
-                                                  fontSize: 11,
+                                                  fontSize: 10,
                                                   fontWeight: FontWeight.w700,
                                                   color: Color(0xFF92400E),
                                                 ),
@@ -999,66 +974,51 @@ class EventDetailDialog extends StatelessWidget {
                                             ],
                                           ),
                                         ),
+                                      ],
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
-                                  if (email != null && email.isNotEmpty)
-                                    _infoChip(Icons.email_outlined, email),
-                                  if (phone != null && phone.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    _infoChip(Icons.phone_outlined, phone),
-                                  ],
-                                  if (genres.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                    Wrap(
-                                      spacing: 5,
-                                      runSpacing: 4,
-                                      children: genres
-                                          .take(4)
-                                          .map(
-                                            (g) => Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 2,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: _navyMid.withOpacity(
-                                                  0.08,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                border: Border.all(
-                                                  color: _navyMid.withOpacity(
-                                                    0.2,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                g,
-                                                style: const TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: _navyMid,
-                                                ),
-                                              ),
+                                  if (user?.email?.isNotEmpty == true) ...[
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.email_outlined,
+                                          size: 11,
+                                          color: _t2,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            user!.email!,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: _t2,
                                             ),
-                                          )
-                                          .toList(),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                  if (performer.bio != null &&
-                                      performer.bio!.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      performer.bio!,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: _t2,
-                                        height: 1.5,
-                                      ),
+                                  if (user?.phoneNumber?.isNotEmpty ==
+                                      true) ...[
+                                    const SizedBox(height: 1),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.phone_outlined,
+                                          size: 11,
+                                          color: _t2,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          user!.phoneNumber!,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: _t2,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ],
@@ -1067,61 +1027,110 @@ class EventDetailDialog extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
-
-                    _sectionTitle('Event Info'),
-                    const SizedBox(height: 8),
-                    _detailBlock([
-                      _detailRow(
-                        Icons.calendar_today_rounded,
-                        'Date & Time',
-                        dateStr,
-                      ),
-                      _detailRow(
-                        Icons.location_on_rounded,
-                        'Location',
-                        fullLocation,
-                      ),
-                      _detailRow(
-                        Icons.confirmation_number_rounded,
-                        'Tickets Sold',
-                        '${event.ticketsSold ?? 0}',
-                      ),
-                      if (event.createdAt != null)
-                        _detailRow(
-                          Icons.access_time_rounded,
-                          'Created',
-                          DateFormat('dd MMM yyyy').format(event.createdAt!),
+                      if (genres.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: genres
+                              .take(5)
+                              .map(
+                                (g) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _navyMid.withOpacity(0.07),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: _navyMid.withOpacity(0.18),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    g,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: _navyMid,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
-                    ]),
-
-                    const SizedBox(height: 16),
-
-                    _sectionTitle('Ticket Pricing'),
-                    const SizedBox(height: 8),
+                      ],
+                      const SizedBox(height: 12),
+                    ],
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              _infoTile(
+                                icon: Icons.calendar_today_rounded,
+                                label: 'Date & Time',
+                                value: dateStr,
+                              ),
+                              const SizedBox(height: 6),
+                              _infoTile(
+                                icon: Icons.location_on_rounded,
+                                iconColor: _red,
+                                label: 'Location',
+                                value: fullLoc,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              _infoTile(
+                                icon: Icons.confirmation_number_rounded,
+                                iconColor: _navyMid,
+                                label: 'Tickets Sold',
+                                value: '${event.ticketsSold ?? 0}',
+                              ),
+                              if (event.createdAt != null) ...[
+                                const SizedBox(height: 6),
+                                _infoTile(
+                                  icon: Icons.access_time_rounded,
+                                  label: 'Created',
+                                  value: DateFormat(
+                                    'dd MMM yyyy',
+                                  ).format(event.createdAt!),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
-                          child: _priceCard(
+                          child: _priceChipCard(
                             'Regular',
                             event.regularPrice,
                             Icons.confirmation_number_outlined,
                             const Color(0xFF3B82F6),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Expanded(
-                          child: _priceCard(
+                          child: _priceChipCard(
                             'VIP',
                             event.vipPrice,
                             Icons.star_rounded,
                             const Color(0xFFF59E0B),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Expanded(
-                          child: _priceCard(
+                          child: _priceChipCard(
                             'Premium',
                             event.premiumPrice,
                             Icons.workspace_premium_rounded,
@@ -1130,45 +1139,16 @@ class EventDetailDialog extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (isCancelled) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: _red.withOpacity(0.06),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: _red.withOpacity(0.25)),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.info_rounded, color: _red, size: 16),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'This event has been cancelled. All ticket holders have been notified and refunds have been processed.',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: _red,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    const SizedBox(height: 12),
+                    _buildStatusBanner(
+                      isCancelled,
+                      isUpcoming,
+                      approvedBy,
+                      cancelReason,
+                    ),
                   ],
                 ),
               ),
-            ),
-
-            _buildFooterButtons(
-              context,
-              isUpcoming,
-              isCancelled,
-              isPast,
-              isRejected,
-              statusName,
             ),
           ],
         ),
@@ -1176,236 +1156,164 @@ class EventDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterButtons(
-    BuildContext context,
-    bool isUpcoming,
+  Widget _buildStatusBanner(
     bool isCancelled,
-    bool isPast,
-    bool isRejected,
-    String statusName,
+    bool isUpcoming,
+    String? approvedBy,
+    String? cancelReason,
   ) {
-    if (mode == 'cancel' && isUpcoming && !isCancelled && onCancel != null) {
-      return Container(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
-        decoration: const BoxDecoration(
-          color: Color(0xFFF4F6FB),
-          border: Border(top: BorderSide(color: _border)),
-        ),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: onCancel,
-            icon: const Icon(Icons.cancel_outlined, size: 16),
-            label: const Text(
-              'Cancel Event',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _red,
-              foregroundColor: _white,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+    if (isCancelled) {
+      final lines = StringBuffer(
+        'This event has been cancelled. All ticket holders have been notified and refunds processed.',
+      );
+      if (approvedBy != null && approvedBy.isNotEmpty)
+        lines.write('\n\nCancelled by: $approvedBy');
+      if (cancelReason != null && cancelReason.isNotEmpty)
+        lines.write('\nReason: $cancelReason');
+      return _noticeBanner(
+        icon: Icons.cancel_rounded,
+        color: _red,
+        text: lines.toString(),
+      );
+    }
+    if (isUpcoming) {
+      final lines = StringBuffer('Approved');
+      if (approvedBy != null && approvedBy.isNotEmpty)
+        lines.write(' by: $approvedBy');
+      return _noticeBanner(
+        icon: Icons.check_circle_rounded,
+        color: _green,
+        text: lines.toString(),
+      );
+    }
+    return _noticeBanner(
+      icon: Icons.history_rounded,
+      color: _t2,
+      text: 'This event has ended.',
+    );
+  }
+
+  Widget _noticeBanner({
+    required IconData icon,
+    required Color color,
+    required String text,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: color.withOpacity(0.22)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 11, color: color, height: 1.45),
             ),
           ),
-        ),
-      );
-    }
+        ],
+      ),
+    );
+  }
 
-    if (mode == 'approve' && !isPast) {
-      return Container(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
-        decoration: const BoxDecoration(
-          color: Color(0xFFF4F6FB),
-          border: Border(top: BorderSide(color: _border)),
-        ),
-        child: Row(
-          children: [
-            if (onReject != null && statusName == 'pending')
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onReject,
-                  icon: const Icon(Icons.close_rounded, size: 15),
-                  label: const Text(
-                    'Reject',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: _red,
-                    side: BorderSide(color: _red.withOpacity(0.4)),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+  Widget _infoTile({
+    required IconData icon,
+    Color? iconColor,
+    required String label,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 13, color: iconColor ?? _navyMid.withOpacity(0.6)),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: _t2,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-            if (onReject != null && statusName == 'pending')
-              const SizedBox(width: 10),
-            if (onApprove != null)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: onApprove,
-                  icon: Icon(
-                    isRejected ? Icons.restore_rounded : Icons.check_rounded,
-                    size: 15,
+                const SizedBox(height: 1),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _t1,
                   ),
-                  label: Text(
-                    isRejected ? 'Reactivate' : 'Approve',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _green,
-                    foregroundColor: _white,
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _priceChipCard(String label, int? price, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                    color: color.withOpacity(0.8),
                   ),
                 ),
-              ),
-          ],
-        ),
-      );
-    }
-
-    return const SizedBox.shrink();
+                Text(
+                  price != null ? '$price KM' : 'N/A',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _initials(String? first, String? last) {
     final f = (first?.isNotEmpty == true) ? first![0].toUpperCase() : '';
     final l = (last?.isNotEmpty == true) ? last![0].toUpperCase() : '';
     return '$f$l'.isEmpty ? '?' : '$f$l';
-  }
-
-  Widget _sectionTitle(String title) {
-    return Row(
-      children: [
-        Container(
-          width: 3,
-          height: 13,
-          decoration: BoxDecoration(
-            color: _navyMid,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 7),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: _t1,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _infoChip(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 12, color: _t2),
-        const SizedBox(width: 5),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 11, color: _t2),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _detailBlock(List<Widget> rows) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F6FB),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _border),
-      ),
-      child: Column(children: rows),
-    );
-  }
-
-  Widget _detailRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: _navyMid.withOpacity(0.7)),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: _t2,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: _t1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _priceCard(String label, int? price, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            price != null ? '\$$price' : 'N/A',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EventDetailDialog extends StatelessWidget {
-  final Event event;
-  const _EventDetailDialog({required this.event});
-
-  @override
-  Widget build(BuildContext context) {
-    return EventDetailDialog(event: event, mode: 'view');
   }
 }
 

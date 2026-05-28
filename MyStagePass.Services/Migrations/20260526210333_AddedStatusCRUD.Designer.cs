@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyStagePass.Services.Database;
 
@@ -11,9 +12,11 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    partial class MyStagePassDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526210333_AddedStatusCRUD")]
+    partial class AddedStatusCRUD
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -490,10 +493,9 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 1,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 1, 15, 14, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "First solo concert of the rising pop artist",
-                            EventDate = new DateTime(2026, 7, 10, 20, 0, 0, 0, DateTimeKind.Unspecified),
+                            EventDate = new DateTime(2026, 5, 10, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Debut Concert",
                             LocationID = 2,
                             PerformerID = 2,
@@ -501,7 +503,6 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 25,
-                            StatusChangedAt = new DateTime(2025, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 2100,
                             TotalScore = 0,
@@ -511,8 +512,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 2,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Location unavailable due to technical issues.",
                             CreatedAt = new DateTime(2024, 3, 10, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Summer performance at Tuzla Festival",
                             EventDate = new DateTime(2025, 7, 22, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -520,13 +519,12 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 5,
                             PerformerID = 2,
                             PremiumPrice = 120,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.63f,
+                            RatingCount = 89,
                             RegularPrice = 30,
-                            StatusChangedAt = new DateTime(2024, 6, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 4,
                             TicketsSold = 5200,
-                            TotalScore = 0,
+                            TotalScore = 412,
                             TotalTickets = 7000,
                             VipPrice = 70
                         },
@@ -571,8 +569,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 5,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2025, 2, 20, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Summer open-air concert",
                             EventDate = new DateTime(2026, 7, 1, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -580,21 +576,18 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 7,
                             PerformerID = 4,
                             PremiumPrice = 160,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.7f,
+                            RatingCount = 234,
                             RegularPrice = 35,
-                            StatusChangedAt = new DateTime(2025, 3, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 11800,
-                            TotalScore = 0,
+                            TotalScore = 1100,
                             TotalTickets = 12000,
                             VipPrice = 80
                         },
                         new
                         {
                             EventID = 6,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2024, 9, 1, 15, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "Romantic evening with the most beautiful ballads",
                             EventDate = new DateTime(2025, 7, 5, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -602,20 +595,18 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 1,
                             PerformerID = 4,
                             PremiumPrice = 160,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.62f,
+                            RatingCount = 187,
                             RegularPrice = 35,
-                            StatusChangedAt = new DateTime(2024, 5, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 14300,
-                            TotalScore = 0,
+                            TotalScore = 865,
                             TotalTickets = 15000,
                             VipPrice = 80
                         },
                         new
                         {
                             EventID = 7,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2024, 4, 10, 9, 45, 0, 0, DateTimeKind.Unspecified),
                             Description = "Unique concert near the Old Bridge",
                             EventDate = new DateTime(2026, 4, 22, 20, 30, 0, 0, DateTimeKind.Unspecified),
@@ -626,8 +617,7 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 4.5f,
                             RatingCount = 168,
                             RegularPrice = 30,
-                            StatusChangedAt = new DateTime(2024, 5, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
-                            StatusID = 2,
+                            StatusID = 4,
                             TicketsSold = 8900,
                             TotalScore = 756,
                             TotalTickets = 9000,
@@ -636,8 +626,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 8,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Insufficient ticket sales, event not viable.",
                             CreatedAt = new DateTime(2025, 12, 5, 11, 20, 0, 0, DateTimeKind.Unspecified),
                             Description = "Greatest hits concert",
                             EventDate = new DateTime(2026, 12, 18, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -648,7 +636,6 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 30,
-                            StatusChangedAt = new DateTime(2025, 12, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 4,
                             TicketsSold = 3250,
                             TotalScore = 0,
@@ -658,7 +645,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 9,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2024, 5, 15, 13, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Evening of greatest folk-pop hits",
                             EventDate = new DateTime(2025, 4, 12, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -669,7 +655,6 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 4.55f,
                             RatingCount = 312,
                             RegularPrice = 25,
-                            StatusChangedAt = new DateTime(2024, 6, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 17600,
                             TotalScore = 1420,
@@ -679,8 +664,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 10,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Venue permit revoked by city authorities.",
                             CreatedAt = new DateTime(2025, 8, 20, 10, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "Love songs and romantic ballads",
                             EventDate = new DateTime(2026, 8, 8, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -688,13 +671,12 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 3,
                             PerformerID = 5,
                             PremiumPrice = 120,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.56f,
+                            RatingCount = 156,
                             RegularPrice = 25,
-                            StatusChangedAt = new DateTime(2025, 9, 1, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 4,
                             TicketsSold = 10900,
-                            TotalScore = 0,
+                            TotalScore = 712,
                             TotalTickets = 12000,
                             VipPrice = 60
                         },
@@ -720,7 +702,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 12,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2026, 2, 28, 14, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Special guest at EXIT Festival",
                             EventDate = new DateTime(2027, 7, 7, 23, 0, 0, 0, DateTimeKind.Unspecified),
@@ -728,20 +709,18 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 29,
                             PerformerID = 5,
                             PremiumPrice = 250,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.64f,
+                            RatingCount = 278,
                             RegularPrice = 45,
-                            StatusChangedAt = new DateTime(2026, 3, 10, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 35000,
-                            TotalScore = 0,
+                            TotalScore = 1290,
                             TotalTickets = 40000,
                             VipPrice = 120
                         },
                         new
                         {
                             EventID = 13,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 11, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Evening of jazz and soul music",
                             EventDate = new DateTime(2026, 6, 5, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -752,7 +731,6 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 30,
-                            StatusChangedAt = new DateTime(2025, 11, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 1850,
                             TotalScore = 0,
@@ -762,7 +740,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 14,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 6, 15, 12, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "Unique vocal performance with band",
                             EventDate = new DateTime(2026, 11, 18, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -770,21 +747,18 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 26,
                             PerformerID = 6,
                             PremiumPrice = 110,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.7f,
+                            RatingCount = 67,
                             RegularPrice = 25,
-                            StatusChangedAt = new DateTime(2025, 7, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 2800,
-                            TotalScore = 0,
+                            TotalScore = 315,
                             TotalTickets = 3000,
                             VipPrice = 60
                         },
                         new
                         {
                             EventID = 15,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2024, 4, 5, 10, 45, 0, 0, DateTimeKind.Unspecified),
                             Description = "Traditional folk music night",
                             EventDate = new DateTime(2025, 9, 28, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -792,13 +766,12 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 11,
                             PerformerID = 7,
                             PremiumPrice = 100,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.59f,
+                            RatingCount = 145,
                             RegularPrice = 20,
-                            StatusChangedAt = new DateTime(2024, 6, 10, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 8200,
-                            TotalScore = 0,
+                            TotalScore = 665,
                             TotalTickets = 10000,
                             VipPrice = 50
                         },
@@ -824,10 +797,9 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 17,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 11, 30, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "New Year celebration in Podgorica",
-                            EventDate = new DateTime(2026, 5, 31, 22, 0, 0, 0, DateTimeKind.Unspecified),
+                            EventDate = new DateTime(2026, 12, 31, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "New Year's Eve",
                             LocationID = 9,
                             PerformerID = 7,
@@ -835,7 +807,6 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 4.64f,
                             RatingCount = 125,
                             RegularPrice = 40,
-                            StatusChangedAt = new DateTime(2025, 12, 5, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 6750,
                             TotalScore = 580,
@@ -864,8 +835,6 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 19,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2025, 6, 10, 9, 45, 0, 0, DateTimeKind.Unspecified),
                             Description = "Rock classics and new hits",
                             EventDate = new DateTime(2026, 11, 15, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -873,21 +842,18 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 3,
                             PerformerID = 9,
                             PremiumPrice = 150,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.61f,
+                            RatingCount = 203,
                             RegularPrice = 30,
-                            StatusChangedAt = new DateTime(2025, 3, 15, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 11000,
-                            TotalScore = 0,
+                            TotalScore = 935,
                             TotalTickets = 12000,
                             VipPrice = 75
                         },
                         new
                         {
                             EventID = 20,
-                            ApprovedByAdminID = 1,
-                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2024, 3, 15, 15, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "Summer rock concert at Poljud",
                             EventDate = new DateTime(2025, 8, 25, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -895,20 +861,18 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 19,
                             PerformerID = 9,
                             PremiumPrice = 180,
-                            RatingAverage = 0f,
-                            RatingCount = 0,
+                            RatingAverage = 4.57f,
+                            RatingCount = 267,
                             RegularPrice = 35,
-                            StatusChangedAt = new DateTime(2024, 4, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 29800,
-                            TotalScore = 0,
+                            TotalScore = 1220,
                             TotalTickets = 34000,
                             VipPrice = 90
                         },
                         new
                         {
                             EventID = 21,
-                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 10, 5, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Headliner at Mostar Rock Festival",
                             EventDate = new DateTime(2026, 7, 12, 22, 0, 0, 0, DateTimeKind.Unspecified),
@@ -919,7 +883,6 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 30,
-                            StatusChangedAt = new DateTime(2025, 10, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 4300,
                             TotalScore = 0,
@@ -2299,6 +2262,11 @@ namespace MyStagePass.Services.Migrations
                         {
                             StatusID = 4,
                             StatusName = "Cancelled"
+                        },
+                        new
+                        {
+                            StatusID = 5,
+                            StatusName = "Sold out"
                         });
                 });
 

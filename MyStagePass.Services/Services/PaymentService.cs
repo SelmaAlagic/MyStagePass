@@ -44,7 +44,7 @@ namespace MyStagePass.Services.Services
 				throw new UserException($"Only {remainingTickets} ticket(s) remaining for this event.");
 
 			if (!Enum.IsDefined(typeof(Model.Models.TicketType), request.TicketType))
-				throw new UserException("Invalid ticket type. Must be 0 (Regular), 1 (Premium) or 2 (VIP).");
+				throw new UserException("Invalid ticket type. Must be 1 (Regular), 2 (Vip) or 3 (Premium).");
 
 			var ticketType = (Model.Models.TicketType)request.TicketType;
 

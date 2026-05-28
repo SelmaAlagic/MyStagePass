@@ -1756,7 +1756,7 @@ class _ActionsRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (isActive) // ← samo ako je aktivan
+        if (isActive)
           _IconBtn(icon: Icons.edit_rounded, color: _navyMid, onTap: onEdit!),
         if (isActive) const SizedBox(width: 6),
         isActive

@@ -22,7 +22,6 @@ import 'user_management_screen.dart';
 
 const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
-const _blue = Color(0xFF2D3A8C);
 const _blue50 = Color(0xFFF0F3FF);
 const _blue100 = Color(0xFFE8EDFF);
 const _white = Color(0xFFFFFFFF);
@@ -262,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: _blue.withOpacity(0.4),
+                                            color: _navyMid.withOpacity(0.4),
                                             width: 1.5,
                                           ),
                                         ),
@@ -358,11 +357,13 @@ class _HomeScreenState extends State<HomeScreen>
                                     width: 38,
                                     height: 38,
                                     decoration: BoxDecoration(
-                                      color: _showNotifications ? _blue : _card,
+                                      color: _showNotifications
+                                          ? _navyMid
+                                          : _card,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
                                         color: _showNotifications
-                                            ? _blue
+                                            ? _navyMid
                                             : _border,
                                       ),
                                       boxShadow: [
@@ -562,7 +563,7 @@ class _HomeScreenState extends State<HomeScreen>
                             _GridCard(
                               title: 'Manage users',
                               icon: Icons.manage_accounts_rounded,
-                              color: _blue,
+                              color: _navyMid,
                               onTap: () => Navigator.push(
                                 context,
                                 _route(
@@ -620,7 +621,7 @@ class _HomeScreenState extends State<HomeScreen>
                             'View all →',
                             style: TextStyle(
                               fontSize: 12,
-                              color: _blue,
+                              color: _navyMid,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -824,7 +825,7 @@ class _AllNotificationsModalState extends State<AllNotificationsModal>
                       ? const SizedBox(
                           height: 200,
                           child: Center(
-                            child: CircularProgressIndicator(color: _blue),
+                            child: CircularProgressIndicator(color: _navyMid),
                           ),
                         )
                       : _notifications.isEmpty
@@ -837,13 +838,13 @@ class _AllNotificationsModalState extends State<AllNotificationsModal>
                                 Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: _blue.withOpacity(0.08),
+                                    color: _navyMid.withOpacity(0.08),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
                                     Icons.notifications_off_outlined,
                                     size: 32,
-                                    color: _blue,
+                                    color: _navyMid,
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -1826,12 +1827,14 @@ class _EditProfileDialogState extends State<EditProfileDialog>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: _avatarHovered ? _blue : _blue.withOpacity(0.3),
+                        color: _avatarHovered
+                            ? _navyMid
+                            : _navyMid.withOpacity(0.3),
                         width: 2.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _blue.withOpacity(
+                          color: _navyMid.withOpacity(
                             _avatarHovered ? 0.20 : 0.07,
                           ),
                           blurRadius: 10,
@@ -1899,7 +1902,7 @@ class _EditProfileDialogState extends State<EditProfileDialog>
                 decoration: BoxDecoration(
                   color: _blue100,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: _blue.withOpacity(0.2)),
+                  border: Border.all(color: _navyMid.withOpacity(0.2)),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1969,7 +1972,7 @@ class _EditProfileDialogState extends State<EditProfileDialog>
           width: 3,
           height: 13,
           decoration: BoxDecoration(
-            color: _blue,
+            color: _navyMid,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -1998,7 +2001,7 @@ class _EditProfileDialogState extends State<EditProfileDialog>
             color: _pwExpanded ? _blue50 : _bg,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: _pwExpanded ? _blue.withOpacity(0.25) : _border,
+              color: _pwExpanded ? _navyMid.withOpacity(0.25) : _border,
               width: 1.1,
             ),
           ),
@@ -2007,13 +2010,13 @@ class _EditProfileDialogState extends State<EditProfileDialog>
               Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: _pwExpanded ? _blue.withOpacity(0.12) : _border,
+                  color: _pwExpanded ? _navyMid.withOpacity(0.12) : _border,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(
                   Icons.lock_outline_rounded,
                   size: 13,
-                  color: _pwExpanded ? _blue : _t2,
+                  color: _pwExpanded ? _navyMid : _t2,
                 ),
               ),
               const SizedBox(width: 10),
@@ -2044,7 +2047,7 @@ class _EditProfileDialogState extends State<EditProfileDialog>
                 child: Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 17,
-                  color: _pwExpanded ? _blue : _t2,
+                  color: _pwExpanded ? _navyMid : _t2,
                 ),
               ),
             ],
@@ -2159,12 +2162,12 @@ class _EditProfileDialogState extends State<EditProfileDialog>
             child: ElevatedButton(
               onPressed: _isLoading ? null : _save,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _blue,
+                backgroundColor: _navyMid,
                 foregroundColor: _white,
-                disabledBackgroundColor: _blue.withOpacity(0.55),
+                disabledBackgroundColor: _navyMid.withOpacity(0.55),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 elevation: 2,
-                shadowColor: _blue.withOpacity(0.3),
+                shadowColor: _navyMid.withOpacity(0.3),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

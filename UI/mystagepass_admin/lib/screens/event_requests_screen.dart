@@ -164,10 +164,10 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     }
   }
 
-  Future<void> _handleReject(Event event) async {
+  Future<void> _handleRejectWithReason(Event event, String reason) async {
     try {
       final provider = Provider.of<EventProvider>(context, listen: false);
-      await provider.updateStatus(event.eventId!, 'rejected');
+      await provider.updateStatus(event.eventId!, 'rejected', reason: reason);
       if (mounted) {
         SnackHelpers.showSuccess(
           context,
@@ -177,10 +177,275 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackHelpers.showError(context, 'Failed to reject event: $e');
+        String msg = e.toString().replaceFirst('Exception: ', '').trim();
+        SnackHelpers.showError(context, msg);
       }
-      debugPrint('Error rejecting event: $e');
     }
+  }
+
+  void _showRejectDialog(Event event) {
+    final TextEditingController reasonController = TextEditingController();
+    String? fieldError;
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black45,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setS) => Dialog(
+          backgroundColor: _white,
+          surfaceTintColor: _white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [_navy, _navyMid],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                        child: const Icon(
+                          Icons.cancel_outlined,
+                          color: _white,
+                          size: 15,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text(
+                          'Reject Event',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: _white,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(ctx),
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: _white,
+                            size: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 9,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _red.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(color: _red.withOpacity(0.22)),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 14,
+                              color: _red,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'The performer will be notified about the rejection and the reason provided.',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: _red,
+                                  height: 1.45,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Rejection Reason',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: _t1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: _bg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: fieldError != null ? _red : _border,
+                            width: fieldError != null ? 1.5 : 1.0,
+                          ),
+                        ),
+                        child: TextField(
+                          controller: reasonController,
+                          maxLines: 3,
+                          cursorColor: _navyMid,
+                          cursorWidth: 1.2,
+                          style: const TextStyle(fontSize: 13, color: _t1),
+                          onChanged: (_) {
+                            if (fieldError != null)
+                              setS(() => fieldError = null);
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Enter rejection reason...',
+                            hintStyle: TextStyle(color: _t2, fontSize: 13),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(12),
+                          ),
+                        ),
+                      ),
+                      if (fieldError != null) ...[
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              size: 12,
+                              color: _red,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              fieldError!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: _red,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+                  decoration: const BoxDecoration(
+                    color: _bg,
+                    border: Border(top: BorderSide(color: _border)),
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _t2,
+                            side: const BorderSide(color: _border),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(9),
+                            ),
+                          ),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final reason = reasonController.text.trim();
+                            if (reason.isEmpty) {
+                              setS(
+                                () => fieldError =
+                                    'Rejection reason is required.',
+                              );
+                              return;
+                            }
+                            if (reason.length < 5) {
+                              setS(
+                                () => fieldError =
+                                    'Reason must be at least 5 characters.',
+                              );
+                              return;
+                            }
+                            Navigator.pop(ctx);
+                            AlertHelpers.showConfirmationAlert(
+                              context,
+                              'Reject Event',
+                              'Are you sure you want to reject "${event.eventName}"? The performer will be notified.',
+                              confirmButtonText: 'Yes, Reject',
+                              cancelButtonText: 'Go Back',
+                              isDelete: true,
+                              onConfirm: () =>
+                                  _handleRejectWithReason(event, reason),
+                            );
+                          },
+                          icon: const Icon(Icons.close_rounded, size: 14),
+                          label: const Text(
+                            'Reject Event',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _red,
+                            foregroundColor: _white,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(9),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _showConfirmDialog(Event event, bool isApprove) {
@@ -206,7 +471,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           : 'Reject',
       cancelButtonText: 'Cancel',
       isDelete: !isApprove,
-      onConfirm: () => isApprove ? _handleApprove(event) : _handleReject(event),
+      onConfirm: () => _handleApprove(event),
     );
   }
 
@@ -559,159 +824,171 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     final isPastEvent =
         event.eventDate != null && event.eventDate!.isBefore(DateTime.now());
 
-    return _HoverRow(
-      isEven: isEven,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            child: Text(
-              '$number',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: _t2,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              name,
-              style: TextStyle(
-                fontSize: 13,
-                color: name == 'N/A' ? _t2 : _t1,
-                fontStyle: name == 'N/A' ? FontStyle.italic : FontStyle.normal,
-                fontWeight: FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          SizedBox(
-            width: 110,
-            child: Center(
-              child: Text(
-                dateStr,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: dateStr == 'N/A' ? _t2 : _t1,
-                  fontStyle: dateStr == 'N/A'
-                      ? FontStyle.italic
-                      : FontStyle.normal,
+    return GestureDetector(
+      onTap: () => _showEventDetailDialog(event),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: _HoverRow(
+          isEven: isEven,
+          child: Row(
+            children: [
+              SizedBox(
+                width: 40,
+                child: Text(
+                  '$number',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _t2,
+                  ),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              performerName,
-              style: TextStyle(
-                fontSize: 13,
-                color: performerName == 'N/A' ? _t2 : _t1,
-                fontStyle: performerName == 'N/A'
-                    ? FontStyle.italic
-                    : FontStyle.normal,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              fullLocation,
-              style: TextStyle(
-                fontSize: 13,
-                color: fullLocation == 'N/A' ? _t2 : _t2,
-                fontStyle: fullLocation == 'N/A'
-                    ? FontStyle.italic
-                    : FontStyle.normal,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          SizedBox(
-            width: 140,
-            child: Center(
-              child: Text(
-                requestedStr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: requestedStr == 'N/A' ? _t2 : _t2,
-                  fontStyle: requestedStr == 'N/A'
-                      ? FontStyle.italic
-                      : FontStyle.normal,
+              Expanded(
+                flex: 3,
+                child: Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: name == 'N/A' ? _t2 : _t1,
+                    fontStyle: name == 'N/A'
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-          ),
-          SizedBox(
-            width: 110,
-            child: Center(child: _buildStatusBadge(statusLower)),
-          ),
-          SizedBox(
-            width: 130,
-            child: Center(
-              child: isPending
-                  ? Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _ActionIconButton(
-                          icon: Icons.check_rounded,
-                          color: _green,
-                          bg: _green.withOpacity(0.1),
-                          enabled: !isPastEvent,
-                          onTap: () => _showConfirmDialog(event, true),
-                        ),
-                        const SizedBox(width: 8),
-                        _ActionIconButton(
-                          icon: Icons.close_rounded,
-                          color: _red,
-                          bg: _red.withOpacity(0.1),
-                          enabled: !isPastEvent,
-                          onTap: () => _showConfirmDialog(event, false),
-                        ),
-                      ],
-                    )
-                  : Opacity(
-                      opacity: isPastEvent ? 0.35 : 1,
-                      child: GestureDetector(
-                        onTap: isPastEvent
-                            ? null
-                            : () => _showConfirmDialog(event, true),
-                        child: Container(
-                          height: 28,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: _green.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: _green.withOpacity(0.35)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(
-                                Icons.restore_rounded,
-                                size: 13,
-                                color: _green,
+              SizedBox(
+                width: 110,
+                child: Center(
+                  child: Text(
+                    dateStr,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: dateStr == 'N/A' ? _t2 : _t1,
+                      fontStyle: dateStr == 'N/A'
+                          ? FontStyle.italic
+                          : FontStyle.normal,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  performerName,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: performerName == 'N/A' ? _t2 : _t1,
+                    fontStyle: performerName == 'N/A'
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  fullLocation,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: fullLocation == 'N/A' ? _t2 : _t2,
+                    fontStyle: fullLocation == 'N/A'
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(
+                width: 140,
+                child: Center(
+                  child: Text(
+                    requestedStr,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: requestedStr == 'N/A' ? _t2 : _t2,
+                      fontStyle: requestedStr == 'N/A'
+                          ? FontStyle.italic
+                          : FontStyle.normal,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 110,
+                child: Center(child: _buildStatusBadge(statusLower)),
+              ),
+              SizedBox(
+                width: 130,
+                child: Center(
+                  child: isPending
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _ActionIconButton(
+                              icon: Icons.check_rounded,
+                              color: _green,
+                              bg: _green.withOpacity(0.1),
+                              enabled: !isPastEvent,
+                              onTap: () => _showConfirmDialog(event, true),
+                            ),
+                            const SizedBox(width: 8),
+                            _ActionIconButton(
+                              icon: Icons.close_rounded,
+                              color: _red,
+                              bg: _red.withOpacity(0.1),
+                              enabled: !isPastEvent,
+                              onTap: () => _showRejectDialog(event),
+                            ),
+                          ],
+                        )
+                      : Opacity(
+                          opacity: isPastEvent ? 0.35 : 1,
+                          child: GestureDetector(
+                            onTap: isPastEvent
+                                ? null
+                                : () => _showConfirmDialog(event, true),
+                            child: Container(
+                              height: 28,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
                               ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Approve',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: _green,
+                              decoration: BoxDecoration(
+                                color: _green.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: _green.withOpacity(0.35),
                                 ),
                               ),
-                            ],
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(
+                                    Icons.restore_rounded,
+                                    size: 13,
+                                    color: _green,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Approve',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: _green,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -840,6 +1117,242 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                 onTap: () => _goToPage(_currentPage + 1),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEventDetailDialog(Event event) {
+    final statusLower = event.status?.statusName?.toLowerCase() ?? '';
+    final isRejected = statusLower == 'rejected';
+    if (!isRejected) return;
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black45,
+      builder: (_) => Dialog(
+        backgroundColor: _white,
+        surfaceTintColor: _white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [_navy, _navyMid],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: const Icon(
+                        Icons.info_outline_rounded,
+                        color: _white,
+                        size: 15,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            event.eventName ?? 'Event Details',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: _white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            event.performer?.artistName ?? '',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white.withOpacity(0.55),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: _white,
+                          size: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _detailItem(
+                            Icons.person_outline_rounded,
+                            'Rejected by',
+                            event.statusChangedByAdminName ?? 'N/A',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _detailItem(
+                            Icons.access_time_rounded,
+                            'Rejected on',
+                            event.statusChangedAt != null
+                                ? DateFormat(
+                                    'dd MMM yyyy · HH:mm',
+                                  ).format(event.statusChangedAt!)
+                                : 'N/A',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _red.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: _red.withOpacity(0.2)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(Icons.notes_rounded, size: 13, color: _red),
+                              SizedBox(width: 6),
+                              Text(
+                                'Rejection Reason',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: _red,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            event.cancellationReason?.isNotEmpty == true
+                                ? event.cancellationReason!
+                                : 'No reason provided.',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: _t1,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+                decoration: const BoxDecoration(
+                  color: _bg,
+                  border: Border(top: BorderSide(color: _border)),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(16),
+                  ),
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _t2,
+                      side: const BorderSide(color: _border),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                    ),
+                    child: const Text(
+                      'Close',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailItem(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: _border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 13, color: _navyMid.withOpacity(0.6)),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: _t2,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _t1,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1110,17 +1623,20 @@ class _ActionIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Opacity(
       opacity: enabled ? 1 : 0.35,
-      child: GestureDetector(
-        onTap: enabled ? onTap : null,
-        child: Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withOpacity(0.35)),
+      child: MouseRegion(
+        cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        child: GestureDetector(
+          onTap: enabled ? onTap : null,
+          child: Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: color.withOpacity(0.35)),
+            ),
+            child: Icon(icon, size: 15, color: color),
           ),
-          child: Icon(icon, size: 15, color: color),
         ),
       ),
     );

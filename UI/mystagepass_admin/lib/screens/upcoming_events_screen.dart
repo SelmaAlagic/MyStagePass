@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mystagepass_admin/utils/alert_helpers.dart';
 import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -847,6 +848,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
 
   Widget _buildEventCard(Event event) {
     final isCancelled = event.status?.statusName?.toLowerCase() == 'cancelled';
+    final isSoldOut = (event.ticketsAvailable ?? 0) == 0 && !isCancelled;
     final dateStr = event.eventDate != null
         ? DateFormat('dd MMM yyyy').format(event.eventDate!)
         : 'N/A';
@@ -917,6 +919,30 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                           ),
                           child: const Text(
                             'CANCELLED',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (isSoldOut)
+                      Positioned(
+                        top: 8,
+                        right: 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF3B82F6).withOpacity(0.88),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'SOLD OUT',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 9,
@@ -1249,6 +1275,7 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCancelled = event.status?.statusName?.toLowerCase() == 'cancelled';
+    final isSoldOut = (event.ticketsAvailable ?? 0) == 0 && !isCancelled;
     final isUpcoming = event.eventDate?.isAfter(DateTime.now()) ?? false;
     final dateStr = event.eventDate != null
         ? DateFormat('dd MMM yyyy · HH:mm').format(event.eventDate!)
@@ -1642,15 +1669,19 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                         color: _red,
                         text:
                             'This event has been cancelled. All ticket holders have been notified and refunds processed.'
-                            '${event.cancellationReason != null && event.cancellationReason!.isNotEmpty ? "\n\nReason: ${event.cancellationReason}" : ""}',
+                            '${event.statusChangedByAdminName != null ? "\n\nCancelled by: ${event.statusChangedByAdminName}" : ""}'
+                            '${event.cancellationReason != null && event.cancellationReason!.isNotEmpty ? "\nReason: ${event.cancellationReason}" : ""}',
                       ),
                     ] else if (isUpcoming) ...[
                       const SizedBox(height: 12),
                       _noticeBanner(
-                        icon: Icons.admin_panel_settings_rounded,
-                        color: _amber,
-                        text:
-                            'Cancelling this event is irreversible. Ensure there is a valid reason before proceeding — all ticket holders will be automatically notified and refunded.',
+                        icon: isSoldOut
+                            ? Icons.sell_rounded
+                            : Icons.admin_panel_settings_rounded,
+                        color: isSoldOut ? const Color(0xFF3B82F6) : _amber,
+                        text: isSoldOut
+                            ? 'This event is sold out. Cancellation will notify all ticket holders and process refunds automatically.'
+                            : 'Cancelling this event is irreversible. Ensure there is a valid reason before proceeding — all ticket holders will be automatically notified and refunded.',
                       ),
                     ],
                   ],
@@ -2071,7 +2102,15 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                               }
                               Navigator.pop(ctx);
                               Navigator.pop(context);
-                              onCancelWithReason(reason);
+                              AlertHelpers.showConfirmationAlert(
+                                context,
+                                'Cancel Event',
+                                'Are you sure you want to cancel "${event.eventName}"? This action is irreversible.',
+                                confirmButtonText: 'Yes, Cancel',
+                                cancelButtonText: 'Go Back',
+                                isDelete: true,
+                                onConfirm: () => onCancelWithReason(reason),
+                              );
                             },
                             icon: const Icon(Icons.cancel_outlined, size: 14),
                             label: const Text(

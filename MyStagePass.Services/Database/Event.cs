@@ -32,21 +32,19 @@ namespace MyStagePass.Services.Database
 
 		[NotMapped]
 		public int TicketsAvailable => TotalTickets - TicketsSold;
-		public bool HasAvailableTickets(int requestedAmount)
-		{
-			return TicketsAvailable >= requestedAmount;
-		}
 
 		[NotMapped]
-		public string TimeStatus
+		public bool IsFewTicketsLeft
 		{
 			get
 			{
-				if (EventDate < DateTime.UtcNow)
-					return "Ended";
-				else
-					return "Upcoming";
+				if (TotalTickets <= 0) return false;
+				double percentageLeft = (double)TicketsAvailable / TotalTickets;
+				return percentageLeft <= 0.10 && TicketsAvailable > 0;
 			}
 		}
+
+		[NotMapped]
+		public string? StatusChangedByAdminName { get; set; }
 	}
 }

@@ -21,6 +21,7 @@ import 'screens/performer_management_screen.dart';
 import 'screens/reports_screen.dart';
 import 'screens/reference_data_screen.dart';
 import 'screens/genres_screen.dart';
+import 'screens/status_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +49,10 @@ void main() {
   SidebarLayout.registerScreen(
     SidebarRoutes.genres,
     (userId) => GenresScreen(userId: userId),
+  );
+  SidebarLayout.registerScreen(
+    SidebarRoutes.statuses,
+    (userId) => StatusScreen(userId: userId),
   );
   runApp(
     MultiProvider(

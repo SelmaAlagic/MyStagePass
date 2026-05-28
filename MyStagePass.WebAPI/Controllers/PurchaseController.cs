@@ -27,9 +27,7 @@ namespace MyStagePass.WebAPI.Controllers
 			search.CustomerID = _currentUserService.GetCustomerId();
 
 			if (search.DateFrom != null && search.DateTo != null && search.DateFrom > search.DateTo)
-			{
-				return await Task.FromException<PagedResult<Purchase>>(new ArgumentException("Datum 'od' ne može biti veći od datuma 'do'."));
-			}
+				throw new UserException("Datum 'od' ne može biti veći od datuma 'do'.");
 
 			return await base.Get(search);
 		}
@@ -45,7 +43,7 @@ namespace MyStagePass.WebAPI.Controllers
 		[NonAction]
 		public override async Task<Purchase> Insert([FromBody] PurchaseInsertRequest request)
 		{
-			throw new UnauthorizedAccessException("Direct purchase is not allowed. Use /api/Payment/verify-and-purchase.");
+			throw new UserException("Direct purchase is not allowed. Use /api/Payment/verify-and-purchase.");
 		}
 	
 		[HttpGet("{id}")]
@@ -60,16 +58,16 @@ namespace MyStagePass.WebAPI.Controllers
 			return purchase;
 		}
 
-		[HttpDelete("{id}")]
+		[NonAction]
 		public override async Task<Purchase> Delete(int id)
 		{
-			int customerId = _currentUserService.GetCustomerId();
-			var purchase = await base.GetById(id);
+			throw new UserException("Purchases cannot be deleted.");
+		}
 
-			if (purchase.CustomerID != customerId)
-				throw new UnauthorizedAccessException("You are not allowed to delete this purchase");
-
-			return await base.Delete(id);
+		[NonAction]
+		public override async Task<Purchase> Update(int id, [FromBody] PurchaseUpdateRequest request)
+		{
+			throw new UserException("Purchases cannot be updated.");
 		}
 	}
 }

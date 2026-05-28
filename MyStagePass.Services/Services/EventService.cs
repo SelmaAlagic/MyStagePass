@@ -85,6 +85,15 @@ namespace MyStagePass.Services.Services
 						.DefaultIfEmpty(0)
 						.Average();
 				}
+				if (eventObj.ApprovedByAdminID.HasValue)
+				{
+					var adminUser = await _context.Admins
+						.Include(a => a.User)
+						.FirstOrDefaultAsync(a => a.AdminID == eventObj.ApprovedByAdminID.Value);
+
+					if (adminUser?.User != null)
+						eventObj.StatusChangedByAdminName = $"{adminUser.User.FirstName} {adminUser.User.LastName}";
+				}
 			}
 			return result;
 		}
@@ -171,11 +180,21 @@ namespace MyStagePass.Services.Services
 			if (search.MinPrice != null)
 				query = query.Where(e => e.RegularPrice >= search.MinPrice || e.VipPrice >= search.MinPrice || e.PremiumPrice >= search.MinPrice);
 
+			if (search.IsUpcoming == null &&
+				string.IsNullOrWhiteSpace(search.Status) &&
+				search.IncludeCancelled != true &&
+				!search.PerformerID.HasValue)
+						{
+							query = query.Where(e =>
+								e.StatusID == Status.ApprovedID ||
+								e.StatusID == Status.CancelledID);
+			}
+
 			query = query.OrderByDescending(e => e.CreatedAt);
 			return query;
 		}
 
-		public async Task<Model.Models.Event> UpdateAdminStatus(int eventId, string newStatus)
+		public async Task<Model.Models.Event> UpdateAdminStatus(int eventId, string newStatus, string? reason = null)
 		{
 			var entity = await _context.Events
 				.Include(e => e.Status)
@@ -185,28 +204,22 @@ namespace MyStagePass.Services.Services
 			if (entity == null)
 				throw new UserException("Event not found");
 
-			var allowedTransitions = new Dictionary<int, List<int>>
-			{
-				{ Status.PendingID,  new List<int> { Status.ApprovedID, Status.RejectedID } },
-				{ Status.ApprovedID, new List<int> { Status.CancelledID } },
-				{ Status.RejectedID, new List<int> { Status.PendingID, Status.ApprovedID } },
-				{ Status.CancelledID, new List<int>() }
-			};
-
 			var status = await _context.Statuses
 				.FirstOrDefaultAsync(s => s.StatusName.ToLower() == newStatus.ToLower());
 
 			if (status == null)
 				throw new UserException("Status not found");
 
-			if (!allowedTransitions.ContainsKey(entity.StatusID) ||
-				!allowedTransitions[entity.StatusID].Contains(status.StatusID))
+			if (!IsTransitionAllowed(entity.StatusID, status.StatusID))
 				throw new UserException($"Cannot transition from '{entity.Status.StatusName}' to '{newStatus}'.");
 
 			entity.StatusID = status.StatusID;
 			entity.StatusChangedAt = DateTime.UtcNow;
-			entity.ApprovedByAdminID = _currentUserService.GetUserId();
-			await _context.SaveChangesAsync();
+			var adminRecord = await _context.Admins
+				.FirstOrDefaultAsync(a => a.UserID == _currentUserService.GetUserId());
+						if (adminRecord == null)
+							throw new UserException("Admin record not found for current user.");
+			entity.ApprovedByAdminID = adminRecord.AdminID;
 
 			if (status.StatusID == Status.ApprovedID)
 			{
@@ -242,13 +255,16 @@ namespace MyStagePass.Services.Services
 			}
 			else if (status.StatusID == Status.RejectedID)
 			{
+				if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length < 5)
+					throw new UserException("Rejection reason is required (minimum 5 characters).");
+				entity.CancellationReason = reason;
 				await _notificationService.NotifyUser(
 					entity.Performer.UserID,
 					"Event Status Update",
-					$"Unfortunately, your event '{entity.EventName}' was not approved."
+					$"Unfortunately, your event '{entity.EventName}' was not approved. Reason: {reason}"
 				);
 			}
-
+			await _context.SaveChangesAsync();
 			return _mapper.Map<Model.Models.Event>(entity);
 		}
 
@@ -261,9 +277,6 @@ namespace MyStagePass.Services.Services
 			int performerId = _currentUserService.GetPerformerId();
 			if (existing.PerformerID != performerId)
 				throw new UserException("You can only update your own events");
-
-			if (existing == null)
-				throw new UserException("Event not found");
 
 			var oldDate = existing.EventDate;
 
@@ -316,6 +329,7 @@ namespace MyStagePass.Services.Services
 
 		public async Task<Model.Models.Event> CancelEvent(int eventId, string? reason = null)
 		{
+
 			var entity = await _context.Events
 				.Include(e => e.Status)
 				.Include(e => e.Performer)
@@ -332,20 +346,26 @@ namespace MyStagePass.Services.Services
 				throw new UserException("Event is already cancelled.");
 			if (entity.StatusID != Status.ApprovedID)
 				throw new UserException("Only approved events can be cancelled.");
+			if (string.IsNullOrWhiteSpace(reason))
+				throw new UserException("Cancellation reason is required.");
+			if (reason.Trim().Length < 5)
+				throw new UserException("Cancellation reason must be at least 5 characters.");
 
 			entity.StatusID = Status.CancelledID;
 			entity.CancellationReason = reason;
 			entity.StatusChangedAt = DateTime.UtcNow;
+			var adminRecord = await _context.Admins
+			.FirstOrDefaultAsync(a => a.UserID == _currentUserService.GetUserId());
+					if (adminRecord == null)
+						throw new UserException("Admin record not found for current user.");
+			entity.ApprovedByAdminID = adminRecord.AdminID;
 
 			await _context.SaveChangesAsync();
-			var cancelReasonText = string.IsNullOrWhiteSpace(reason)
-				? "No specific reason was provided."
-				: reason;
 
 			await _notificationService.NotifyUser(
 				entity.Performer.UserID,
 				"Event Cancelled",
-				$"Your event '{entity.EventName}' has been cancelled. Reason: {cancelReasonText}"
+				$"Your event '{entity.EventName}' has been cancelled. Reason: {reason}"
 			);
 
 			var performerEmail = new EmailModel
@@ -356,7 +376,7 @@ namespace MyStagePass.Services.Services
 				Content =
 					$"Dear {entity.Performer.User.FirstName},\n\n" +
 					$"Your event '{entity.EventName}' has been cancelled.\n\n" +
-					$"Reason: {cancelReasonText}\n\n" +
+					$"Reason: {reason}\n\n" +
 					$"Please contact support if you need additional details.\n\n" +
 					$"Best regards,\nMyStagePass Team"
 			};
@@ -404,7 +424,7 @@ namespace MyStagePass.Services.Services
 				await _notificationService.NotifyUsers(
 					customerUserIds,
 					"Event Cancelled",
-					$"The event '{entity.EventName}' for which you purchased tickets has been cancelled. Reason: {cancelReasonText}"
+					$"The event '{entity.EventName}' for which you purchased tickets has been cancelled. Reason: {reason}"
 				);
 			}
 
@@ -433,7 +453,7 @@ namespace MyStagePass.Services.Services
 					Content =
 						$"Dear {customer.FirstName},\n\n" +
 						$"The event '{entity.EventName}' has been cancelled.\n\n" +
-						$"Reason: {cancelReasonText}\n\n" +
+						$"Reason: {reason}\n\n" +
 						$"{refundText}\n\n" + 
 						$"We apologize for the inconvenience.\n\n" +
 						$"Best regards,\nMyStagePass Team"
@@ -443,5 +463,18 @@ namespace MyStagePass.Services.Services
 
 			return _mapper.Map<Model.Models.Event>(entity);
 		}
+		private bool IsTransitionAllowed(int fromStatusId, int toStatusId)
+		{
+			var allowedTransitions = new Dictionary<int, List<int>>
+		{
+			{ Status.PendingID,   new List<int> { Status.ApprovedID, Status.RejectedID }},
+			{ Status.ApprovedID,  new List<int> { Status.CancelledID }},
+			{ Status.RejectedID,  new List<int> { Status.PendingID, Status.ApprovedID }},
+			{ Status.CancelledID, new List<int>() },
+		};
+			return allowedTransitions.ContainsKey(fromStatusId) &&
+				   allowedTransitions[fromStatusId].Contains(toStatusId);
+		}
 	}
+
 }

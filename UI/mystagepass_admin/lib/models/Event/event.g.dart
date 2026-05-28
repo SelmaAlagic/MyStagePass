@@ -35,6 +35,8 @@ Event _$EventFromJson(Map<String, dynamic> json) => Event(
   statusChangedAt: json['statusChangedAt'] == null
       ? null
       : DateTime.parse(json['statusChangedAt'] as String),
+  ticketsAvailable: (json['ticketsAvailable'] as num?)?.toInt(),
+  statusChangedByAdminName: json['statusChangedByAdminName'] as String?,
 );
 
 Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
@@ -54,4 +56,6 @@ Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
   'cancellationReason': instance.cancellationReason,
   'approvedByAdminId': instance.approvedByAdminId,
   'statusChangedAt': instance.statusChangedAt?.toIso8601String(),
+  'ticketsAvailable': instance.ticketsAvailable,
+  'statusChangedByAdminName': instance.statusChangedByAdminName,
 };

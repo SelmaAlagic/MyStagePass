@@ -65,166 +65,190 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        textSelectionTheme: TextSelectionThemeData(
-          selectionColor: const Color(0xFFD7E3FF),
-          cursorColor: Color.fromARGB(255, 29, 35, 93),
+        textSelectionTheme: const TextSelectionThemeData(
+          selectionColor: Color(0xFFD7E3FF),
+          cursorColor: Color(0xFF1D235D),
         ),
       ),
       child: Scaffold(
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/background.jpg'),
-              fit: BoxFit.cover,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/background.png',
+                fit: BoxFit.cover,
+                alignment: Alignment.centerLeft,
+              ),
             ),
-          ),
-          child: Center(
-            child: SingleChildScrollView(
-              child: Container(
-                width: 400,
-                height: 480,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF2F4F7),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black,
-                      blurRadius: 25,
-                      offset: const Offset(0, 10),
+
+            Row(
+              children: [
+                Expanded(
+                  flex: 60,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 150,
+                      top: 240,
+                      bottom: 44,
+                      right: 16,
                     ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 20, bottom: 10),
-                        child: Image.asset(
-                          'assets/images/MyStagePassLogo.png',
-                          height: 90,
-                          fit: BoxFit.contain,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Access your events.\nManage with ease.",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            height: 1.35,
+                          ),
                         ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Column(
-                          children: [
-                            const Text(
-                              "Welcome back, Admin!",
-                              style: TextStyle(
-                                color: Color(0xFF1D2939),
-                                fontSize: 24,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              "Please enter your credentials",
-                              style: TextStyle(
-                                color: Color(0xFF667085),
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 30),
-
-                            TextFormField(
-                              controller: _usernameController,
-                              cursorWidth: 0.5,
-                              style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 14,
-                              ),
-                              decoration: _inputDecoration(
-                                "Username",
-                                Icons.person_outline,
-                              ),
-                              validator: (value) =>
-                                  value!.isEmpty ? "Enter username" : null,
-                            ),
-                            const SizedBox(height: 16),
-
-                            TextFormField(
-                              controller: _passwordController,
-                              cursorWidth: 0.5,
-                              obscureText: _isObscured,
-                              style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 14,
-                              ),
-                              decoration: _inputDecoration(
-                                "Password",
-                                Icons.lock_outline,
-                                isPassword: true,
-                              ),
-                              onFieldSubmitted: (_) => _handleLogin(),
-                              validator: (value) =>
-                                  value!.isEmpty ? "Enter password" : null,
-                            ),
-
-                            if (_errorMessage != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 15),
-                                child: Text(
-                                  _errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.redAccent,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 13,
-                                  ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          "Sign in to your admin account\nand take control of your events.",
+                          style: TextStyle(
+                            color: Colors.white60,
+                            fontSize: 13,
+                            height: 1.65,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 60,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 80),
+                    child: Center(
+                      child: SizedBox(
+                        width: 380,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Center(
+                                child: Image.asset(
+                                  'assets/images/MyStagePassLogo.png',
+                                  height: 100,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
-                          ],
-                        ),
-                      ),
+                              const SizedBox(height: 60),
 
-                      const Spacer(),
-
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(40, 0, 40, 40),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 43,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleLogin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 29, 35, 93),
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              const Text(
+                                "Welcome back, Admin!",
+                                style: TextStyle(
+                                  color: Color(0xFF1D2939),
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 15,
-                                    width: 10,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Text(
-                                    "Login",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
+                              const SizedBox(height: 6),
+                              const Text(
+                                "Please enter your credentials to continue",
+                                style: TextStyle(
+                                  color: Color(0xFF667085),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 36),
+
+                              TextFormField(
+                                controller: _usernameController,
+                                cursorWidth: 0.5,
+                                style: const TextStyle(
+                                  color: Color(0xFF1D2939),
+                                  fontSize: 13,
+                                ),
+                                decoration: _inputDecoration(
+                                  "Username",
+                                  Icons.person_outline,
+                                ),
+                                validator: (value) =>
+                                    value!.isEmpty ? "Enter username" : null,
+                              ),
+                              const SizedBox(height: 20),
+
+                              TextFormField(
+                                controller: _passwordController,
+                                cursorWidth: 0.5,
+                                obscureText: _isObscured,
+                                style: const TextStyle(
+                                  color: Color(0xFF1D2939),
+                                  fontSize: 13,
+                                ),
+                                decoration: _inputDecoration(
+                                  "Password",
+                                  Icons.lock_outline,
+                                  isPassword: true,
+                                ),
+                                onFieldSubmitted: (_) => _handleLogin(),
+                                validator: (value) =>
+                                    value!.isEmpty ? "Enter password" : null,
+                              ),
+
+                              if (_errorMessage != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 14),
+                                  child: Text(
+                                    _errorMessage!,
+                                    style: const TextStyle(
+                                      color: Colors.redAccent,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 12,
                                     ),
                                   ),
+                                ),
+
+                              const SizedBox(height: 36),
+
+                              SizedBox(
+                                width: double.infinity,
+                                height: 42,
+                                child: ElevatedButton(
+                                  onPressed: _isLoading ? null : _handleLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1D235D),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: _isLoading
+                                      ? const SizedBox(
+                                          height: 15,
+                                          width: 15,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Text(
+                                          "Log in",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -237,19 +261,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
-      prefixIcon: Icon(icon, color: Color.fromARGB(255, 29, 35, 93), size: 22),
+      labelStyle: const TextStyle(color: Color(0xFF667085), fontSize: 13),
+      prefixIcon: Icon(icon, color: const Color(0xFF1D235D), size: 20),
       errorStyle: const TextStyle(
         color: Colors.redAccent,
         fontWeight: FontWeight.w300,
-        fontSize: 12,
+        fontSize: 11,
       ),
       suffixIcon: isPassword
           ? IconButton(
               icon: Icon(
                 _isObscured ? Icons.visibility_off : Icons.visibility,
-                color: Color.fromARGB(255, 29, 35, 93),
-                size: 20,
+                color: const Color(0xFF1D235D),
+                size: 18,
               ),
               onPressed: () => setState(() => _isObscured = !_isObscured),
             )
@@ -260,10 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
         borderSide: BorderSide(color: Color(0xFFB0B7C3), width: 1.0),
       ),
       focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: Color.fromARGB(255, 29, 35, 93),
-          width: 1.5,
-        ),
+        borderSide: BorderSide(color: Color(0xFF1D235D), width: 1.5),
       ),
       errorBorder: UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.red.shade200, width: 1.0),

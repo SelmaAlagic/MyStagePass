@@ -13,7 +13,7 @@ namespace MyStagePass.Services.Database.Seed
 					EventID = 1,
 					EventName = "Debut Concert",
 					Description = "First solo concert of the rising pop artist",
-					EventDate = new DateTime(2026, 5, 10, 20, 0, 0),
+					EventDate = new DateTime(2026, 7, 10, 20, 0, 0),
 					StatusID = 2,
 					TotalTickets = 5000,
 					TicketsSold = 2100,
@@ -25,7 +25,9 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 1, 15, 14, 30, 0)
+					CreatedAt = new DateTime(2025, 1, 15, 14, 30, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 2, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -41,10 +43,13 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 120,
 					PerformerID = 2,
 					LocationID = 5,
-					TotalScore = 412,
-					RatingCount = 89,
-					RatingAverage = 4.63f,
-					CreatedAt = new DateTime(2024, 3, 10, 11, 0, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2024, 3, 10, 11, 0, 0),
+					CancellationReason = "Location unavailable due to technical issues.",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2024, 6, 1, 10, 0, 0),
 				},
 				new Event
 				{
@@ -98,10 +103,13 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 160,
 					PerformerID = 4,
 					LocationID = 7,
-					TotalScore = 1100,
-					RatingCount = 234,
-					RatingAverage = 4.70f,
-					CreatedAt = new DateTime(2025, 2, 20, 12, 0, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0,
+					CreatedAt = new DateTime(2025, 2, 20, 12, 0, 0),
+					CancellationReason = "Don't like the concept!",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 3, 20, 10, 0, 0)
 				},
 				new Event
 				{
@@ -117,10 +125,13 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 160,
 					PerformerID = 4,
 					LocationID = 1,
-					TotalScore = 865,
-					RatingCount = 187,
-					RatingAverage = 4.62f,
-					CreatedAt = new DateTime(2024, 9, 1, 15, 30, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2024, 9, 1, 15, 30, 0),
+					CancellationReason = "Don't like the concept!",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2024, 5, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -128,7 +139,7 @@ namespace MyStagePass.Services.Database.Seed
 					EventName = "Mostar Bridge Concert",
 					Description = "Unique concert near the Old Bridge",
 					EventDate = new DateTime(2026, 4, 22, 20, 30, 0),
-					StatusID = 4,
+					StatusID = 2,
 					TotalTickets = 9000,
 					TicketsSold = 8900,
 					RegularPrice = 30,
@@ -139,7 +150,9 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 756,
 					RatingCount = 168,
 					RatingAverage = 4.50f,
-					CreatedAt = new DateTime(2024, 4, 10, 9, 45, 0)
+					CreatedAt = new DateTime(2024, 4, 10, 9, 45, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2024, 5, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -158,7 +171,10 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 12, 5, 11, 20, 0)
+					CreatedAt = new DateTime(2025, 12, 5, 11, 20, 0),
+					CancellationReason = "Insufficient ticket sales, event not viable.",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 12, 10, 9, 0, 0),
 				},
 				new Event
 				{
@@ -177,7 +193,9 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 1420,
 					RatingCount = 312,
 					RatingAverage = 4.55f,
-					CreatedAt = new DateTime(2024, 5, 15, 13, 0, 0)
+					CreatedAt = new DateTime(2024, 5, 15, 13, 0, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2024, 6, 20, 10, 0, 0)
 				},
 				new Event
 				{
@@ -193,10 +211,13 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 120,
 					PerformerID = 5,
 					LocationID = 3,
-					TotalScore = 712,
-					RatingCount = 156,
-					RatingAverage = 4.56f,
-					CreatedAt = new DateTime(2025, 8, 20, 10, 30, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 8, 20, 10, 30, 0),
+					CancellationReason = "Venue permit revoked by city authorities.",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 9, 1, 11, 0, 0),
 				},
 				new Event
 				{
@@ -231,10 +252,12 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 250,
 					PerformerID = 5,
 					LocationID = 29,
-					TotalScore = 1290,
-					RatingCount = 278,
-					RatingAverage = 4.64f,
-					CreatedAt = new DateTime(2026, 2, 28, 14, 0, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2026, 2, 28, 14, 0, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2026, 3, 10, 10, 0, 0)
 				},
 				new Event
 				{
@@ -253,7 +276,9 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 11, 10, 9, 0, 0)
+					CreatedAt = new DateTime(2025, 11, 10, 9, 0, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 11, 20, 10, 0, 0)
 				},
 				new Event
 				{
@@ -269,10 +294,12 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 110,
 					PerformerID = 6,
 					LocationID = 26,
-					TotalScore = 315,
-					RatingCount = 67,
-					RatingAverage = 4.70f,
-					CreatedAt = new DateTime(2025, 6, 15, 12, 30, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 6, 15, 12, 30, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 7, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -288,10 +315,13 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 100,
 					PerformerID = 7,
 					LocationID = 11,
-					TotalScore = 665,
-					RatingCount = 145,
-					RatingAverage = 4.59f,
-					CreatedAt = new DateTime(2024, 4, 5, 10, 45, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2024, 4, 5, 10, 45, 0),
+					CancellationReason = "Don't like the concept!",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2024, 6, 10, 10, 0, 0)
 				},
 				new Event
 				{
@@ -317,7 +347,7 @@ namespace MyStagePass.Services.Database.Seed
 					EventID = 17,
 					EventName = "New Year's Eve",
 					Description = "New Year celebration in Podgorica",
-					EventDate = new DateTime(2026, 12, 31, 22, 0, 0),
+					EventDate = new DateTime(2026, 5, 31, 22, 0, 0),
 					StatusID = 2,
 					TotalTickets = 9000,
 					TicketsSold = 6750,
@@ -329,7 +359,9 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 580,
 					RatingCount = 125,
 					RatingAverage = 4.64f,
-					CreatedAt = new DateTime(2025, 11, 30, 11, 0, 0)
+					CreatedAt = new DateTime(2025, 11, 30, 11, 0, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 12, 5, 10, 0, 0)
 				},
 				new Event
 				{
@@ -364,10 +396,13 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 150,
 					PerformerID = 9,
 					LocationID = 3,
-					TotalScore = 935,
-					RatingCount = 203,
-					RatingAverage = 4.61f,
-					CreatedAt = new DateTime(2025, 6, 10, 9, 45, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2025, 6, 10, 9, 45, 0),
+					CancellationReason = "Don't like the concept!",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 3, 15, 10, 0, 0)
 				},
 				new Event
 				{
@@ -383,10 +418,13 @@ namespace MyStagePass.Services.Database.Seed
 					PremiumPrice = 180,
 					PerformerID = 9,
 					LocationID = 19,
-					TotalScore = 1220,
-					RatingCount = 267,
-					RatingAverage = 4.57f,
-					CreatedAt = new DateTime(2024, 3, 15, 15, 30, 0)
+					TotalScore = 0,
+					RatingCount = 0,
+					RatingAverage = 0f,
+					CreatedAt = new DateTime(2024, 3, 15, 15, 30, 0),
+					CancellationReason = "Don't like the concept!",
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2024, 4, 1, 10, 0, 0)
 				},
 				new Event
 				{
@@ -405,7 +443,9 @@ namespace MyStagePass.Services.Database.Seed
 					TotalScore = 0,
 					RatingCount = 0,
 					RatingAverage = 0f,
-					CreatedAt = new DateTime(2025, 10, 5, 10, 0, 0)
+					CreatedAt = new DateTime(2025, 10, 5, 10, 0, 0),
+					ApprovedByAdminID = 1,
+					StatusChangedAt = new DateTime(2025, 10, 20, 10, 0, 0)
 				},
 				new Event
 				{

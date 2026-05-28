@@ -108,9 +108,12 @@ namespace MyStagePass.Services.Services
 			CreateMap<LocationInsertRequest, Database.Location>();
 			CreateMap<LocationUpdateRequest, Database.Location>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-			CreateMap<Database.Status, Model.Models.Status>().ForMember(dest => dest.Events, opt => {opt.MapFrom(src => src.Events.Select(e => new Model.Models.Event{EventID = e.EventID,
-					EventName = e.EventName}).ToList());
-					opt.ExplicitExpansion();});
+			CreateMap<Database.Status, Model.Models.Status>().ForMember(dest => dest.Events, opt => opt.MapFrom(src => src.Events.Select(e => new Model.Models.Event
+			{
+				EventID = e.EventID,
+				EventName = e.EventName,
+				EventDate = e.EventDate
+			}).ToList()));
 
 			CreateMap<Database.Ticket, Model.Models.Ticket>();
 
