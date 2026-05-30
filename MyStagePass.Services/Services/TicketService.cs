@@ -20,13 +20,11 @@ namespace MyStagePass.Services.Services
 						.ThenInclude(l => l.City)
 				.Include(t => t.Event)
 					.ThenInclude(e => e.Performer);
-			query = query.Where(p => !p.IsDeleted);
 			return base.AddInclude(query, search);
 		}
 
 		public override IQueryable<Database.Ticket> AddFilter(IQueryable<Database.Ticket> query, TicketSearchObject? search = null)
 		{
-			query = query.Where(t => !t.IsDeleted);
 
 			if (search?.CustomerID.HasValue == true)
 				query = query.Where(t => t.Purchase.CustomerID == search.CustomerID.Value);

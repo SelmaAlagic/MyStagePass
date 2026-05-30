@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-
 class StringHelpers {
   static String getQueryString(
     Map<dynamic, dynamic> params, {
@@ -38,21 +35,5 @@ class StringHelpers {
       }
     });
     return query;
-  }
-
-  static Image imageFromBase64String(String base64Image) =>
-      Image.memory(base64Decode(base64Image));
-
-  static Color colorFromHex(String hexColor) {
-    final buffer = StringBuffer();
-    if (hexColor.length <= 7) buffer.write('ff');
-    buffer.write(hexColor.replaceFirst('#', ''));
-    return Color(int.parse(buffer.toString(), radix: 16));
-  }
-
-  static int intFromColor(String hexColor) {
-    if (hexColor == "") return 0;
-    String variant = "0xFF${hexColor.substring(1)}";
-    return int.tryParse(variant) ?? 0;
   }
 }

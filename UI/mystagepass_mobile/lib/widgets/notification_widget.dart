@@ -267,7 +267,19 @@ class _NotificationDropdownState extends State<NotificationDropdown>
         shrinkWrap: true,
         itemCount: _notifications.length,
         itemBuilder: (context, index) {
-          return _NotificationItem(notification: _notifications[index]);
+          return _NotificationItem(
+            notification: _notifications[index],
+            onDelete: () async {
+              final provider = Provider.of<NotificationProvider>(
+                context,
+                listen: false,
+              );
+              await provider.deleteNotification(
+                _notifications[index].notificationID!,
+              );
+              setState(() => _notifications.removeAt(index));
+            },
+          );
         },
       ),
     );
@@ -570,79 +582,97 @@ class _AllNotificationsModalState extends State<AllNotificationsModal>
 
 class _NotificationItem extends StatelessWidget {
   final NotificationModel.Notification notification;
+  final VoidCallback? onDelete;
 
-  const _NotificationItem({required this.notification});
+  const _NotificationItem({required this.notification, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: notification.getNotificationColor().withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+    return Dismissible(
+      key: Key('notif_${notification.notificationID}'),
+      direction: onDelete != null
+          ? DismissDirection.endToStart
+          : DismissDirection.none,
+      onDismissed: (_) => onDelete?.call(),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Colors.red.shade400,
+        child: const Icon(
+          Icons.delete_outline_rounded,
+          color: Colors.white,
+          size: 22,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: notification.getNotificationColor().withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                notification.getNotificationIcon(),
+                color: notification.getNotificationColor(),
+                size: 18,
+              ),
             ),
-            child: Icon(
-              notification.getNotificationIcon(),
-              color: notification.getNotificationColor(),
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (notification.title != null &&
-                    notification.title!.isNotEmpty)
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (notification.title != null &&
+                      notification.title!.isNotEmpty)
+                    Text(
+                      notification.title!,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1D235D),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  if (notification.title != null &&
+                      notification.title!.isNotEmpty)
+                    const SizedBox(height: 2),
                   Text(
-                    notification.title!,
+                    notification.message ?? '',
                     style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1D235D),
+                      fontSize: 12,
+                      color: Color(0xFF616161),
+                      height: 1.3,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                if (notification.title != null &&
-                    notification.title!.isNotEmpty)
-                  const SizedBox(height: 2),
-                Text(
-                  notification.message ?? '',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF616161),
-                    height: 1.3,
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 11,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        notification.getTimeAgo(),
+                        style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                      ),
+                    ],
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time_rounded,
-                      size: 11,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      notification.getTimeAgo(),
-                      style: TextStyle(fontSize: 11, color: Colors.grey[400]),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

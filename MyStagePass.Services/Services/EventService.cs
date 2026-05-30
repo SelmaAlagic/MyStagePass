@@ -289,7 +289,7 @@ namespace MyStagePass.Services.Services
 			{
 
 				var buyerUsers = await _context.Tickets
-					.Where(t => t.EventID == id && !t.IsDeleted)
+					.Where(t => t.EventID == id)
 					.Include(t => t.Purchase)
 						.ThenInclude(p => p.Customer)
 							.ThenInclude(c => c.User)
@@ -382,9 +382,7 @@ namespace MyStagePass.Services.Services
 			};
 			_rabbitMQProducer.SendMessage(performerEmail);
 
-			var activeTickets = entity.Tickets.Where(t => !t.IsDeleted).ToList();
-			foreach (var ticket in activeTickets)
-				ticket.IsDeleted = true;
+			var activeTickets = entity.Tickets.ToList();
 
 			var purchaseIds = activeTickets
 				.Select(t => t.PurchaseID)

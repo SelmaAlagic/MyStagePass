@@ -805,21 +805,41 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
                                 return;
                               }
                               Navigator.pop(ctx);
-                              await Provider.of<PerformerProvider>(
+                              AlertHelpers.showConfirmationAlert(
                                 context,
-                                listen: false,
-                              ).approvePerformer(
-                                performer.performerId!,
-                                false,
-                                reason: reason,
+                                'Reject Performer',
+                                'Are you sure you want to reject "${performer.artistName ?? performer.user?.fullName ?? 'this performer'}"? They will be notified via email.',
+                                confirmButtonText: 'Yes, Reject',
+                                cancelButtonText: 'Go Back',
+                                isDelete: true,
+                                onConfirm: () async {
+                                  try {
+                                    await Provider.of<PerformerProvider>(
+                                      context,
+                                      listen: false,
+                                    ).approvePerformer(
+                                      performer.performerId!,
+                                      false,
+                                      reason: reason,
+                                    );
+                                    if (mounted) {
+                                      SnackHelpers.showSuccess(
+                                        context,
+                                        'Performer rejected successfully.',
+                                      );
+                                      _fetchPerformers();
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      String msg = e
+                                          .toString()
+                                          .replaceFirst('Exception: ', '')
+                                          .trim();
+                                      SnackHelpers.showError(context, msg);
+                                    }
+                                  }
+                                },
                               );
-                              if (mounted) {
-                                SnackHelpers.showSuccess(
-                                  context,
-                                  'Performer rejected successfully.',
-                                );
-                                _fetchPerformers();
-                              }
                             },
                             icon: const Icon(Icons.close_rounded, size: 14),
                             label: const Text(
@@ -1167,19 +1187,21 @@ class _PerformerDetailsModal extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: ElevatedButton.icon(
                         onPressed: onReject,
-                        icon: const Icon(Icons.close_rounded, size: 14),
+                        icon: const Icon(Icons.close_rounded, size: 13),
                         label: const Text(
                           'Reject',
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: _red,
-                          side: BorderSide(color: _red.withOpacity(0.4)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEF4444),
+                          foregroundColor: _white,
+                          elevation: 0,
+                          overlayColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(9),
@@ -1191,18 +1213,19 @@ class _PerformerDetailsModal extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: onApprove,
-                        icon: const Icon(Icons.check_rounded, size: 14),
+                        icon: const Icon(Icons.check_rounded, size: 13),
                         label: const Text(
                           'Approve',
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF166534),
-                          foregroundColor: const Color(0xFFDCFCE7),
+                          backgroundColor: const Color(0xFF16A34A),
+                          foregroundColor: _white,
                           elevation: 0,
+                          overlayColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(9),

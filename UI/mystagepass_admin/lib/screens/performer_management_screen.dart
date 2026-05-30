@@ -103,7 +103,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
       final data = await provider.get(filter: params);
       if (mounted) {
         setState(() {
-          _performers = data.result;
+          _performers = data.result.where((p) => p.isApproved != null).toList();
           _totalPages = data.meta.totalPages;
           _totalCount = data.meta.count ?? 0;
           _currentPage = data.meta.currentPage + 1;

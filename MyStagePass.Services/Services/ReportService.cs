@@ -26,7 +26,7 @@ namespace MyStagePass.Services.Services
 			if (!events.Any()) return report;
 
 			report.TotalTicketsSold = events.Sum(e => e.TicketsSold);
-			report.TotalRevenue = events.SelectMany(e => e.Tickets).Where(t => !t.IsDeleted).Sum(t => t.Price);
+			report.TotalRevenue = events.SelectMany(e => e.Tickets).Sum(t => t.Price);
 
 			report.PerformerSales = events.GroupBy(e => e.Performer.ArtistName)
 				.Select(g => new ChartItemDto { Name = g.Key ?? "N/A", Value = g.Sum(e => e.TicketsSold) })

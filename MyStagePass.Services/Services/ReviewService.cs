@@ -25,8 +25,7 @@ namespace MyStagePass.Services.Services
 
 			var hasPurchase = await _context.Tickets
 			   .AnyAsync(t => t.EventID == request.EventID
-						   && t.Purchase.CustomerID == request.CustomerID
-						   && !t.IsDeleted);
+						   && t.Purchase.CustomerID == request.CustomerID);
 			if (!hasPurchase)
 				throw new UserException("You can only review events for which you have purchased a ticket.");
 

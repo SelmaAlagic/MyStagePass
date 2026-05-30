@@ -9,6 +9,5 @@
 		public virtual Event Event { get; set; } = null!;
 		public int PurchaseID { get; set; }
 		public virtual Purchase Purchase { get; set; } = null!;
-		public bool IsDeleted { get; set; } = false;
 	}
 }

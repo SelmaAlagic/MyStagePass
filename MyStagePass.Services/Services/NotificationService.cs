@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
 using MyStagePass.Services.Database;
@@ -66,7 +67,19 @@ namespace MyStagePass.Services.Services
 				Message = message
 			});
 		}
+		public override async Task<Model.Models.Notification> Delete(int id)
+		{
+			var notification = await _context.Notifications
+				.FirstOrDefaultAsync(n => n.NotificationID == id && !n.IsDeleted);
 
+			if (notification == null)
+				throw new UserException("Notification not found.");
+
+			notification.IsDeleted = true;
+			await _context.SaveChangesAsync();
+
+			return _mapper.Map<Model.Models.Notification>(notification);
+		}
 		public async Task NotifyUsers(List<int> userIds, string title, string message)
 		{
 			foreach (var userId in userIds)

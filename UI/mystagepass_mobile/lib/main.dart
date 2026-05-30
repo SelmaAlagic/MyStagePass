@@ -14,7 +14,6 @@ import 'package:mystagepass_mobile/providers/payment_provider.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
-import 'utils/colors_helpers.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 void main() async {
@@ -56,8 +55,8 @@ class MyStagePass extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: AppColors.primary,
-        scaffoldBackgroundColor: AppColors.background,
+        primaryColor: const Color(0xFF1D235D),
+        scaffoldBackgroundColor: const Color(0xFFF4F6FB),
         fontFamily: 'Roboto',
       ),
       initialRoute: '/',

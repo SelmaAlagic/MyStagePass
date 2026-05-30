@@ -9,7 +9,6 @@ class Purchase {
   DateTime? purchaseDate;
   int? customerID;
   List<Ticket>? tickets;
-  bool? isDeleted;
   int? total;
   String? paymentIntentId;
   bool? isRefunded;
@@ -19,7 +18,6 @@ class Purchase {
     this.purchaseDate,
     this.customerID,
     this.tickets,
-    this.isDeleted,
     this.total,
     this.isRefunded,
     this.paymentIntentId,

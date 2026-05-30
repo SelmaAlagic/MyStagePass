@@ -11,6 +11,7 @@ class Notification {
   User? user;
   String? title;
   String? message;
+  @JsonKey(fromJson: _parseDate)
   DateTime? createdAt;
   bool? isRead;
   bool? isDeleted;
@@ -62,6 +63,13 @@ class Notification {
       ];
       return '${createdAt!.day} ${months[createdAt!.month - 1]}';
     }
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    final str = value.toString();
+    final utcStr = str.endsWith('Z') ? str : '${str}Z';
+    return DateTime.parse(utcStr).toLocal();
   }
 
   IconData getNotificationIcon() {

@@ -1980,9 +1980,6 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("CustomerID")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<bool?>("IsRefunded")
                         .HasColumnType("bit");
 
@@ -2003,182 +2000,156 @@ namespace MyStagePass.Services.Migrations
                         {
                             PurchaseID = 1,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 2,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 11, 20, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 3,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 10, 20, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 4,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2026, 3, 1, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 5,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 5, 14, 30, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 6,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 7, 10, 9, 15, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 7,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 10, 11, 30, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 8,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 10, 20, 15, 45, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 9,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 10,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 8, 1, 11, 45, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 11,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 11, 25, 14, 20, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 12,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 11, 25, 9, 30, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 13,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2026, 3, 11, 16, 20, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 14,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 15, 13, 10, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 15,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2026, 1, 30, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 16,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 5, 12, 15, 10, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 17,
                             CustomerID = 6,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 5, 16, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 18,
                             CustomerID = 6,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 10, 18, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 19,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 3, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 20,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 3, 5, 11, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 21,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 3, 10, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 22,
                             CustomerID = 4,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2024, 6, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 23,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2024, 6, 5, 14, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 24,
                             CustomerID = 6,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2024, 6, 10, 9, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 25,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 4, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 26,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 4, 2, 11, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -2313,9 +2284,6 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("EventID")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
@@ -2338,7 +2306,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 1,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 1,
                             TicketType = 1
@@ -2347,7 +2314,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 2,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 1,
                             TicketType = 1
@@ -2356,7 +2322,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 3,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 2,
                             TicketType = 1
@@ -2365,7 +2330,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 4,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 75,
                             PurchaseID = 3,
                             TicketType = 2
@@ -2374,7 +2338,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 5,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 3,
                             TicketType = 1
@@ -2383,7 +2346,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 6,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 4,
                             TicketType = 1
@@ -2392,7 +2354,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 7,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 4,
                             TicketType = 1
@@ -2401,7 +2362,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 8,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 130,
                             PurchaseID = 5,
                             TicketType = 3
@@ -2410,7 +2370,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 9,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 5,
                             TicketType = 1
@@ -2419,7 +2378,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 10,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 60,
                             PurchaseID = 6,
                             TicketType = 2
@@ -2428,7 +2386,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 11,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 60,
                             PurchaseID = 6,
                             TicketType = 2
@@ -2437,7 +2394,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 12,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 6,
                             TicketType = 1
@@ -2446,7 +2402,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 13,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 7,
                             TicketType = 2
@@ -2455,7 +2410,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 14,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 8,
                             TicketType = 1
@@ -2464,7 +2418,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 15,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 8,
                             TicketType = 1
@@ -2473,7 +2426,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 16,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 9,
                             TicketType = 1
@@ -2482,7 +2434,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 17,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 60,
                             PurchaseID = 10,
                             TicketType = 2
@@ -2491,7 +2442,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 18,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 10,
                             TicketType = 1
@@ -2500,7 +2450,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 19,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 130,
                             PurchaseID = 11,
                             TicketType = 3
@@ -2509,7 +2458,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 20,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 130,
                             PurchaseID = 11,
                             TicketType = 3
@@ -2518,7 +2466,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 21,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 12,
                             TicketType = 1
@@ -2527,7 +2474,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 22,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 13,
                             TicketType = 1
@@ -2536,7 +2482,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 23,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 13,
                             TicketType = 1
@@ -2545,7 +2490,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 24,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 14,
                             TicketType = 2
@@ -2554,7 +2498,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 25,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 14,
                             TicketType = 2
@@ -2563,7 +2506,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 26,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 15,
                             TicketType = 1
@@ -2572,7 +2514,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 27,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 16,
                             TicketType = 1
@@ -2581,7 +2522,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 28,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 16,
                             TicketType = 1
@@ -2590,7 +2530,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 29,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 17,
                             TicketType = 1
@@ -2599,7 +2538,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 30,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 18,
                             TicketType = 2
@@ -2608,7 +2546,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 31,
                             EventID = 9,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 19,
                             TicketType = 1
@@ -2617,7 +2554,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 32,
                             EventID = 9,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 20,
                             TicketType = 1
@@ -2626,7 +2562,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 33,
                             EventID = 9,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 21,
                             TicketType = 1
@@ -2635,7 +2570,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 34,
                             EventID = 20,
-                            IsDeleted = false,
                             Price = 35,
                             PurchaseID = 22,
                             TicketType = 1
@@ -2644,7 +2578,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 35,
                             EventID = 20,
-                            IsDeleted = false,
                             Price = 35,
                             PurchaseID = 23,
                             TicketType = 1
@@ -2653,7 +2586,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 36,
                             EventID = 20,
-                            IsDeleted = false,
                             Price = 35,
                             PurchaseID = 24,
                             TicketType = 1
@@ -2662,7 +2594,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 37,
                             EventID = 15,
-                            IsDeleted = false,
                             Price = 20,
                             PurchaseID = 25,
                             TicketType = 1
@@ -2671,7 +2602,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 38,
                             EventID = 15,
-                            IsDeleted = false,
                             Price = 20,
                             PurchaseID = 26,
                             TicketType = 1

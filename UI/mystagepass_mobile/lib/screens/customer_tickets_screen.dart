@@ -34,9 +34,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
   void initState() {
     super.initState();
     if (_isPreloaded) {
-      _tickets = widget.preloadedTickets!
-          .where((t) => t.isDeleted != true)
-          .toList();
+      _tickets = widget.preloadedTickets!.toList();
       _isLoading = false;
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -59,7 +57,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
       final result = await provider.get(filter: {'Page': 0, 'PageSize': 100});
       if (!mounted) return;
       setState(() {
-        _tickets = result.result.where((t) => t.isDeleted != true).toList();
+        _tickets = result.result.toList();
         _isLoading = false;
       });
     } catch (e) {

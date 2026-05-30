@@ -12,8 +12,8 @@ using MyStagePass.Services.Database;
 namespace MyStagePass.Services.Migrations
 {
     [DbContext(typeof(MyStagePassDbContext))]
-    [Migration("20260526232049_FixedEventSeed")]
-    partial class FixedEventSeed
+    [Migration("20260530135855_InitialEntities")]
+    partial class InitialEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -493,9 +493,10 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 1,
+                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 1, 15, 14, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "First solo concert of the rising pop artist",
-                            EventDate = new DateTime(2026, 5, 10, 20, 0, 0, 0, DateTimeKind.Unspecified),
+                            EventDate = new DateTime(2026, 7, 10, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "Debut Concert",
                             LocationID = 2,
                             PerformerID = 2,
@@ -503,6 +504,7 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 25,
+                            StatusChangedAt = new DateTime(2025, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 2100,
                             TotalScore = 0,
@@ -521,13 +523,13 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 5,
                             PerformerID = 2,
                             PremiumPrice = 120,
-                            RatingAverage = 4.63f,
-                            RatingCount = 89,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 30,
                             StatusChangedAt = new DateTime(2024, 6, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 4,
                             TicketsSold = 5200,
-                            TotalScore = 412,
+                            TotalScore = 0,
                             TotalTickets = 7000,
                             VipPrice = 70
                         },
@@ -572,6 +574,8 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 5,
+                            ApprovedByAdminID = 1,
+                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2025, 2, 20, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Summer open-air concert",
                             EventDate = new DateTime(2026, 7, 1, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -579,18 +583,21 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 7,
                             PerformerID = 4,
                             PremiumPrice = 160,
-                            RatingAverage = 4.7f,
-                            RatingCount = 234,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 35,
+                            StatusChangedAt = new DateTime(2025, 3, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 11800,
-                            TotalScore = 1100,
+                            TotalScore = 0,
                             TotalTickets = 12000,
                             VipPrice = 80
                         },
                         new
                         {
                             EventID = 6,
+                            ApprovedByAdminID = 1,
+                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2024, 9, 1, 15, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "Romantic evening with the most beautiful ballads",
                             EventDate = new DateTime(2025, 7, 5, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -598,12 +605,13 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 1,
                             PerformerID = 4,
                             PremiumPrice = 160,
-                            RatingAverage = 4.62f,
-                            RatingCount = 187,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 35,
+                            StatusChangedAt = new DateTime(2024, 5, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 14300,
-                            TotalScore = 865,
+                            TotalScore = 0,
                             TotalTickets = 15000,
                             VipPrice = 80
                         },
@@ -611,7 +619,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             EventID = 7,
                             ApprovedByAdminID = 1,
-                            CancellationReason = "Artist cancelled due to health reasons.",
                             CreatedAt = new DateTime(2024, 4, 10, 9, 45, 0, 0, DateTimeKind.Unspecified),
                             Description = "Unique concert near the Old Bridge",
                             EventDate = new DateTime(2026, 4, 22, 20, 30, 0, 0, DateTimeKind.Unspecified),
@@ -622,8 +629,8 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 4.5f,
                             RatingCount = 168,
                             RegularPrice = 30,
-                            StatusChangedAt = new DateTime(2025, 3, 15, 14, 0, 0, 0, DateTimeKind.Unspecified),
-                            StatusID = 4,
+                            StatusChangedAt = new DateTime(2024, 5, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            StatusID = 2,
                             TicketsSold = 8900,
                             TotalScore = 756,
                             TotalTickets = 9000,
@@ -654,6 +661,7 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 9,
+                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2024, 5, 15, 13, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Evening of greatest folk-pop hits",
                             EventDate = new DateTime(2025, 4, 12, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -664,6 +672,7 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 4.55f,
                             RatingCount = 312,
                             RegularPrice = 25,
+                            StatusChangedAt = new DateTime(2024, 6, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 17600,
                             TotalScore = 1420,
@@ -682,13 +691,13 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 3,
                             PerformerID = 5,
                             PremiumPrice = 120,
-                            RatingAverage = 4.56f,
-                            RatingCount = 156,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 25,
                             StatusChangedAt = new DateTime(2025, 9, 1, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 4,
                             TicketsSold = 10900,
-                            TotalScore = 712,
+                            TotalScore = 0,
                             TotalTickets = 12000,
                             VipPrice = 60
                         },
@@ -714,6 +723,7 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 12,
+                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2026, 2, 28, 14, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Special guest at EXIT Festival",
                             EventDate = new DateTime(2027, 7, 7, 23, 0, 0, 0, DateTimeKind.Unspecified),
@@ -721,18 +731,20 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 29,
                             PerformerID = 5,
                             PremiumPrice = 250,
-                            RatingAverage = 4.64f,
-                            RatingCount = 278,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 45,
+                            StatusChangedAt = new DateTime(2026, 3, 10, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 35000,
-                            TotalScore = 1290,
+                            TotalScore = 0,
                             TotalTickets = 40000,
                             VipPrice = 120
                         },
                         new
                         {
                             EventID = 13,
+                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 11, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Evening of jazz and soul music",
                             EventDate = new DateTime(2026, 6, 5, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -743,6 +755,7 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 30,
+                            StatusChangedAt = new DateTime(2025, 11, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 1850,
                             TotalScore = 0,
@@ -752,6 +765,7 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 14,
+                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 6, 15, 12, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "Unique vocal performance with band",
                             EventDate = new DateTime(2026, 11, 18, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -759,18 +773,21 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 26,
                             PerformerID = 6,
                             PremiumPrice = 110,
-                            RatingAverage = 4.7f,
-                            RatingCount = 67,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 25,
+                            StatusChangedAt = new DateTime(2025, 7, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 2800,
-                            TotalScore = 315,
+                            TotalScore = 0,
                             TotalTickets = 3000,
                             VipPrice = 60
                         },
                         new
                         {
                             EventID = 15,
+                            ApprovedByAdminID = 1,
+                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2024, 4, 5, 10, 45, 0, 0, DateTimeKind.Unspecified),
                             Description = "Traditional folk music night",
                             EventDate = new DateTime(2025, 9, 28, 20, 0, 0, 0, DateTimeKind.Unspecified),
@@ -778,12 +795,13 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 11,
                             PerformerID = 7,
                             PremiumPrice = 100,
-                            RatingAverage = 4.59f,
-                            RatingCount = 145,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 20,
+                            StatusChangedAt = new DateTime(2024, 6, 10, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 8200,
-                            TotalScore = 665,
+                            TotalScore = 0,
                             TotalTickets = 10000,
                             VipPrice = 50
                         },
@@ -809,9 +827,10 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 17,
+                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 11, 30, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "New Year celebration in Podgorica",
-                            EventDate = new DateTime(2026, 12, 31, 22, 0, 0, 0, DateTimeKind.Unspecified),
+                            EventDate = new DateTime(2026, 5, 31, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             EventName = "New Year's Eve",
                             LocationID = 9,
                             PerformerID = 7,
@@ -819,6 +838,7 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 4.64f,
                             RatingCount = 125,
                             RegularPrice = 40,
+                            StatusChangedAt = new DateTime(2025, 12, 5, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 6750,
                             TotalScore = 580,
@@ -847,6 +867,8 @@ namespace MyStagePass.Services.Migrations
                         new
                         {
                             EventID = 19,
+                            ApprovedByAdminID = 1,
+                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2025, 6, 10, 9, 45, 0, 0, DateTimeKind.Unspecified),
                             Description = "Rock classics and new hits",
                             EventDate = new DateTime(2026, 11, 15, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -854,18 +876,21 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 3,
                             PerformerID = 9,
                             PremiumPrice = 150,
-                            RatingAverage = 4.61f,
-                            RatingCount = 203,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 30,
+                            StatusChangedAt = new DateTime(2025, 3, 15, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 11000,
-                            TotalScore = 935,
+                            TotalScore = 0,
                             TotalTickets = 12000,
                             VipPrice = 75
                         },
                         new
                         {
                             EventID = 20,
+                            ApprovedByAdminID = 1,
+                            CancellationReason = "Don't like the concept!",
                             CreatedAt = new DateTime(2024, 3, 15, 15, 30, 0, 0, DateTimeKind.Unspecified),
                             Description = "Summer rock concert at Poljud",
                             EventDate = new DateTime(2025, 8, 25, 21, 0, 0, 0, DateTimeKind.Unspecified),
@@ -873,18 +898,20 @@ namespace MyStagePass.Services.Migrations
                             LocationID = 19,
                             PerformerID = 9,
                             PremiumPrice = 180,
-                            RatingAverage = 4.57f,
-                            RatingCount = 267,
+                            RatingAverage = 0f,
+                            RatingCount = 0,
                             RegularPrice = 35,
+                            StatusChangedAt = new DateTime(2024, 4, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 3,
                             TicketsSold = 29800,
-                            TotalScore = 1220,
+                            TotalScore = 0,
                             TotalTickets = 34000,
                             VipPrice = 90
                         },
                         new
                         {
                             EventID = 21,
+                            ApprovedByAdminID = 1,
                             CreatedAt = new DateTime(2025, 10, 5, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Headliner at Mostar Rock Festival",
                             EventDate = new DateTime(2026, 7, 12, 22, 0, 0, 0, DateTimeKind.Unspecified),
@@ -895,6 +922,7 @@ namespace MyStagePass.Services.Migrations
                             RatingAverage = 0f,
                             RatingCount = 0,
                             RegularPrice = 30,
+                            StatusChangedAt = new DateTime(2025, 10, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StatusID = 2,
                             TicketsSold = 4300,
                             TotalScore = 0,
@@ -1955,9 +1983,6 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("CustomerID")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<bool?>("IsRefunded")
                         .HasColumnType("bit");
 
@@ -1978,182 +2003,156 @@ namespace MyStagePass.Services.Migrations
                         {
                             PurchaseID = 1,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 2,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 11, 20, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 3,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 10, 20, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 4,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2026, 3, 1, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 5,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 5, 14, 30, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 6,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 7, 10, 9, 15, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 7,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 10, 11, 30, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 8,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 10, 20, 15, 45, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 9,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 10,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 8, 1, 11, 45, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 11,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 11, 25, 14, 20, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 12,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 11, 25, 9, 30, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 13,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2026, 3, 11, 16, 20, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 14,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 15, 13, 10, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 15,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2026, 1, 30, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 16,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 5, 12, 15, 10, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 17,
                             CustomerID = 6,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 5, 16, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 18,
                             CustomerID = 6,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 12, 10, 18, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 19,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 3, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 20,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 3, 5, 11, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 21,
                             CustomerID = 3,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 3, 10, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 22,
                             CustomerID = 4,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2024, 6, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 23,
                             CustomerID = 5,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2024, 6, 5, 14, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 24,
                             CustomerID = 6,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2024, 6, 10, 9, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 25,
                             CustomerID = 1,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 4, 1, 10, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PurchaseID = 26,
                             CustomerID = 2,
-                            IsDeleted = false,
                             PurchaseDate = new DateTime(2025, 4, 2, 11, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -2288,9 +2287,6 @@ namespace MyStagePass.Services.Migrations
                     b.Property<int>("EventID")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
@@ -2313,7 +2309,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 1,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 1,
                             TicketType = 1
@@ -2322,7 +2317,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 2,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 1,
                             TicketType = 1
@@ -2331,7 +2325,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 3,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 2,
                             TicketType = 1
@@ -2340,7 +2333,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 4,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 75,
                             PurchaseID = 3,
                             TicketType = 2
@@ -2349,7 +2341,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 5,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 3,
                             TicketType = 1
@@ -2358,7 +2349,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 6,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 4,
                             TicketType = 1
@@ -2367,7 +2357,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 7,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 4,
                             TicketType = 1
@@ -2376,7 +2365,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 8,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 130,
                             PurchaseID = 5,
                             TicketType = 3
@@ -2385,7 +2373,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 9,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 5,
                             TicketType = 1
@@ -2394,7 +2381,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 10,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 60,
                             PurchaseID = 6,
                             TicketType = 2
@@ -2403,7 +2389,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 11,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 60,
                             PurchaseID = 6,
                             TicketType = 2
@@ -2412,7 +2397,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 12,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 6,
                             TicketType = 1
@@ -2421,7 +2405,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 13,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 7,
                             TicketType = 2
@@ -2430,7 +2413,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 14,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 8,
                             TicketType = 1
@@ -2439,7 +2421,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 15,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 8,
                             TicketType = 1
@@ -2448,7 +2429,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 16,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 9,
                             TicketType = 1
@@ -2457,7 +2437,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 17,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 60,
                             PurchaseID = 10,
                             TicketType = 2
@@ -2466,7 +2445,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 18,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 10,
                             TicketType = 1
@@ -2475,7 +2453,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 19,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 130,
                             PurchaseID = 11,
                             TicketType = 3
@@ -2484,7 +2461,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 20,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 130,
                             PurchaseID = 11,
                             TicketType = 3
@@ -2493,7 +2469,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 21,
                             EventID = 14,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 12,
                             TicketType = 1
@@ -2502,7 +2477,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 22,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 13,
                             TicketType = 1
@@ -2511,7 +2485,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 23,
                             EventID = 12,
-                            IsDeleted = false,
                             Price = 45,
                             PurchaseID = 13,
                             TicketType = 1
@@ -2520,7 +2493,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 24,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 14,
                             TicketType = 2
@@ -2529,7 +2501,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 25,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 14,
                             TicketType = 2
@@ -2538,7 +2509,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 26,
                             EventID = 21,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 15,
                             TicketType = 1
@@ -2547,7 +2517,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 27,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 16,
                             TicketType = 1
@@ -2556,7 +2525,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 28,
                             EventID = 1,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 16,
                             TicketType = 1
@@ -2565,7 +2533,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 29,
                             EventID = 13,
-                            IsDeleted = false,
                             Price = 30,
                             PurchaseID = 17,
                             TicketType = 1
@@ -2574,7 +2541,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 30,
                             EventID = 17,
-                            IsDeleted = false,
                             Price = 100,
                             PurchaseID = 18,
                             TicketType = 2
@@ -2583,7 +2549,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 31,
                             EventID = 9,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 19,
                             TicketType = 1
@@ -2592,7 +2557,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 32,
                             EventID = 9,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 20,
                             TicketType = 1
@@ -2601,7 +2565,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 33,
                             EventID = 9,
-                            IsDeleted = false,
                             Price = 25,
                             PurchaseID = 21,
                             TicketType = 1
@@ -2610,7 +2573,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 34,
                             EventID = 20,
-                            IsDeleted = false,
                             Price = 35,
                             PurchaseID = 22,
                             TicketType = 1
@@ -2619,7 +2581,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 35,
                             EventID = 20,
-                            IsDeleted = false,
                             Price = 35,
                             PurchaseID = 23,
                             TicketType = 1
@@ -2628,7 +2589,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 36,
                             EventID = 20,
-                            IsDeleted = false,
                             Price = 35,
                             PurchaseID = 24,
                             TicketType = 1
@@ -2637,7 +2597,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 37,
                             EventID = 15,
-                            IsDeleted = false,
                             Price = 20,
                             PurchaseID = 25,
                             TicketType = 1
@@ -2646,7 +2605,6 @@ namespace MyStagePass.Services.Migrations
                         {
                             TicketID = 38,
                             EventID = 15,
-                            IsDeleted = false,
                             Price = 20,
                             PurchaseID = 26,
                             TicketType = 1

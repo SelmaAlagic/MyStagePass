@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mystagepass_admin/models/Genre/genre.dart';
 import 'package:mystagepass_admin/providers/genre_provider.dart';
+import 'package:mystagepass_admin/utils/alert_helpers.dart';
 import 'package:mystagepass_admin/utils/snack_helpers.dart';
 import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 
@@ -176,7 +177,6 @@ class _GenresTableState extends State<_GenresTable> {
 
   Future<void> _showAdd() async {
     final nameCtrl = TextEditingController();
-
     final result = await showDialog<String>(
       context: context,
       barrierColor: Colors.black.withOpacity(0.35),
@@ -187,26 +187,78 @@ class _GenresTableState extends State<_GenresTable> {
         onCancel: () => Navigator.pop(ctx),
       ),
     );
-
     if (result == null || result.isEmpty) return;
-
     try {
       await _provider.insert({'name': result});
-
-      if (mounted) {
+      if (mounted)
         SnackHelpers.showSuccess(context, 'Genre added successfully!');
-      }
-
       _currentPage = 1;
       _load();
     } catch (e) {
       if (mounted) {
-        if (mounted) {
-          String msg = e.toString().replaceFirst('Exception: ', '').trim();
-          SnackHelpers.showError(context, msg);
-        }
+        SnackHelpers.showError(
+          context,
+          e.toString().replaceFirst('Exception: ', '').trim(),
+        );
       }
     }
+  }
+
+  Future<void> _showEdit(Genre genre) async {
+    final nameCtrl = TextEditingController(text: genre.name ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (ctx) => _GenreDialog(
+        title: 'Edit Genre',
+        controller: nameCtrl,
+        onSave: () => Navigator.pop(ctx, nameCtrl.text.trim()),
+        onCancel: () => Navigator.pop(ctx),
+      ),
+    );
+    if (result == null || result.isEmpty) return;
+    try {
+      await _provider.update(genre.genreId!, {'name': result});
+      if (mounted)
+        SnackHelpers.showSuccess(context, 'Genre updated successfully!');
+      _currentPage = 1;
+      _load();
+    } catch (e) {
+      if (mounted) {
+        SnackHelpers.showError(
+          context,
+          e.toString().replaceFirst('Exception: ', '').trim(),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmDelete(Genre genre) async {
+    AlertHelpers.showConfirmationAlert(
+      context,
+      'Delete Genre',
+      'Are you sure you want to delete "${genre.name}"? This action cannot be undone.',
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      isDelete: true,
+      highlightText: genre.name,
+      onConfirm: () async {
+        try {
+          await _provider.delete(genre.genreId!);
+          if (mounted)
+            SnackHelpers.showSuccess(context, 'Genre deleted successfully!');
+          _currentPage = 1;
+          _load();
+        } catch (e) {
+          if (mounted) {
+            SnackHelpers.showError(
+              context,
+              e.toString().replaceFirst('Exception: ', '').trim(),
+            );
+          }
+        }
+      },
+    );
   }
 
   @override
@@ -227,6 +279,7 @@ class _GenresTableState extends State<_GenresTable> {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
+          // ── toolbar ──────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             child: Row(
@@ -352,6 +405,7 @@ class _GenresTableState extends State<_GenresTable> {
               ],
             ),
           ),
+
           if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
             Padding(
               padding: const EdgeInsets.only(left: 16, bottom: 8),
@@ -374,7 +428,10 @@ class _GenresTableState extends State<_GenresTable> {
                 ],
               ),
             ),
+
           const Divider(height: 1, color: _border),
+
+          // ── header row ───────────────────────────────────────────
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
             decoration: const BoxDecoration(
@@ -407,7 +464,7 @@ class _GenresTableState extends State<_GenresTable> {
                   ),
                 ),
                 SizedBox(
-                  width: 100,
+                  width: 110,
                   child: Center(
                     child: Text(
                       'Performers',
@@ -419,9 +476,23 @@ class _GenresTableState extends State<_GenresTable> {
                     ),
                   ),
                 ),
+                SizedBox(
+                  width: 90,
+                  child: Center(
+                    child: Text(
+                      'Actions',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: _t2,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
+
           if (_loading)
             _loadingWidget()
           else if (_items.isEmpty)
@@ -430,17 +501,19 @@ class _GenresTableState extends State<_GenresTable> {
             ..._items.asMap().entries.map((e) {
               final idx = e.key;
               final item = e.value;
-              final performerCount = item.performers?.length ?? 0;
               final isSelected = widget.selectedGenre?.genreId == item.genreId;
               return _GenreRow(
                 index: (_currentPage - 1) * _pageSize + idx + 1,
                 genre: item,
-                performerCount: performerCount,
+                performerCount: item.performers?.length ?? 0,
                 isEven: idx % 2 == 0,
                 isSelected: isSelected,
                 onTap: () => widget.onGenreSelected(item),
+                onEdit: () => _showEdit(item),
+                onDelete: () => _confirmDelete(item),
               );
             }),
+
           _PaginationFooter(
             from: (_currentPage - 1) * _pageSize + 1,
             to: (_currentPage - 1) * _pageSize + _items.length,
@@ -460,6 +533,8 @@ class _GenresTableState extends State<_GenresTable> {
   }
 }
 
+// ── Genre Row ─────────────────────────────────────────────────────────────────
+
 class _GenreRow extends StatefulWidget {
   final int index;
   final Genre genre;
@@ -467,6 +542,8 @@ class _GenreRow extends StatefulWidget {
   final bool isEven;
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const _GenreRow({
     required this.index,
@@ -475,6 +552,8 @@ class _GenreRow extends StatefulWidget {
     required this.isEven,
     required this.isSelected,
     required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -516,6 +595,7 @@ class _GenreRowState extends State<_GenreRow> {
           ),
           child: Row(
             children: [
+              // index
               SizedBox(
                 width: 40,
                 child: Center(
@@ -529,6 +609,7 @@ class _GenreRowState extends State<_GenreRow> {
                   ),
                 ),
               ),
+              // name
               Expanded(
                 child: Text(
                   widget.genre.name ?? 'N/A',
@@ -541,8 +622,9 @@ class _GenreRowState extends State<_GenreRow> {
                   ),
                 ),
               ),
+              // performer count badge
               SizedBox(
-                width: 100,
+                width: 110,
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -557,13 +639,33 @@ class _GenreRowState extends State<_GenreRow> {
                     ),
                     child: Text(
                       '${widget.performerCount}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: _navyMid,
                       ),
                     ),
                   ),
+                ),
+              ),
+              // actions
+              SizedBox(
+                width: 90,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _IconBtn(
+                      icon: Icons.edit_rounded,
+                      color: _navyMid,
+                      onTap: widget.onEdit,
+                    ),
+                    const SizedBox(width: 6),
+                    _IconBtn(
+                      icon: Icons.delete_outline_rounded,
+                      color: _red,
+                      onTap: widget.onDelete,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -573,6 +675,55 @@ class _GenreRowState extends State<_GenreRow> {
     );
   }
 }
+
+// ── Icon Button ───────────────────────────────────────────────────────────────
+
+class _IconBtn extends StatefulWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+  const _IconBtn({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  State<_IconBtn> createState() => _IconBtnState();
+}
+
+class _IconBtnState extends State<_IconBtn> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: _hovered
+                ? widget.color.withOpacity(0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+              color: _hovered ? widget.color.withOpacity(0.3) : _border,
+            ),
+          ),
+          child: Icon(widget.icon, size: 14, color: widget.color),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Performers Panel ──────────────────────────────────────────────────────────
 
 class _PerformersPanel extends StatelessWidget {
   final Genre? genre;
@@ -787,6 +938,8 @@ class _PerformersPanel extends StatelessWidget {
   }
 }
 
+// ── Genre Dialog ──────────────────────────────────────────────────────────────
+
 class _GenreDialog extends StatefulWidget {
   final String title;
   final TextEditingController controller;
@@ -872,6 +1025,8 @@ class _GenreDialogState extends State<_GenreDialog> {
     );
   }
 }
+
+// ── Pagination ────────────────────────────────────────────────────────────────
 
 class _PaginationFooter extends StatelessWidget {
   final int from, to, total, currentPage, totalPages;
@@ -996,6 +1151,8 @@ class _PagArrow extends StatelessWidget {
     );
   }
 }
+
+// ── Shared helpers ────────────────────────────────────────────────────────────
 
 Widget _dialogHeader({
   required String title,

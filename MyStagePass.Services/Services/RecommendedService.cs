@@ -61,8 +61,7 @@ namespace MyStagePass.Services.Services
 			List<EventInteraction> allInteractions;
 
 			var purchases = await _context.Purchases
-				.Where(p => !p.IsDeleted)
-				.SelectMany(p => p.Tickets.Where(t => !t.IsDeleted)
+				.SelectMany(p => p.Tickets
 					.Select(t => new EventInteraction
 					{
 						CustomerId = p.CustomerID,
@@ -192,9 +191,8 @@ namespace MyStagePass.Services.Services
 			await EnsureModelTrainedAsync();
 
 			var purchasedEventIds = await _context.Purchases
-				.Where(p => p.CustomerID == customerId && !p.IsDeleted)
+				.Where(p => p.CustomerID == customerId)
 				.SelectMany(p => p.Tickets)
-				.Where(t => !t.IsDeleted)
 				.Select(t => t.EventID)
 				.Distinct()
 				.ToListAsync();

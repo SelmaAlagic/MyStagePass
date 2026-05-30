@@ -10,7 +10,6 @@ class Ticket {
   int? eventID;
   int? purchaseID;
   int? ticketType;
-  bool? isDeleted;
   Event? event;
 
   Ticket({
@@ -19,7 +18,6 @@ class Ticket {
     this.eventID,
     this.purchaseID,
     this.ticketType,
-    this.isDeleted,
     this.event,
   });
 

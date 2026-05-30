@@ -28,8 +28,6 @@ namespace MyStagePass.WebAPI.Controllers
 		[NonAction]
 		public override async Task<Notification> Update(int id, [FromBody] NotificationUpdateRequest request) => throw new UnauthorizedAccessException("Not allowed.");
 
-		[NonAction]
-		public override async Task<Notification> Delete(int id)	=> throw new UnauthorizedAccessException("Not allowed.");
 
 		[HttpPut("mark-all-as-read")]
 		public async Task<IActionResult> MarkAllAsRead()
@@ -53,6 +51,21 @@ namespace MyStagePass.WebAPI.Controllers
 			var userId = _currentUserService.GetUserId();
 			search.UserID = userId;
 			return await _service.Get(search);
+		}
+
+		[HttpDelete("{id}")]
+		public override async Task<Notification> Delete(int id)
+		{
+			var userId = _currentUserService.GetUserId();
+			var notification = await _notificationService.GetById(id);
+
+			if (notification == null)
+				throw new KeyNotFoundException("Notification not found.");
+
+			if (notification.UserID != userId)
+				throw new UnauthorizedAccessException("You can only delete your own notifications.");
+
+			return await _notificationService.Delete(id);
 		}
 	}
 }

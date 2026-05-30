@@ -203,7 +203,7 @@ class _StatusTableState extends State<_StatusTable> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Statuses',
@@ -233,83 +233,92 @@ class _StatusTableState extends State<_StatusTable> {
                   ),
                 ),
                 const Spacer(),
-                SizedBox(
-                  width: 170,
-                  height: 34,
-                  child: TextField(
-                    controller: _search,
-                    onChanged: _onSearchChanged,
-                    cursorColor: _navy,
-                    cursorWidth: 1.0,
-                    style: const TextStyle(fontSize: 13, color: _t1),
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      hintStyle: const TextStyle(color: _t2, fontSize: 13),
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        size: 15,
-                        color: _t2,
-                      ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? GestureDetector(
-                              onTap: () {
-                                _search.clear();
-                                _onSearchChanged('');
-                              },
-                              child: const Icon(
-                                Icons.close_rounded,
-                                size: 14,
-                                color: _t2,
-                              ),
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: _bg,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: _border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: _border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: _navyMid,
-                          width: 1.5,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 170,
+                      height: 34,
+                      child: TextField(
+                        controller: _search,
+                        onChanged: _onSearchChanged,
+                        cursorColor: _navy,
+                        cursorWidth: 1.0,
+                        style: const TextStyle(fontSize: 13, color: _t1),
+                        decoration: InputDecoration(
+                          hintText: 'Search...',
+                          hintStyle: const TextStyle(color: _t2, fontSize: 13),
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            size: 15,
+                            color: _t2,
+                          ),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () {
+                                    _search.clear();
+                                    _onSearchChanged('');
+                                  },
+                                  child: const Icon(
+                                    Icons.close_rounded,
+                                    size: 14,
+                                    color: _t2,
+                                  ),
+                                )
+                              : null,
+                          filled: true,
+                          fillColor: _bg,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 9,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: _border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: _border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: _navyMid,
+                              width: 1.5,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 11,
+                              color: _navyMid.withOpacity(0.6),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Type at least 3 characters to search',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: _navyMid.withOpacity(0.6),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
           ),
-          if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
-            Padding(
-              padding: const EdgeInsets.only(left: 16, bottom: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 11,
-                    color: _navyMid.withOpacity(0.6),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Type at least 3 characters to search',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: _navyMid.withOpacity(0.6),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           const Divider(height: 1, color: _border),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),

@@ -14,9 +14,7 @@ Notification _$NotificationFromJson(Map<String, dynamic> json) => Notification(
       : User.fromJson(json['user'] as Map<String, dynamic>),
   title: json['title'] as String?,
   message: json['message'] as String?,
-  createdAt: json['createdAt'] == null
-      ? null
-      : DateTime.parse(json['createdAt'] as String),
+  createdAt: Notification._parseDate(json['createdAt']),
   isRead: json['isRead'] as bool?,
   isDeleted: json['isDeleted'] as bool?,
 );

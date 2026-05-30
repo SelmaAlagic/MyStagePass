@@ -202,6 +202,9 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     final user = authProvider.currentUser;
     int selectedTicketType = 1;
     int numberOfTickets = 1;
+    final maxTickets = event.ticketsAvailable != null
+        ? (event.ticketsAvailable! < 10 ? event.ticketsAvailable! : 10)
+        : 10;
 
     int getPrice() {
       switch (selectedTicketType) {
@@ -357,6 +360,20 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                               color: Color(0xFF2D3142),
                             ),
                           ),
+                          if (event.ticketsAvailable != null &&
+                              event.ticketsAvailable! < 10)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Text(
+                                'Only ${event.ticketsAvailable} ticket${event.ticketsAvailable == 1 ? '' : 's'} left!',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           const SizedBox(height: 8),
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -397,14 +414,14 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                               const SizedBox(width: 20),
                               GestureDetector(
                                 onTap: () {
-                                  if (numberOfTickets < 10)
+                                  if (numberOfTickets < maxTickets)
                                     setModalState(() => numberOfTickets++);
                                 },
                                 child: Container(
                                   width: 30,
                                   height: 30,
                                   decoration: BoxDecoration(
-                                    color: numberOfTickets < 10
+                                    color: numberOfTickets < maxTickets
                                         ? const Color(0xFF1D235D)
                                         : const Color(0xFFE8EAF2),
                                     borderRadius: BorderRadius.circular(7),
@@ -412,7 +429,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                                   child: Icon(
                                     Icons.add,
                                     size: 16,
-                                    color: numberOfTickets < 10
+                                    color: numberOfTickets < maxTickets
                                         ? Colors.white
                                         : Colors.grey,
                                   ),
@@ -1208,6 +1225,49 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                   ),
                 ),
               ),
+            if (event.isFewTicketsLeft == true &&
+                event.status?.statusName?.toLowerCase() != 'cancelled')
+              Positioned(
+                bottom: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(
+                        Icons.local_fire_department_rounded,
+                        size: 13,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'ALMOST GONE!',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: Column(
@@ -1396,27 +1456,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        if (event.status?.statusName?.toLowerCase() ==
+                        if (event.status?.statusName?.toLowerCase() !=
                             'cancelled')
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.cancel_outlined,
-                                size: 13,
-                                color: Colors.redAccent,
-                              ),
-                              const SizedBox(width: 5),
-                              const Text(
-                                "This event has been cancelled",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.redAccent,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          )
-                        else
                           ElevatedButton.icon(
                             onPressed: () async {
                               final authProvider = Provider.of<AuthProvider>(

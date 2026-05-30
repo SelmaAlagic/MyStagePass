@@ -12,7 +12,6 @@ namespace MyStagePass.Model.Models
 		public virtual Customer Customer { get; set; } = null!;
 		public int CustomerID { get; set; }
 		public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
-		public bool IsDeleted { get; set; } = false;
 		public string? PaymentIntentId { get; set; }
 		public bool? IsRefunded { get; set; }
 

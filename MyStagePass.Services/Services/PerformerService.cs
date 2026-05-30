@@ -84,6 +84,11 @@ namespace MyStagePass.Services.Services
 			else if (search?.IsApproved != null)
 				query = query.Where(p => p.IsApproved == search.IsApproved);
 
+			if (search?.IsPending != true && search?.IsApproved == null)
+			{
+				query = query.Where(p => p.IsApproved != null);
+			}
+
 			return base.AddFilter(query, search);
 		}
 		public override IQueryable<Performer> AddInclude(IQueryable<Performer> query, PerformerSearchObject? search = null)
@@ -260,7 +265,7 @@ namespace MyStagePass.Services.Services
 			var query = _context.Tickets
 			   .Include(t => t.Event)
 			   .Include(t => t.Purchase)
-			   .Where(t => t.Event.PerformerID == performerId && !t.IsDeleted);
+			   .Where(t => t.Event.PerformerID == performerId);
 
 			if (eventId.HasValue)
 				query = query.Where(t => t.EventID == eventId.Value);

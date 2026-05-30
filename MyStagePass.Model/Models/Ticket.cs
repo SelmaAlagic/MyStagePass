@@ -10,7 +10,6 @@
 		public virtual Purchase Purchase { get; set; } = null!;
 
 		public TicketType TicketType { get; set; }
-		public bool IsDeleted { get; set; } = false;
 
 	}
 }

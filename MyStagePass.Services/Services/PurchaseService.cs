@@ -33,8 +33,6 @@ namespace MyStagePass.Services.Services
 			if (search == null)
 				return query;
 
-			query = query.Where(p => !p.IsDeleted);
-
 			if (search.CustomerID.HasValue)
 				query = query.Where(p => p.CustomerID == search.CustomerID.Value);
 
@@ -90,7 +88,6 @@ namespace MyStagePass.Services.Services
 				{
 					CustomerID = request.CustomerID,
 					PurchaseDate = DateTime.UtcNow,
-					IsDeleted = false,
 					PaymentIntentId = request.PaymentIntentId
 				};
 
@@ -105,7 +102,6 @@ namespace MyStagePass.Services.Services
 						PurchaseID = purchaseEntity.PurchaseID,
 						Price = singlePrice,
 						TicketType = (Database.TicketType)request.TicketType,
-						IsDeleted = false
 					};
 					_context.Tickets.Add(ticket);
 				}
@@ -142,7 +138,6 @@ namespace MyStagePass.Services.Services
 		public async Task<PagedResult<Model.Models.Event>> GetCustomerEvents(PurchaseSearchObject search)
 		{
 			var query = _context.Purchases
-				.Where(p => p.CustomerID == search.CustomerID && !p.IsDeleted)
 				.Include(p => p.Tickets)
 					.ThenInclude(t => t.Event)
 						.ThenInclude(e => e.Performer)
@@ -152,11 +147,14 @@ namespace MyStagePass.Services.Services
 						.ThenInclude(e => e.Location)
 				.AsQueryable();
 
+			if (search.CustomerID.HasValue)
+				query = query.Where(p => p.CustomerID == search.CustomerID.Value);
+
 			var purchases = await query.ToListAsync();
 
 			var eventsFromDb = purchases
 				.SelectMany(p => p.Tickets)
-				.Where(t => !t.IsDeleted && t.Event != null)
+				.Where(t => t.Event != null)
 				.GroupBy(t => t.EventID)
 				.Select(g => g.First().Event)
 				.ToList();

@@ -20,6 +20,8 @@ class Event {
   int? ratingCount;
   int? userRating;
   String? description;
+  bool? isFewTicketsLeft;
+  int? ticketsAvailable;
 
   Performer? performer;
   Location? location;
@@ -42,6 +44,8 @@ class Event {
     this.userRating,
     this.status,
     this.description,
+    this.isFewTicketsLeft,
+    this.ticketsAvailable,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);

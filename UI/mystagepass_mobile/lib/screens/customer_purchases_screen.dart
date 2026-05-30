@@ -42,7 +42,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
       final result = await provider.get(filter: {'Page': 0, 'PageSize': 100});
       if (!mounted) return;
       setState(() {
-        _purchases = result.result.where((p) => p.isDeleted != true).toList();
+        _purchases = result.result.toList();
         _purchases.sort(
           (a, b) => (b.purchaseDate ?? DateTime(0)).compareTo(
             a.purchaseDate ?? DateTime(0),
@@ -242,8 +242,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
   Widget _buildPurchaseCard(Purchase purchase) {
     final isRefunded = purchase.isRefunded == true;
     final allTickets = purchase.tickets ?? [];
-    final tickets = allTickets.where((t) => t.isDeleted != true).toList();
-    final ticketCount = isRefunded ? allTickets.length : tickets.length;
+    final ticketCount = allTickets.length;
     final eventName = allTickets.isNotEmpty
         ? (allTickets.first.event?.eventName ?? "Event")
         : "Purchase #${purchase.purchaseID}";
@@ -377,7 +376,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: ElevatedButton(
-                  onPressed: tickets.isEmpty
+                  onPressed: allTickets.isEmpty
                       ? null
                       : () {
                           Navigator.push(
@@ -385,7 +384,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                             MaterialPageRoute(
                               builder: (_) => TicketsScreen(
                                 userId: widget.userId,
-                                preloadedTickets: tickets,
+                                preloadedTickets: allTickets,
                               ),
                             ),
                           );
