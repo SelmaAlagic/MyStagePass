@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mystagepass_mobile/providers/event_provider.dart';
+import 'package:mystagepass_mobile/utils/alert_helpers.dart';
 import 'package:provider/provider.dart';
 import '../models/Event/event.dart';
 import '../providers/performer_provider.dart';
@@ -555,7 +556,13 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () async {
+                                final discard =
+                                    await AlertHelpers.showDiscardChangesAlert(
+                                      context,
+                                    );
+                                if (discard) Navigator.pop(context);
+                              },
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 12,
@@ -613,11 +620,10 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                                         await provider.update(event.eventID!, {
                                           if (nameController.text.isNotEmpty)
                                             'eventName': nameController.text,
-                                          if (descriptionController
-                                              .text
-                                              .isNotEmpty)
-                                            'description':
-                                                descriptionController.text,
+                                          'description':
+                                              descriptionController.text.isEmpty
+                                              ? null
+                                              : descriptionController.text,
                                           if (regularController.text.isNotEmpty)
                                             'regularPrice': int.tryParse(
                                               regularController.text,
@@ -644,11 +650,9 @@ class _PerformerEventsScreenState extends State<PerformerEventsScreen> {
                                               ? nameController.text
                                               : event.eventName,
                                           description:
-                                              descriptionController
-                                                  .text
-                                                  .isNotEmpty
-                                              ? descriptionController.text
-                                              : event.description,
+                                              descriptionController.text.isEmpty
+                                              ? null
+                                              : descriptionController.text,
                                           regularPrice:
                                               regularController.text.isNotEmpty
                                               ? int.tryParse(

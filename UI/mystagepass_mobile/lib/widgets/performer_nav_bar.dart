@@ -9,11 +9,13 @@ enum PerformerNavItem { home, profile }
 class PerformerBottomNavBar extends StatelessWidget {
   final PerformerNavItem selected;
   final int userId;
+  final Future<bool> Function()? onBeforeNavigate;
 
   const PerformerBottomNavBar({
     super.key,
     required this.selected,
     required this.userId,
+    this.onBeforeNavigate,
   });
 
   @override
@@ -40,8 +42,12 @@ class PerformerBottomNavBar extends StatelessWidget {
               inactiveIcon: Icons.home_outlined,
               label: "Home",
               item: PerformerNavItem.home,
-              onTap: () {
+              onTap: () async {
                 if (selected != PerformerNavItem.home) {
+                  if (onBeforeNavigate != null) {
+                    final canLeave = await onBeforeNavigate!();
+                    if (!canLeave) return;
+                  }
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(

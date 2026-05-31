@@ -440,6 +440,10 @@ class _PerformerProfileScreenState extends State<PerformerProfileScreen> {
         'genreIds': _selectedGenreIds.isEmpty ? null : _selectedGenreIds,
       });
 
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      auth.currentUser = null;
+      await auth.fetchMyProfile();
+
       if (!mounted) return;
       setState(() {
         _hasProfessionalChanges = false;
@@ -524,6 +528,8 @@ class _PerformerProfileScreenState extends State<PerformerProfileScreen> {
                         if (_newPasswordController.text.isNotEmpty &&
                             (v == null || v.isEmpty))
                           return "Please enter your current password";
+                        if (v != null && v.isNotEmpty && v.length < 6)
+                          return "Minimum 6 characters";
                         return null;
                       },
                     ),
@@ -1135,6 +1141,14 @@ class _PerformerProfileScreenState extends State<PerformerProfileScreen> {
                 PerformerBottomNavBar(
                   selected: PerformerNavItem.profile,
                   userId: widget.userId,
+                  onBeforeNavigate: () async {
+                    if (_hasPersonalChanges || _hasProfessionalChanges) {
+                      return await AlertHelpers.showDiscardChangesAlert(
+                        context,
+                      );
+                    }
+                    return true;
+                  },
                 ),
               ],
             ),

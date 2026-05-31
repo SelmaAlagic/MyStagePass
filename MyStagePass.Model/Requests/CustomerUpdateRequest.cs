@@ -4,7 +4,15 @@ namespace MyStagePass.Model.Requests
 {
 	public class CustomerUpdateRequest
 	{
-		
+		[MinLength(3)]
+		public string? FirstName { get; set; }
+
+		[MinLength(3)]
+		public string? LastName { get; set; }
+
+		[RegularExpression(@"^\+?0?\d{8,14}$", ErrorMessage = "Invalid phone number.")]
+		public string? PhoneNumber { get; set; }
+
 		[EmailAddress]
 		public string? Email { get; set; }
 

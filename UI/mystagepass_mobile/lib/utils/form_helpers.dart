@@ -117,7 +117,10 @@ class FormHelpers {
   }) {
     return TextFormField(
       controller: controller,
-      validator: validator,
+      validator: (v) {
+        if (serverError != null) return serverError;
+        return validator?.call(v);
+      },
       obscureText: obscureText,
       keyboardType: keyboardType,
       maxLines: maxLines,
@@ -136,6 +139,7 @@ class FormHelpers {
         labelText: required ? "$label*" : label,
         labelStyle: const TextStyle(color: Color(0xFF98A2B3)),
         floatingLabelStyle: const TextStyle(color: Color(0xFF1D235D)),
+        errorText: serverError,
         hintText: hintText,
         hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
         prefixIcon: Icon(

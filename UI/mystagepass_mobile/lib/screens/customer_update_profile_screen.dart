@@ -336,6 +336,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (_newPasswordController.text.isNotEmpty &&
                             (v == null || v.isEmpty))
                           return "Please enter your current password";
+                        if (v != null && v.isNotEmpty && v.length < 6)
+                          return "Minimum 6 characters";
                         return null;
                       },
                     ),
@@ -404,6 +406,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     'password': _newPasswordController.text,
                                     'passwordConfirm':
                                         _confirmPasswordController.text,
+                                    'image': auth.currentUser?.image,
                                   });
                                   _currentPasswordController.clear();
                                   _newPasswordController.clear();
@@ -491,6 +494,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       bottomNavigationBar: BottomNavBar(
         selected: NavItem.profile,
         userId: widget.userId,
+        onBeforeNavigate: () async {
+          if (_hasPersonalChanges) {
+            return await AlertHelpers.showDiscardChangesAlert(context);
+          }
+          return true;
+        },
       ),
       backgroundColor: const Color(0xFFF8F9FB),
       body: Consumer<AuthProvider>(

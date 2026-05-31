@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mystagepass_mobile/providers/event_provider.dart';
+import 'package:mystagepass_mobile/utils/alert_helpers.dart';
 import 'package:provider/provider.dart';
 import '../models/Location/location.dart';
 import '../models/City/city.dart';
@@ -39,7 +40,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
   bool _isLoadingLocations = true;
   bool _isSubmitting = false;
-
+  bool _hasChanges = false;
   final Color _darkBlue = const Color(0xFF1D235D);
   final Color _darkText = const Color(0xFF1D2939);
 
@@ -47,6 +48,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
   void initState() {
     super.initState();
     _fetchLocations();
+
+    _nameController.addListener(() => setState(() => _hasChanges = true));
+    _descriptionController.addListener(
+      () => setState(() => _hasChanges = true),
+    );
+    _regularController.addListener(() => setState(() => _hasChanges = true));
+    _vipController.addListener(() => setState(() => _hasChanges = true));
+    _premiumController.addListener(() => setState(() => _hasChanges = true));
   }
 
   Future<void> _fetchLocations() async {
@@ -442,16 +451,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-
-      String errorMessage =
-          "Unable to create the event. Please check your details and try again.";
-
-      if (e.toString().contains("This location is already booked")) {
-        errorMessage =
-            "This venue is unavailable at the selected time. Please choose another time or location.";
-      }
-
-      _showErrorSnackbar(errorMessage);
+      _showErrorSnackbar(e.toString().replaceAll("Exception: ", ""));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -480,7 +480,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () async {
+                      if (_hasChanges) {
+                        final discard =
+                            await AlertHelpers.showDiscardChangesAlert(context);
+                        if (!discard) return;
+                      }
+                      Navigator.pop(context);
+                    },
                     child: Container(
                       width: 32,
                       height: 32,

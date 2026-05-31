@@ -9,8 +9,14 @@ enum NavItem { home, favorites, purchases, profile }
 class BottomNavBar extends StatelessWidget {
   final NavItem selected;
   final int userId;
+  final Future<bool> Function()? onBeforeNavigate;
 
-  const BottomNavBar({super.key, required this.selected, required this.userId});
+  const BottomNavBar({
+    super.key,
+    required this.selected,
+    required this.userId,
+    this.onBeforeNavigate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +42,12 @@ class BottomNavBar extends StatelessWidget {
               inactiveIcon: Icons.home_outlined,
               label: "Home",
               item: NavItem.home,
-              onTap: () {
+              onTap: () async {
                 if (selected != NavItem.home) {
+                  if (onBeforeNavigate != null) {
+                    final canLeave = await onBeforeNavigate!();
+                    if (!canLeave) return;
+                  }
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(
@@ -56,8 +66,12 @@ class BottomNavBar extends StatelessWidget {
               inactiveIcon: Icons.favorite_border_rounded,
               label: "Favorites",
               item: NavItem.favorites,
-              onTap: () {
+              onTap: () async {
                 if (selected != NavItem.favorites) {
+                  if (onBeforeNavigate != null) {
+                    final canLeave = await onBeforeNavigate!();
+                    if (!canLeave) return;
+                  }
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(
@@ -76,8 +90,12 @@ class BottomNavBar extends StatelessWidget {
               inactiveIcon: Icons.shopping_cart_outlined,
               label: "Purchases",
               item: NavItem.purchases,
-              onTap: () {
+              onTap: () async {
                 if (selected != NavItem.purchases) {
+                  if (onBeforeNavigate != null) {
+                    final canLeave = await onBeforeNavigate!();
+                    if (!canLeave) return;
+                  }
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(
@@ -96,8 +114,12 @@ class BottomNavBar extends StatelessWidget {
               inactiveIcon: Icons.person_outline_rounded,
               label: "Profile",
               item: NavItem.profile,
-              onTap: () {
+              onTap: () async {
                 if (selected != NavItem.profile) {
+                  if (onBeforeNavigate != null) {
+                    final canLeave = await onBeforeNavigate!();
+                    if (!canLeave) return;
+                  }
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(

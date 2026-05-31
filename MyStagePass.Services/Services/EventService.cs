@@ -32,6 +32,23 @@ namespace MyStagePass.Services.Services
 			entity.TotalTickets = location.Capacity;
 			await ValidateLocationAvailability(insert.LocationID, insert.EventDate);
 
+			var performerConflict = await _context.Events
+		.Where(e =>
+			e.PerformerID == insert.PerformerID &&
+			e.StatusID != Status.CancelledID &&
+			e.StatusID != Status.RejectedID)
+		.ToListAsync();
+
+			foreach (var existingEvent in performerConflict)
+			{
+				var diff = Math.Abs((existingEvent.EventDate - insert.EventDate).TotalHours);
+				if (diff < 2)
+					throw new UserException(
+						$"You already have an event '{existingEvent.EventName}' on " +
+						$"{existingEvent.EventDate:MMMM dd, yyyy} at {existingEvent.EventDate:HH:mm}. " +
+						$"Events must be at least 2 hours apart."
+					);
+			}
 			entity.StatusID = Status.PendingID;
 			entity.CreatedAt = DateTime.UtcNow;
 			entity.TicketsSold = 0;
@@ -281,7 +298,28 @@ namespace MyStagePass.Services.Services
 			var oldDate = existing.EventDate;
 
 			if (update.EventDate.HasValue)
+			{
 				await ValidateLocationAvailability(existing.LocationID, update.EventDate.Value, id);
+
+				var performerConflict = await _context.Events
+					.Where(e =>
+						e.PerformerID == existing.PerformerID &&
+						e.EventID != id &&
+						e.StatusID != Status.CancelledID &&
+						e.StatusID != Status.RejectedID)
+					.ToListAsync();
+
+				foreach (var existingEvent in performerConflict)
+				{
+					var diff = Math.Abs((existingEvent.EventDate - update.EventDate.Value).TotalHours);
+					if (diff < 2)
+						throw new UserException(
+							$"You already have an event '{existingEvent.EventName}' on " +
+							$"{existingEvent.EventDate:MMMM dd, yyyy} at {existingEvent.EventDate:HH:mm}. " +
+							$"Events must be at least 2 hours apart."
+						);
+				}
+			}
 
 			var result = await base.Update(id, update);
 
