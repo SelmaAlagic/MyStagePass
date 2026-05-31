@@ -15,7 +15,6 @@ import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:file_picker/file_picker.dart';
-import 'package:open_file/open_file.dart';
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 
@@ -36,7 +35,6 @@ const _kPdfPrimaryLight = PdfColor.fromInt(0xFF2D3A8C);
 const _kPdfGrey = PdfColor.fromInt(0xFF4A5568);
 const _kPdfBorder = PdfColor.fromInt(0xFFECEFF8);
 const _kPdfRed = PdfColor.fromInt(0xFFDC2626);
-const _kPdfRedLight = PdfColor.fromInt(0xFFFEF2F2);
 const _kPdfOrange = PdfColor.fromInt(0xFFD97706);
 
 class ReportsScreen extends StatefulWidget {

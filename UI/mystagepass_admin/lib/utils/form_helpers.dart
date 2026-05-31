@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 
-const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
 const _blue = Color(0xFF2D3A8C);
-const _blue50 = Color(0xFFF0F3FF);
 const _blue100 = Color(0xFFE8EDFF);
 const _white = Color(0xFFFFFFFF);
 const _bg = Color(0xFFF4F6FB);
-const _card = Color(0xFFFFFFFF);
 const _border = Color(0xFFECEFF8);
 const _t1 = Color(0xFF1E2642);
 const _t2 = Color(0xFF8A93B2);
-const _green = Color(0xFF22C55E);
 
 class FormHelpers {
   static Widget drawProgressIndicator() {

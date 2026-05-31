@@ -52,7 +52,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _originalPhone;
 
   final Color _darkBlue = const Color(0xFF1D235D);
-  final Color _darkRed = const Color(0xFFB71C1C);
   final Color _darkText = const Color(0xFF1D2939);
 
   @override

@@ -11,7 +11,6 @@ import 'package:mystagepass_admin/widgets/sidebar_layout.dart';
 const _navy = Color(0xFF1D2359);
 const _navyMid = Color(0xFF2D3A8C);
 const _blue = Color(0xFF2D3A8C);
-const _blue100 = Color(0xFFE8EDFF);
 const _white = Color(0xFFFFFFFF);
 const _bg = Color(0xFFF4F6FB);
 const _card = Color(0xFFFFFFFF);

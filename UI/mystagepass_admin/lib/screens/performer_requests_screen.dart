@@ -16,7 +16,6 @@ const _card = Color(0xFFFFFFFF);
 const _border = Color(0xFFECEFF8);
 const _t1 = Color(0xFF1E2642);
 const _t2 = Color(0xFF8A93B2);
-const _green = Color(0xFF22C55E);
 const _red = Color(0xFFEF4444);
 
 class PerformerRequestsScreen extends StatefulWidget {

@@ -3,8 +3,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class FormHelpers {
-  static const Color _errorColor = Color(0xFFB71C1C);
-
   static Widget drawStringContainer(
     String hint,
     String propertyName, {
