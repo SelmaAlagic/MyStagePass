@@ -1295,7 +1295,7 @@ class _EventDetailDialog extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  price != null ? '$price KM' : 'N/A',
+                  price != null ? '$price €' : 'N/A',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,

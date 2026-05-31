@@ -158,7 +158,6 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
       cancelButtonText: 'Cancel',
       isDelete: !isApprove,
       onConfirm: () {
-        Navigator.of(modalCtx).pop();
         Navigator.of(detailsCtx).pop();
         _handleApproveReject(performer.performerId!, isApprove);
       },

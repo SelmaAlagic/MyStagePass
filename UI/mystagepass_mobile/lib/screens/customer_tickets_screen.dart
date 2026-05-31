@@ -273,7 +273,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
                       boldFont,
                       regularFont,
                       'Price',
-                      ticket.price != null ? '${ticket.price} KM' : '—',
+                      ticket.price != null ? '${ticket.price} €' : '—',
                     ),
                   ],
                 ),
@@ -612,7 +612,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
                                       const SizedBox(width: 8),
                                       Text(
                                         ticket.price != null
-                                            ? "${ticket.price} KM"
+                                            ? "${ticket.price} €"
                                             : "—",
                                         style: const TextStyle(
                                           fontSize: 13,
@@ -1143,7 +1143,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
-                                      "${ticket.price} KM",
+                                      "${ticket.price} €",
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,

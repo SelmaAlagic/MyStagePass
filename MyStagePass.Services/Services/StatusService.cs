@@ -8,7 +8,7 @@ using MyStagePass.Services.Interfaces;
 
 namespace MyStagePass.Services.Services
 {
-	public class StatusService : BaseCRUDService<Model.Models.Status, Database.Status, StatusSearchObject, StatusInsertRequest, StatusUpdateRequest>, IStatusService
+	public class StatusService : BaseService<Model.Models.Status, Database.Status, StatusSearchObject>, IStatusService
 	{
 		public StatusService(MyStagePassDbContext context, IMapper mapper) : base(context, mapper)
 		{

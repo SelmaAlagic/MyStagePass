@@ -544,7 +544,7 @@ class _RecommendedEventsScreenState extends State<RecommendedEventsScreen> {
                             ),
                           ),
                           Text(
-                            "${_currentMin.toInt()} - ${_currentMax.toInt()} KM",
+                            "${_currentMin.toInt()} - ${_currentMax.toInt()} €",
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -950,7 +950,7 @@ class _RecommendedEventsScreenState extends State<RecommendedEventsScreen> {
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(
-        "$label: ${price != null ? '$price KM' : '—'}",
+        "$label: ${price != null ? '$price €' : '—'}",
         style: TextStyle(
           fontSize: 10,
           color: color,

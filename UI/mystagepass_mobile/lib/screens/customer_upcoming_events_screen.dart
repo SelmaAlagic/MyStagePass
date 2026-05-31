@@ -463,7 +463,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                             ),
                           ),
                           Text(
-                            "$totalPrice KM",
+                            "$totalPrice €",
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -611,7 +611,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
               ),
               const SizedBox(height: 1),
               Text(
-                price != null ? "$price KM" : "—",
+                price != null ? "$price €" : "—",
                 style: TextStyle(
                   fontSize: 10,
                   color: isSelected ? Colors.white70 : Colors.grey,
@@ -954,7 +954,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                             ),
                           ),
                           Text(
-                            "${_currentMin.toInt()} - ${_currentMax.toInt()} KM",
+                            "${_currentMin.toInt()} - ${_currentMax.toInt()} €",
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1539,7 +1539,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
           ),
         ),
         Text(
-          price != null ? "$price KM" : "—",
+          price != null ? "$price €" : "—",
           softWrap: false,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.right,

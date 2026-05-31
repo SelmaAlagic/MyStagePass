@@ -23,7 +23,9 @@ namespace MyStagePass.Services.Database.Seed
 				new PerformerGenre { PerformerGenreID = 14, PerformerID = 8, GenreID = 2 }, 
 				new PerformerGenre { PerformerGenreID = 15, PerformerID = 8, GenreID = 9 }, 
 				new PerformerGenre { PerformerGenreID = 16, PerformerID = 9, GenreID = 1 }, 
-				new PerformerGenre { PerformerGenreID = 17, PerformerID = 9, GenreID = 2 }  
+				new PerformerGenre { PerformerGenreID = 17, PerformerID = 9, GenreID = 2 },
+				new PerformerGenre { PerformerGenreID = 18, PerformerID = 10, GenreID = 8 },
+				new PerformerGenre { PerformerGenreID = 19, PerformerID = 10, GenreID = 9 }
 			);
 		}
 	}

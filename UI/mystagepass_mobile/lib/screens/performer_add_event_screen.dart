@@ -1035,7 +1035,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
         labelText: label,
         labelStyle: TextStyle(fontSize: 12, color: color),
         floatingLabelStyle: TextStyle(color: color),
-        suffixText: "KM",
+        suffixText: "€",
         suffixStyle: TextStyle(fontSize: 11, color: color.withOpacity(0.6)),
         filled: true,
         fillColor: color.withOpacity(0.05),

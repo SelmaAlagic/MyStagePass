@@ -4,7 +4,7 @@ using MyStagePass.Model.SearchObjects;
 
 namespace MyStagePass.Services.Interfaces
 {
-	public interface IStatusService : ICRUDService<Status, StatusSearchObject, StatusInsertRequest, StatusUpdateRequest>
+	public interface IStatusService : IService<Status, StatusSearchObject>
 	{
 	}
 }

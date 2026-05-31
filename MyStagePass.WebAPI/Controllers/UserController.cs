@@ -4,6 +4,7 @@ using MyStagePass.Model.Helpers;
 using MyStagePass.Model.Models;
 using MyStagePass.Model.Requests;
 using MyStagePass.Model.SearchObjects;
+using MyStagePass.Services.Helpers;
 using MyStagePass.Services.Interfaces;
 using System.Security.Claims;
 

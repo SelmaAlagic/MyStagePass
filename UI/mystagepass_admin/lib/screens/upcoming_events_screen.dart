@@ -754,7 +754,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
             const SizedBox(width: 4),
             Text(
               active
-                  ? '${_minPrice.toInt()} - ${_maxPrice.toInt()} KM'
+                  ? '${_minPrice.toInt()} - ${_maxPrice.toInt()} €'
                   : 'Price Range',
               style: TextStyle(
                 fontSize: 13,
@@ -797,8 +797,8 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     activeColor: _navyMid,
                     inactiveColor: _border,
                     labels: RangeLabels(
-                      '${_minPrice.toInt()} KM',
-                      '${_maxPrice.toInt()} KM',
+                      '${_minPrice.toInt()} €',
+                      '${_maxPrice.toInt()} €',
                     ),
                     onChanged: (v) => setS(() {
                       _minPrice = v.start;
@@ -819,7 +819,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${_minPrice.toInt()} KM',
+                          '${_minPrice.toInt()} €',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: _navyMid,
@@ -827,7 +827,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                           ),
                         ),
                         Text(
-                          '${_maxPrice.toInt()} KM',
+                          '${_maxPrice.toInt()} €',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: _navyMid,
@@ -1138,7 +1138,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
         border: Border.all(color: color.withOpacity(0.25)),
       ),
       child: Text(
-        '$label: $price KM',
+        '$label: $price €',
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,
@@ -1827,7 +1827,7 @@ class _UpcomingEventDetailDialog extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  price != null ? '$price KM' : 'N/A',
+                  price != null ? '$price €' : 'N/A',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,

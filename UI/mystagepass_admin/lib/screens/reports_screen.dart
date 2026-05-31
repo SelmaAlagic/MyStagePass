@@ -529,7 +529,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             pw.Expanded(
               child: _pdfMetricCard(
                 'Total Revenue',
-                '${(data.totalRevenue ?? 0).toStringAsFixed(0)} KM',
+                '${(data.totalRevenue ?? 0).toStringAsFixed(0)} €',
                 boldFont,
                 regularFont,
               ),
@@ -769,7 +769,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             pw.Expanded(
               child: _pdfMetricCard(
                 'Total Refund Amount',
-                '${events.fold<double>(0, (s, e) => s + (e.totalRefundAmount ?? 0)).toStringAsFixed(2)} KM',
+                '${events.fold<double>(0, (s, e) => s + (e.totalRefundAmount ?? 0)).toStringAsFixed(2)} €',
                 boldFont,
                 regularFont,
                 valueColor: _kPdfRed,
@@ -837,7 +837,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             _pdfCell('Date', boldFont, PdfColors.white, isHeader: true),
             _pdfCell('Sold', boldFont, PdfColors.white, isHeader: true),
             _pdfCell('Refunds', boldFont, PdfColors.white, isHeader: true),
-            _pdfCell('Amount (KM)', boldFont, PdfColors.white, isHeader: true),
+            _pdfCell('Amount (€)', boldFont, PdfColors.white, isHeader: true),
           ],
         ),
         ...items.asMap().entries.map((entry) {
@@ -1158,7 +1158,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             const SizedBox(width: 14),
             _MetricCard(
               label: 'Total Revenue',
-              value: '${(data.totalRevenue ?? 0).toStringAsFixed(0)} KM',
+              value: '${(data.totalRevenue ?? 0).toStringAsFixed(0)} €',
               icon: Icons.payments_outlined,
               accentColor: const Color(0xFF059669),
             ),
@@ -1515,7 +1515,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             const SizedBox(width: 14),
             _MetricCard(
               label: 'Total Refund Amount',
-              value: '${totalRefundAmount.toStringAsFixed(2)} KM',
+              value: '${totalRefundAmount.toStringAsFixed(2)} €',
               icon: Icons.payments_outlined,
               accentColor: const Color(0xFFDC2626),
             ),
@@ -1652,7 +1652,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
               Padding(
                 padding: colPad,
-                child: const Text('Amount (KM)', style: headerStyle),
+                child: const Text('Amount (€)', style: headerStyle),
               ),
             ],
           ),
@@ -1734,7 +1734,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 Padding(
                   padding: colPad,
                   child: Text(
-                    '${(item.totalRefundAmount ?? 0).toStringAsFixed(2)} KM',
+                    '${(item.totalRefundAmount ?? 0).toStringAsFixed(2)} €',
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,

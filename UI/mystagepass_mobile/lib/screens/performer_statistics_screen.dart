@@ -222,7 +222,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   pw.Expanded(
                     child: _pdfMetricCard(
                       'Total Revenue',
-                      '${totalRevenue.toStringAsFixed(0)} KM',
+                      '${totalRevenue.toStringAsFixed(0)} €',
                       const PdfColor.fromInt(0xFF2E7D32),
                       boldFont,
                       regularFont,
@@ -472,7 +472,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
           pw.SizedBox(width: 16),
           pw.Text(
-            '${revenue.toStringAsFixed(0)} KM',
+            '${revenue.toStringAsFixed(0)} €',
             style: pw.TextStyle(font: boldFont, fontSize: 12, color: color),
           ),
           pw.SizedBox(width: 10),
@@ -1106,7 +1106,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Expanded(
               child: _buildMetricCard(
                 "Total Revenue",
-                "${totalRevenue.toStringAsFixed(0)} KM",
+                "${totalRevenue.toStringAsFixed(0)} €",
                 Icons.attach_money_rounded,
                 const Color(0xFF2E7D32),
               ),
@@ -1265,7 +1265,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
           const SizedBox(width: 12),
           Text(
-            "${revenue.toStringAsFixed(0)} KM",
+            "${revenue.toStringAsFixed(0)} €",
             style: GoogleFonts.nunito(
               fontSize: 13,
               fontWeight: FontWeight.bold,

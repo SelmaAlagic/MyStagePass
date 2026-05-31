@@ -423,7 +423,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         ),
         Text(
-          price != null ? "$price KM" : "—",
+          price != null ? "$price €" : "—",
           softWrap: false,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.right,
