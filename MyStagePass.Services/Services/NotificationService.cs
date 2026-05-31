@@ -19,7 +19,8 @@ namespace MyStagePass.Services.Services
 			if (search == null)
 				return query;
 
-			query = query.Where(p => !p.IsDeleted);
+			if (search.IncludeDeleted != true)
+				query = query.Where(p => !p.IsDeleted);
 
 			if (search.UserID != null)
 				query = query.Where(n => n.UserID == search.UserID);

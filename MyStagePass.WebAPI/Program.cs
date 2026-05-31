@@ -10,7 +10,10 @@ using System.Text;
 using MyStagePass.WebAPI.Filters;
 using DotNetEnv;
 
-Env.Load(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".env"));
+var envPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".env");
+if (File.Exists(envPath))
+	Env.Load(envPath);
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen(c =>

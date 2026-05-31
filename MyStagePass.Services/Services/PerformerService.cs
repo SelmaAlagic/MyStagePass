@@ -152,6 +152,17 @@ namespace MyStagePass.Services.Services
 
 		public override async Task<Model.Models.Performer> Update(int id, PerformerUpdateRequest update)
 		{
+			var entity = await _context.Performers
+				.Include(p => p.User)
+				.Include(p => p.Genres).ThenInclude(pg => pg.Genre)
+				.FirstOrDefaultAsync(p => p.PerformerID == id);
+
+			if (entity == null)
+				throw new UserException("Performer not found.");
+
+			if (entity.IsApproved == false)
+				throw new UserException("Rejected performers cannot be updated.");
+
 			if (!_currentUserService.IsAdministrator())
 			{
 				int tokenPerformerId = _currentUserService.GetPerformerId();
@@ -168,9 +179,6 @@ namespace MyStagePass.Services.Services
 				if (update.Password != update.PasswordConfirm)
 					throw new UserException("New password and confirmation do not match.");
 			}
-
-			var set = _context.Set<Performer>();
-			var entity = await set.Include(p => p.User).Include(p => p.Genres).ThenInclude(pg => pg.Genre).FirstOrDefaultAsync(p => p.PerformerID == id);
 
 			if (entity?.User == null)
 				throw new UserException("Customer or User not found.");

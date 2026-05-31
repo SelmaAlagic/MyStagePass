@@ -279,125 +279,163 @@ class _GenresTableState extends State<_GenresTable> {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          // ── toolbar ──────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Genres',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: _t1,
+                Padding(
+                  padding: const EdgeInsets.only(top: 7),
+                  child: Text(
+                    'Genres',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: _t1,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 7),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _navyMid.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '$_totalCount',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: _navyMid,
+                Padding(
+                  padding: const EdgeInsets.only(top: 7),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _navyMid.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$_totalCount',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: _navyMid,
+                      ),
                     ),
                   ),
                 ),
                 const Spacer(),
-                SizedBox(
-                  width: 170,
-                  height: 34,
-                  child: TextField(
-                    controller: _search,
-                    onChanged: _onSearchChanged,
-                    cursorColor: _navy,
-                    cursorWidth: 1.0,
-                    style: const TextStyle(fontSize: 13, color: _t1),
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      hintStyle: const TextStyle(color: _t2, fontSize: 13),
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        size: 15,
-                        color: _t2,
-                      ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? GestureDetector(
-                              onTap: () {
-                                _search.clear();
-                                _onSearchChanged('');
-                              },
-                              child: const Icon(
-                                Icons.close_rounded,
-                                size: 14,
-                                color: _t2,
-                              ),
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: _bg,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: _border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: _border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: _navyMid,
-                          width: 1.5,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 170,
+                      height: 34,
+                      child: TextField(
+                        controller: _search,
+                        onChanged: _onSearchChanged,
+                        cursorColor: _navy,
+                        cursorWidth: 1.0,
+                        style: const TextStyle(fontSize: 13, color: _t1),
+                        decoration: InputDecoration(
+                          hintText: 'Search...',
+                          hintStyle: const TextStyle(color: _t2, fontSize: 13),
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            size: 15,
+                            color: _t2,
+                          ),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () {
+                                    _search.clear();
+                                    _onSearchChanged('');
+                                  },
+                                  child: const Icon(
+                                    Icons.close_rounded,
+                                    size: 14,
+                                    color: _t2,
+                                  ),
+                                )
+                              : null,
+                          filled: true,
+                          fillColor: _bg,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 9,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: _border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: _border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: _navyMid,
+                              width: 1.5,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, left: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 11,
+                              color: _navyMid.withOpacity(0.6),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Type at least 3 characters',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: _navyMid.withOpacity(0.6),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _showAdd,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Container(
-                      height: 34,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: _navyMid,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _navy.withOpacity(0.2),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.add_rounded, size: 15, color: _white),
-                          SizedBox(width: 5),
-                          Text(
-                            'Add Genre',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: _white,
+                Padding(
+                  padding: const EdgeInsets.only(top: 0),
+                  child: GestureDetector(
+                    onTap: _showAdd,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Container(
+                        height: 34,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: _navyMid,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _navy.withOpacity(0.2),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add_rounded, size: 15, color: _white),
+                            SizedBox(width: 5),
+                            Text(
+                              'Add Genre',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: _white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -405,33 +443,7 @@ class _GenresTableState extends State<_GenresTable> {
               ],
             ),
           ),
-
-          if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
-            Padding(
-              padding: const EdgeInsets.only(left: 16, bottom: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 11,
-                    color: _navyMid.withOpacity(0.6),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Type at least 3 characters to search',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: _navyMid.withOpacity(0.6),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
           const Divider(height: 1, color: _border),
-
-          // ── header row ───────────────────────────────────────────
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
             decoration: const BoxDecoration(
@@ -492,7 +504,6 @@ class _GenresTableState extends State<_GenresTable> {
               ],
             ),
           ),
-
           if (_loading)
             _loadingWidget()
           else if (_items.isEmpty)
@@ -513,7 +524,6 @@ class _GenresTableState extends State<_GenresTable> {
                 onDelete: () => _confirmDelete(item),
               );
             }),
-
           _PaginationFooter(
             from: (_currentPage - 1) * _pageSize + 1,
             to: (_currentPage - 1) * _pageSize + _items.length,
@@ -532,8 +542,6 @@ class _GenresTableState extends State<_GenresTable> {
     );
   }
 }
-
-// ── Genre Row ─────────────────────────────────────────────────────────────────
 
 class _GenreRow extends StatefulWidget {
   final int index;
@@ -595,7 +603,6 @@ class _GenreRowState extends State<_GenreRow> {
           ),
           child: Row(
             children: [
-              // index
               SizedBox(
                 width: 40,
                 child: Center(
@@ -609,7 +616,6 @@ class _GenreRowState extends State<_GenreRow> {
                   ),
                 ),
               ),
-              // name
               Expanded(
                 child: Text(
                   widget.genre.name ?? 'N/A',
@@ -622,7 +628,6 @@ class _GenreRowState extends State<_GenreRow> {
                   ),
                 ),
               ),
-              // performer count badge
               SizedBox(
                 width: 110,
                 child: Center(
@@ -648,7 +653,6 @@ class _GenreRowState extends State<_GenreRow> {
                   ),
                 ),
               ),
-              // actions
               SizedBox(
                 width: 90,
                 child: Row(
@@ -675,8 +679,6 @@ class _GenreRowState extends State<_GenreRow> {
     );
   }
 }
-
-// ── Icon Button ───────────────────────────────────────────────────────────────
 
 class _IconBtn extends StatefulWidget {
   final IconData icon;
@@ -722,8 +724,6 @@ class _IconBtnState extends State<_IconBtn> {
     );
   }
 }
-
-// ── Performers Panel ──────────────────────────────────────────────────────────
 
 class _PerformersPanel extends StatelessWidget {
   final Genre? genre;
@@ -938,8 +938,6 @@ class _PerformersPanel extends StatelessWidget {
   }
 }
 
-// ── Genre Dialog ──────────────────────────────────────────────────────────────
-
 class _GenreDialog extends StatefulWidget {
   final String title;
   final TextEditingController controller;
@@ -1025,8 +1023,6 @@ class _GenreDialogState extends State<_GenreDialog> {
     );
   }
 }
-
-// ── Pagination ────────────────────────────────────────────────────────────────
 
 class _PaginationFooter extends StatelessWidget {
   final int from, to, total, currentPage, totalPages;
@@ -1151,8 +1147,6 @@ class _PagArrow extends StatelessWidget {
     );
   }
 }
-
-// ── Shared helpers ────────────────────────────────────────────────────────────
 
 Widget _dialogHeader({
   required String title,

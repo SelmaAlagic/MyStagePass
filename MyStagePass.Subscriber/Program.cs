@@ -4,7 +4,10 @@ using System.Text;
 using MyStagePass.Subscriber;
 using DotNetEnv;
 
-Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
+if (File.Exists(envPath))
+	Env.Load(envPath);
+
 var factory = new ConnectionFactory
 {
 	HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST"),

@@ -320,34 +320,18 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _editFieldValidated(
+                                    child: _readOnlyField(
                                       controller: _editFirstNameController,
                                       label: 'First Name',
                                       icon: Icons.person_outline_rounded,
-                                      hint: 'First name',
-                                      validator: (v) {
-                                        if (v == null || v.trim().isEmpty)
-                                          return 'Required';
-                                        if (v.trim().length < 3)
-                                          return 'Min. 3 characters';
-                                        return null;
-                                      },
                                     ),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
-                                    child: _editFieldValidated(
+                                    child: _readOnlyField(
                                       controller: _editLastNameController,
                                       label: 'Last Name',
                                       icon: Icons.person_outline_rounded,
-                                      hint: 'Last name',
-                                      validator: (v) {
-                                        if (v == null || v.trim().isEmpty)
-                                          return 'Required';
-                                        if (v.trim().length < 3)
-                                          return 'Min. 3 characters';
-                                        return null;
-                                      },
                                     ),
                                   ),
                                 ],
@@ -460,10 +444,6 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                                             'artistName':
                                                 _editArtistNameController.text,
                                             'bio': _editBioController.text,
-                                            'firstName':
-                                                _editFirstNameController.text,
-                                            'lastName':
-                                                _editLastNameController.text,
                                             'email': _editEmailController.text,
                                             'phoneNumber':
                                                 _editPhoneController.text,
@@ -473,6 +453,7 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
                                         );
 
                                         if (mounted) {
+                                          Navigator.pop(ctx);
                                           SnackHelpers.showSuccess(
                                             context,
                                             'Performer updated successfully!',
@@ -532,6 +513,72 @@ class _PerformerManagementScreenState extends State<PerformerManagementScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _readOnlyField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: _t2,
+          ),
+        ),
+        const SizedBox(height: 6),
+        MouseRegion(
+          cursor: SystemMouseCursors.forbidden,
+          child: AbsorbPointer(
+            child: TextFormField(
+              controller: controller,
+              readOnly: true,
+              style: const TextStyle(fontSize: 13, color: _t2),
+              decoration: InputDecoration(
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 8),
+                  child: Icon(icon, size: 16, color: _t2.withOpacity(0.5)),
+                ),
+                prefixIconConstraints: const BoxConstraints(),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.lock_outline_rounded,
+                    size: 14,
+                    color: _t2.withOpacity(0.4),
+                  ),
+                ),
+                suffixIconConstraints: const BoxConstraints(),
+                filled: true,
+                fillColor: const Color(0xFFF0F1F5),
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: _border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: _border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: _border),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

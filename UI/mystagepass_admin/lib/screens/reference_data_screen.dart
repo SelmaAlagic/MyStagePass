@@ -382,6 +382,7 @@ class _CountriesTabState extends State<_CountriesTab> {
       confirmButtonText: 'Deactivate',
       cancelButtonText: 'Cancel',
       isDelete: true,
+      highlightText: c.name,
       onConfirm: () async {
         try {
           await _provider.delete(c.countryId!);
@@ -411,6 +412,7 @@ class _CountriesTabState extends State<_CountriesTab> {
       confirmButtonText: 'Reactivate',
       cancelButtonText: 'Cancel',
       isDelete: false,
+      highlightText: c.name,
       onConfirm: () async {
         try {
           await _provider.update(c.countryId!, {
@@ -749,6 +751,7 @@ class _CitiesTabState extends State<_CitiesTab> {
       confirmButtonText: 'Deactivate',
       cancelButtonText: 'Cancel',
       isDelete: true,
+      highlightText: c.name,
       onConfirm: () async {
         try {
           await _cityProvider.delete(c.cityId!);
@@ -1156,6 +1159,7 @@ class _LocationsTabState extends State<_LocationsTab> {
       confirmButtonText: 'Deactivate',
       cancelButtonText: 'Cancel',
       isDelete: true,
+      highlightText: l.locationName,
       onConfirm: () async {
         try {
           await _provider.delete(l.locationId!);
@@ -1185,6 +1189,7 @@ class _LocationsTabState extends State<_LocationsTab> {
       confirmButtonText: 'Reactivate',
       cancelButtonText: 'Cancel',
       isDelete: false,
+      highlightText: l.locationName,
       onConfirm: () async {
         try {
           await _provider.update(l.locationId!, {

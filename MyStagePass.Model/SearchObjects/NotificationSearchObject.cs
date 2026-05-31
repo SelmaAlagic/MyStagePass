@@ -4,5 +4,6 @@
 	{
 		public bool? IsRead {  get; set; }
 		public int? UserID {  get; set; }
+		public bool? IncludeDeleted { get; set; }
 	}
 }

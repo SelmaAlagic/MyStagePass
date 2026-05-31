@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/Status/status.dart';
-import '../models/Event/event.dart';
 import '../providers/status_provider.dart';
 import '../widgets/sidebar_layout.dart';
 
@@ -19,11 +18,7 @@ const _green = Color(0xFF22C55E);
 const _amber = Color(0xFFF59E0B);
 const _blue = Color(0xFF3B82F6);
 
-const _rowHeight = 50.0;
 const _pageSize = 5;
-const _headerHeight = 47.0;
-const _footerHeight = 48.0;
-const _panelBodyHeight = _rowHeight * _pageSize + _headerHeight + _footerHeight;
 
 class StatusScreen extends StatelessWidget {
   final int userId;
@@ -44,7 +39,7 @@ class StatusScreen extends StatelessWidget {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 24),
-                const _StatusBody(),
+                _StatusBody(),
               ],
             ),
           ),
@@ -65,7 +60,6 @@ class StatusScreen extends StatelessWidget {
             color: _t1,
           ),
         ),
-        SizedBox(height: 4),
         SizedBox(height: 2),
         Text(
           'View event statuses and browse their associated events.',
@@ -77,8 +71,6 @@ class StatusScreen extends StatelessWidget {
 }
 
 class _StatusBody extends StatefulWidget {
-  const _StatusBody();
-
   @override
   State<_StatusBody> createState() => _StatusBodyState();
 }
@@ -183,6 +175,14 @@ class _StatusTableState extends State<_StatusTable> {
   }
 
   @override
+  void didUpdateWidget(_StatusTable old) {
+    super.didUpdateWidget(old);
+    if (old.selectedStatus?.statusId != widget.selectedStatus?.statusId) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -205,37 +205,42 @@ class _StatusTableState extends State<_StatusTable> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Statuses',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: _t1,
+                Padding(
+                  padding: const EdgeInsets.only(top: 7),
+                  child: const Text(
+                    'Statuses',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: _t1,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 7),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _navyMid.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '$_totalCount',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: _navyMid,
+                Padding(
+                  padding: const EdgeInsets.only(top: 7),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _navyMid.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$_totalCount',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: _navyMid,
+                      ),
                     ),
                   ),
                 ),
                 const Spacer(),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: 170,
@@ -293,7 +298,7 @@ class _StatusTableState extends State<_StatusTable> {
                     ),
                     if (_searchQuery.isNotEmpty && _searchQuery.length < 3)
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 4, left: 4),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -304,7 +309,7 @@ class _StatusTableState extends State<_StatusTable> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Type at least 3 characters to search',
+                              'Type at least 3 characters',
                               style: TextStyle(
                                 fontSize: 11,
                                 color: _navyMid.withOpacity(0.6),
@@ -464,7 +469,7 @@ class _StatusRowState extends State<_StatusRow> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 120),
-          height: _rowHeight,
+          height: 50,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: bg,
@@ -525,7 +530,9 @@ class _StatusRowState extends State<_StatusRow> {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: _navyMid.withOpacity(0.07),
+                      color: widget.isSelected
+                          ? _navyMid.withOpacity(0.15)
+                          : _navyMid.withOpacity(0.07),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -562,7 +569,7 @@ class _EventsPanelState extends State<_EventsPanel> {
   void didUpdateWidget(_EventsPanel old) {
     super.didUpdateWidget(old);
     if (old.status?.statusId != widget.status?.statusId) {
-      _currentPage = 1;
+      setState(() => _currentPage = 1);
     }
   }
 
@@ -606,8 +613,8 @@ class _EventsPanelState extends State<_EventsPanel> {
   }
 
   Widget _buildEmpty() {
-    return SizedBox(
-      height: _panelBodyHeight + 56,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 24),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -652,25 +659,17 @@ class _EventsPanelState extends State<_EventsPanel> {
     final totalPages = totalCount == 0 ? 1 : (totalCount / _pageSize).ceil();
     final hasPrev = _currentPage > 1;
     final hasNext = _currentPage < totalPages;
-
     final safePage = _currentPage.clamp(1, totalPages);
-    if (safePage != _currentPage) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _currentPage = safePage);
-      });
-    }
 
     final paged = allEvents
         .skip((safePage - 1) * _pageSize)
         .take(_pageSize)
         .toList();
-
     final from = totalCount == 0 ? 0 : (safePage - 1) * _pageSize + 1;
     final to = (safePage - 1) * _pageSize + paged.length;
 
-    final headerColor = _dotColor(status.statusName);
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
@@ -703,7 +702,7 @@ class _EventsPanelState extends State<_EventsPanel> {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: headerColor,
+                            color: _dotColor(status.statusName),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -731,9 +730,9 @@ class _EventsPanelState extends State<_EventsPanel> {
             ],
           ),
         ),
+
         Container(
-          height: _headerHeight,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
           decoration: const BoxDecoration(
             color: _bg,
             border: Border(bottom: BorderSide(color: _border)),
@@ -779,105 +778,86 @@ class _EventsPanelState extends State<_EventsPanel> {
             ],
           ),
         ),
-        SizedBox(
-          height: _rowHeight * _pageSize,
-          child: totalCount == 0
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.event_busy_rounded,
-                        size: 32,
-                        color: _t2.withOpacity(0.4),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'No events with this status',
-                        style: TextStyle(fontSize: 13, color: _t2),
-                      ),
-                    ],
-                  ),
-                )
-              : Column(
-                  children: [
-                    ...paged.asMap().entries.map((e) {
-                      final idx = e.key;
-                      final event = e.value;
-                      final isEven = idx % 2 == 0;
-                      final globalIdx = (safePage - 1) * _pageSize + idx + 1;
-                      final dateStr = event.eventDate != null
-                          ? DateFormat('dd MMM yyyy').format(event.eventDate!)
-                          : 'N/A';
 
-                      return Container(
-                        height: _rowHeight,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: isEven ? _card : const Color(0xFFFAFBFF),
-                          border: const Border(
-                            bottom: BorderSide(color: _border, width: 0.5),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 40,
-                              child: Center(
-                                child: Text(
-                                  '$globalIdx',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: _t2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                event.eventName ?? 'N/A',
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: _t1,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 130,
-                              child: Center(
-                                child: Text(
-                                  dateStr,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: _t2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                    ...List.generate(
-                      _pageSize - paged.length,
-                      (i) => Container(
-                        height: _rowHeight,
-                        decoration: BoxDecoration(
-                          color: (paged.length + i) % 2 == 0
-                              ? _card
-                              : const Color(0xFFFAFBFF),
-                          border: const Border(
-                            bottom: BorderSide(color: _border, width: 0.5),
-                          ),
+        if (totalCount == 0)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.event_busy_rounded,
+                    size: 32,
+                    color: _t2.withOpacity(0.4),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'No events with this status',
+                    style: TextStyle(fontSize: 13, color: _t2),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ...paged.asMap().entries.map((e) {
+            final idx = e.key;
+            final event = e.value;
+            final isEven = idx % 2 == 0;
+            final globalIdx = (safePage - 1) * _pageSize + idx + 1;
+            final dateStr = event.eventDate != null
+                ? DateFormat('dd MMM yyyy').format(event.eventDate!)
+                : 'N/A';
+
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              decoration: BoxDecoration(
+                color: isEven ? _card : const Color(0xFFFAFBFF),
+                border: const Border(
+                  bottom: BorderSide(color: _border, width: 0.5),
+                ),
+              ),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 40,
+                    child: Center(
+                      child: Text(
+                        '$globalIdx',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _t2,
                         ),
                       ),
                     ),
-                  ],
-                ),
-        ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      event.eventName ?? 'N/A',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _t1,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: Center(
+                      child: Text(
+                        dateStr,
+                        style: const TextStyle(fontSize: 12, color: _t2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+
         _PaginationFooter(
           from: from,
           to: to,
@@ -911,14 +891,13 @@ class _PaginationFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (total == 0) return const SizedBox(height: _footerHeight);
+    if (total == 0) return const SizedBox.shrink();
     int startPage = (currentPage - 2).clamp(1, totalPages);
     int endPage = (startPage + 4).clamp(1, totalPages);
     if (endPage - startPage < 4) startPage = (endPage - 4).clamp(1, totalPages);
 
     return Container(
-      height: _footerHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: _border)),
       ),
@@ -1018,17 +997,20 @@ class _PagArrow extends StatelessWidget {
   }
 }
 
-Widget _loadingWidget() => const Center(
-  child: CircularProgressIndicator(color: _navy, strokeWidth: 2),
+Widget _loadingWidget() => const Padding(
+  padding: EdgeInsets.symmetric(vertical: 48),
+  child: Center(child: CircularProgressIndicator(color: _navy, strokeWidth: 2)),
 );
 
-Widget _emptyWidget(String message) => Center(
-  child: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(Icons.inbox_rounded, size: 32, color: _t2.withOpacity(0.4)),
-      const SizedBox(height: 10),
-      Text(message, style: const TextStyle(fontSize: 13, color: _t2)),
-    ],
+Widget _emptyWidget(String message) => Padding(
+  padding: const EdgeInsets.symmetric(vertical: 48),
+  child: Center(
+    child: Column(
+      children: [
+        Icon(Icons.inbox_rounded, size: 32, color: _t2.withOpacity(0.4)),
+        const SizedBox(height: 10),
+        Text(message, style: const TextStyle(fontSize: 13, color: _t2)),
+      ],
+    ),
   ),
 );

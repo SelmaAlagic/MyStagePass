@@ -19,7 +19,8 @@ class NotificationProvider extends BaseProvider<Notification> {
     bool? isRead,
     int pageSize = 10,
   }) async {
-    var url = "${getBaseUrl()}api/Notification?PageSize=$pageSize";
+    var url =
+        "${getBaseUrl()}api/Notification?PageSize=$pageSize&Page=0&IncludeDeleted=true";
 
     if (isRead != null) {
       url = "$url&IsRead=$isRead";

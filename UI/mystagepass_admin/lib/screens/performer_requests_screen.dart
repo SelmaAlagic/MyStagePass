@@ -142,6 +142,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
 
   void _showConfirmDialog(
     BuildContext modalCtx,
+    BuildContext detailsCtx,
     Performer performer,
     bool isApprove,
   ) {
@@ -158,6 +159,7 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
       isDelete: !isApprove,
       onConfirm: () {
         Navigator.of(modalCtx).pop();
+        Navigator.of(detailsCtx).pop();
         _handleApproveReject(performer.performerId!, isApprove);
       },
     );
@@ -167,10 +169,14 @@ class _PerformerRequestsScreenState extends State<PerformerRequestsScreen> {
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.35),
-      builder: (ctx) => _PerformerDetailsModal(
+      builder: (detailsCtx) => _PerformerDetailsModal(
         performer: performer,
-        onApprove: () => _showConfirmDialog(ctx, performer, true),
-        onReject: () => _showRejectReasonModal(performer),
+        onApprove: () =>
+            _showConfirmDialog(context, detailsCtx, performer, true),
+        onReject: () {
+          Navigator.of(detailsCtx).pop();
+          _showRejectReasonModal(performer);
+        },
       ),
     );
   }

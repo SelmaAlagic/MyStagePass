@@ -60,6 +60,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - DB_HOST=db
+      - DB_TRUSTED_CONNECTION=False
       - ConnectionStrings__DefaultConnection=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${DB_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true
       - AppSettings__Token=${JWT_SECRET_KEY}
       - Stripe__SecretKey=${STRIPE_SECRET_KEY}

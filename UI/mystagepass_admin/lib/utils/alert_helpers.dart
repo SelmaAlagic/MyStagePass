@@ -72,6 +72,7 @@ class AlertHelpers {
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                 child: highlightText != null
                     ? RichText(
+                        textAlign: TextAlign.center,
                         text: TextSpan(
                           style: const TextStyle(
                             fontSize: 13,
@@ -95,6 +96,7 @@ class AlertHelpers {
                       )
                     : Text(
                         message,
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xFF4B5563),
